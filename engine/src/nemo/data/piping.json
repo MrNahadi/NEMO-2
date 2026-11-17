@@ -1,0 +1,53 @@
+{
+  "note": "Pipe outside diameters and wall thicknesses from ASME B36.10M (carbon steel) for standard (STD, schedule 40 up to 10 in) and extra strong (XS, schedule 80 up to 8 in). Units: mm, kg/m3, GPa, MPa.",
+  "pipes": [
+    {"nps": "1/2", "dn": 15, "od_mm": 21.3, "wall_mm": {"STD": 2.77, "XS": 3.73}},
+    {"nps": "3/4", "dn": 20, "od_mm": 26.7, "wall_mm": {"STD": 2.87, "XS": 3.91}},
+    {"nps": "1", "dn": 25, "od_mm": 33.4, "wall_mm": {"STD": 3.38, "XS": 4.55}},
+    {"nps": "1 1/2", "dn": 40, "od_mm": 48.3, "wall_mm": {"STD": 3.68, "XS": 5.08}},
+    {"nps": "2", "dn": 50, "od_mm": 60.3, "wall_mm": {"STD": 3.91, "XS": 5.54}},
+    {"nps": "2 1/2", "dn": 65, "od_mm": 73.0, "wall_mm": {"STD": 5.16, "XS": 7.01}},
+    {"nps": "3", "dn": 80, "od_mm": 88.9, "wall_mm": {"STD": 5.49, "XS": 7.62}},
+    {"nps": "4", "dn": 100, "od_mm": 114.3, "wall_mm": {"STD": 6.02, "XS": 8.56}},
+    {"nps": "5", "dn": 125, "od_mm": 141.3, "wall_mm": {"STD": 6.55, "XS": 9.53}},
+    {"nps": "6", "dn": 150, "od_mm": 168.3, "wall_mm": {"STD": 7.11, "XS": 10.97}},
+    {"nps": "8", "dn": 200, "od_mm": 219.1, "wall_mm": {"STD": 8.18, "XS": 12.70}},
+    {"nps": "10", "dn": 250, "od_mm": 273.0, "wall_mm": {"STD": 9.27, "XS": 12.70}},
+    {"nps": "12", "dn": 300, "od_mm": 323.8, "wall_mm": {"STD": 9.53, "XS": 12.70}}
+  ],
+  "pipe_materials": [
+    {"id": "CS", "name": "Carbon steel pipe (ASTM A106 Grade B)", "density_kg_m3": 7850, "elastic_modulus_gpa": 203, "yield_strength_mpa": 240,
+     "source": "ASTM A106 Grade B minimum yield 240 MPa; E at room temperature from ASME B31.1 Appendix C"},
+    {"id": "SS316L", "name": "Stainless steel pipe 316L (ASTM A312 TP316L)", "density_kg_m3": 8000, "elastic_modulus_gpa": 195, "yield_strength_mpa": 170,
+     "source": "ASTM A312 TP316L minimum yield 170 MPa"},
+    {"id": "CUNI9010", "name": "Copper-nickel 90/10 pipe (C70600)", "density_kg_m3": 8940, "elastic_modulus_gpa": 135, "yield_strength_mpa": 105,
+     "source": "Copper Development Association data for C70600, annealed; use the supplier's wall thickness"}
+  ],
+  "fluids": [
+    {"id": "empty", "name": "Empty (gas or air)", "density_kg_m3": 0},
+    {"id": "fresh_water", "name": "Fresh water", "density_kg_m3": 1000},
+    {"id": "sea_water", "name": "Sea water", "density_kg_m3": 1025},
+    {"id": "fuel_oil", "name": "Heavy fuel oil", "density_kg_m3": 990},
+    {"id": "diesel", "name": "Marine diesel oil", "density_kg_m3": 890},
+    {"id": "lube_oil", "name": "Lubricating oil", "density_kg_m3": 900}
+  ],
+  "insulation": [
+    {"id": "none", "name": "No insulation", "density_kg_m3": 0},
+    {"id": "mineral_wool", "name": "Mineral wool with cladding", "density_kg_m3": 150},
+    {"id": "calcium_silicate", "name": "Calcium silicate with cladding", "density_kg_m3": 240}
+  ],
+  "ubolts": {
+    "note": "U-bolts made from threaded round bar. Tensile areas from ISO 898-1.",
+    "sizes": [
+      {"thread": "M10", "diameter_mm": 10, "tensile_area_mm2": 58.0},
+      {"thread": "M12", "diameter_mm": 12, "tensile_area_mm2": 84.3},
+      {"thread": "M16", "diameter_mm": 16, "tensile_area_mm2": 157.0},
+      {"thread": "M20", "diameter_mm": 20, "tensile_area_mm2": 245.0},
+      {"thread": "M24", "diameter_mm": 24, "tensile_area_mm2": 353.0}
+    ],
+    "grades": [
+      {"id": "4.6", "name": "Steel property class 4.6, hot-dip galvanised", "tensile_strength_mpa": 400, "yield_strength_mpa": 240, "source": "ISO 898-1"},
+      {"id": "A4-70", "name": "Stainless steel A4-70", "tensile_strength_mpa": 700, "yield_strength_mpa": 450, "source": "ISO 3506-1"}
+    ]
+  }
+}

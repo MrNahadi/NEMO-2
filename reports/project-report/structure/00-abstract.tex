@@ -1,0 +1,36 @@
+Small marine steelwork details such as lifting padeyes, pipe support brackets
+and stabilizer fins
+are usually designed one job at a time, from rules spread across several codes. The first phase of this project, \NEMO{}~1,
+optimised three such parts with screening equations and Autodesk Fusion, but
+its analysis loop never closed, some equations had no source and it could not
+be used without programming. This report describes \NEMO{}~2, a rebuilt
+desktop tool that sizes a lifting padeye to ASME BTH-1, a pipe support bracket
+to AISC 360-16 with a check of the pipe span against propeller and engine
+vibration, and the internal structure of a stabilizer fin to IACS UR S10 with
+an independent foil load model and a panel method for pressure and
+cavitation.
+
+The tool searches the plate thicknesses a workshop holds, sizes the remaining
+dimensions with a bounded Nelder-Mead search, rounds to buildable sizes and
+returns three designs at 100\%, 85\% and 70\% maximum use. Each design is built
+as an exact solid in build123d, meshed in Gmsh at three refinements and solved
+with quadratic tetrahedra in scikit-fem. A local browser application records
+every engineering step and issues a PDF calculation package with STEP and DXF
+files.
+
+The engine reproduces a padeye hand calculation within 0.002\%, CAD volumes
+exactly, a cantilever within 2.6\%, a plate-hole stress concentration within
+0.9\% and NACA~0020 lift slope within 1.7\%; 153 automated tests pass. For a
+5~t two-point lift the lightest padeye weighs 0.305~kg and is governed by its
+base weld at 98\% use, with a finite element peak of 228~MPa against a 355~MPa
+yield. For an NPS~4 seawater line the bracket uses only 25\% of its strength,
+but the pipe span limits support spacing to 2.3~m. For a 1.4~m by 1.2~m fin at
+18~knots the foil model gives 80.5~kN against 66.7~kN from UR S10, and combined
+bending and twist in the stock governs the 457.5~kg design. The results show that minimum sizes,
+vibration and foil loads often govern before plate strength does. A formal
+usability study, live Fusion testing and physical tests remain to be done.
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} marine steelwork, lifting padeye, pipe support,
+stabilizer fin, ASME BTH-1, IACS UR S10, finite element analysis, Nelder-Mead,
+design automation

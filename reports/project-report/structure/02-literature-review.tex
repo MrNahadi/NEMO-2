@@ -1,0 +1,302 @@
+\chapter{Literature review}
+\label{chap:literature}
+
+This chapter reviews the engineering and computational methods needed to size lifting padeyes, pipe support brackets and stabilizer fin structures. It examines what the published methods establish, the assumptions that limit their use and the evidence needed to check their implementation. Each theme identifies consequences for this project. The final section relates the remaining research gap to the objectives in Chapter~\ref{chap:introduction}.
+
+\section{Lifting padeyes and pin-connected plates}
+\label{sec:lit-padeyes}
+
+\subsection{Limit states and the basis of the pin provisions}
+\label{sec:lit-pin-rules}
+
+A padeye transfers force through contact between a pin and a curved hole surface. The resulting local stress field differs from the uniform tension field assumed for a straight plate. Possible failures include net-section rupture beside the hole, fracture through the material beyond the hole, shear-out, excessive bearing deformation and failure of the attachment. The designer must distinguish the capacity of the head from that of the plate base and weld group. Passing the head checks does not prove the adequacy of the attachment.
+
+ASME BTH-1 gives structural and mechanical design criteria for below-the-hook lifting devices \cite{asmeBTH1}. Its pin-connected plate provisions address several failure mechanisms rather than reducing the head to one nominal stress. Duerr's 2006 review examined published theoretical and experimental work on pinned connections, including elastic stress, service deformation and ultimate strength \cite{duerr2006}. He correlated the evidence into strength expressions and compared their predictions with reported tests. This is a stronger basis for a sizing equation than an unexplained concentration multiplier because it links the expression to observable connection behaviour.
+
+Duerr subsequently examined the BTH-1 provisions themselves and their reliability relative to the standard's design factors \cite{duerr2008}. His discussion also addresses large pin-to-hole clearance. The paper matters because apparently similar pin-connection expressions in different specifications need not represent the same geometry, failure mechanism or reliability basis. Selecting whichever expression gives the smallest plate would discard that context. This project must implement a coherent selected rule set and retain the quantities that control each mode.
+
+The effective width in a tension check is one example. It limits the material credited beside the hole instead of assuming that all available width develops its full strength uniformly. Pin clearance introduces another reduction because the contact region and stress distribution change as the pin diameter falls relative to the hole diameter. Thickness, edge distance and pin fit therefore affect capacity through different mechanisms. A model that changes only gross area cannot capture these relationships. Cheek plates also require a load-transfer assumption and weld checks. Adding their thickness to the head without checking the means by which they receive force would overstate the connection.
+
+Design category and service class answer different questions in BTH-1 \cite{asmeBTH1}. The former affects the design factor; the latter describes repeated service and influences relevant requirements. Selecting a service class does not mean that a software implementation has completed every fatigue assessment in the standard. The implemented static head and attachment checks must remain identifiable as a subset. A calculation package should therefore name the selected category and class, the supported provisions and any repeated-load assessment that remains outside the tool.
+
+\subsection{Marine operation and appliance requirements}
+\label{sec:lit-marine-lifting}
+
+DNV-ST-N001 addresses marine operations and marine warranty, including load-out, transport and installation activities \cite{dnvN001}. Its scope is wider than the strength of one pin-connected plate. The lift arrangement determines load sharing and force directions, while the operation determines dynamic effects and relevant combinations. The plate calculation consumes those decisions; it does not make them disappear. A factor applied to a padeye load must consequently have an identifiable source in the job basis rather than acquire authority merely because a rule name appears on the report.
+
+Lloyd's Register's lifting code addresses marine lifting appliances and the associated design and assurance process \cite{lrLifting2026}. The relationship between appliance rules and a particular padeye depends on the installation and contract. A plate that satisfies a BTH-1 calculation does not automatically satisfy every LR or DNV requirement for its intended operation. Materials, fabrication, testing, survey and documentation can impose conditions beyond the calculated static capacities. The reviewed sources therefore support using BTH-1 as a stated design basis, with a separate applicability review for the actual marine job.
+
+\subsection{Finite element studies and stress concentration}
+\label{sec:lit-lug-fea}
+
+Soh and Soh studied simplified padeye models and compared two-dimensional results with a three-dimensional finite element solution \cite{soh1989}. They identified the cost of conservative assumptions and examined which simplified model could support practical design. Their comparison shows why model selection belongs in the design argument. A reduced model can save analysis effort, but only a comparison under matched conditions can establish what it preserves. The existence of a three-dimensional solid alone does not settle how the pin load should act.
+
+Pedersen examined pinned connections with contact modelling and showed that both the contact geometry and the outside lug shape affect stress concentration \cite{pedersen2019}. Pin tolerance and three-dimensional representation matter. This finding limits the meaning of a distributed-pressure model. A cosine pressure applied to part of the hole can reproduce a chosen resultant and provide a repeatable elastic calculation, but it prescribes the contact pattern. It does not calculate how a deformable pin and hole establish that pattern under clearance, friction or changing load direction.
+
+The distinction between local elastic stress and rule-based connection capacity is equally necessary. A rupture provision reflects a limit state and its design basis. An elastic von Mises maximum represents a pointwise result under the chosen constitutive and contact assumptions. Their values cannot be compared as if they were interchangeable safety factors. Local yielding can redistribute stress, while a sharp transition can produce a numerical peak that rises with refinement. The report must explain which question each result answers before using either to accept a candidate \cite{duerr2006,pedersen2019,asmeVV10}.
+
+For this project, the literature supports separate BTH-1 head, base and weld checks, with pin fit and shackle compatibility retained as explicit decisions. It supports FEA as a second examination of the represented load path, subject to the stated pressure model. It also requires a limitation. The current hand-calculation comparison checks transcription of the equations, while the pending published worked-example comparison would provide another independent check of their interpretation. Neither replaces explicit pin-contact analysis where the job requires it.
+
+\section{Structural steel design and welded attachments}
+\label{sec:lit-steel-welds}
+
+\subsection{Allowable strength design and section behaviour}
+\label{sec:lit-asd}
+
+AISC 360-16 presents allowable strength design and load and resistance factor design within one specification \cite{aisc2016}. Under allowable strength design, the available resistance is the nominal resistance divided by the relevant safety factor. Different limit states use different factors and nominal strengths. The method therefore cannot be reduced to dividing every yield stress by one universal number. The load convention must also match the chosen resistance format. Mixing factored demands with ASD capacities without a stated basis would change the intended reserve.
+
+The bracket in this project combines a seat flange and tapering knees. A beam idealisation can represent the global load path, but the section properties change along its length. The maximum utilisation need not occur at the bulkhead because both moment and resistance decrease towards the pipe. Evaluating sections along the arm is therefore more informative than checking only the deepest root section. Axial force, bending in two directions and shear also need separate treatment. The adopted interaction expression remains a model of this particular bracket, rather than a claim that AISC supplies a ready-made formula for its entire geometry.
+
+Section classification controls how much resistance can be credited. A plastic bending resistance assumes that the section can develop the required stress distribution before local instability limits it. A thin triangular knee does not automatically satisfy that assumption. Using elastic section properties for the arm avoids claiming a full plastic reserve without checking the relevant plate behaviour. A local strip model for the seat can answer a different question about bending between the knees. These models should retain their distinct spans, load positions and section definitions even when one result governs the design \cite{aisc2016}.
+
+Stiffness supplies a further constraint. Increasing material strength does not increase Young's modulus by the same proportion. A bracket can therefore pass a strength check and still deflect excessively. Deflection can also change the pipe support condition used in a vibration calculation. AISC strength checks and a project deflection limit answer different questions. The software should identify the latter as a job requirement and avoid presenting it as a universal class limit.
+
+\subsection{Fillet weld resistance and practical size}
+\label{sec:lit-weld-design}
+
+AISC 360-16 gives fillet weld resistance in terms of effective throat area and weld-metal strength \cite{aisc2016}. For an ideal equal-leg right-angle fillet, the geometric throat is the leg multiplied by $1/\sqrt{2}$. This relation does not establish actual penetration or production quality. Eccentric bracket loads also produce a weld-group moment. Dividing the total force by total weld length would omit that moment and could miss the most highly loaded segment. The calculation must combine direct and moment-induced actions at the relevant position in the group.
+
+The connection between a knee and seat carries longitudinal shear flow as the plates act together. The familiar $VQ/I$ relation provides a beam-based estimate, with the appropriate number of weld lines carrying the flow. The bulkhead attachment has a different task because it transmits the entire bracket resultant and its eccentricity into the support. Treating both connections as one interchangeable weld check would conceal their different demands. In each case, the adjacent parent material and the supporting structure can remain critical even when the weld-metal calculation passes.
+
+AWS D1.1 addresses welding requirements for structural carbon and low-alloy steels \cite{awsD11}. Its minimum fillet sizes reflect fabrication concerns as well as calculated resistance. A very small theoretical throat can be unsuitable for joining a thicker plate. AISC 360-16 also provides minimum fillet sizes and limitations on fillet geometry \cite{aisc2016}. These provisions require attention to the selected edition and its definition of joined-part thickness. The engineering manual's workshop table should not be described as a word-for-word reproduction of every current AWS requirement.
+
+For this project, the reviewed methods support separate arm, seat and weld-group models with visible safety factors and section assumptions. They also support selecting a standard weld leg after the resistance calculation and rechecking it against geometry and applicable fabrication requirements. AISC supplies a structural design basis for the bracket; it does not approve the marine installation. AWS supplies welding requirements; citing it does not establish that the workshop has qualified a procedure or inspected the weld.
+
+\section{Shipboard piping supports and vibration}
+\label{sec:lit-pipe-supports}
+
+\subsection{Support selection and span practice}
+\label{sec:lit-span-practice}
+
+MSS SP-58 covers pipe hangers and supports, including materials, design, manufacture and application requirements \cite{mssSP58}. MSS confirms that the content of SP-69 has been incorporated into SP-58 \cite{mssSP69}. Consequently, an older reference to SP-69 support selection does not identify an independent current standard that must always accompany SP-58. The edition and scope need to be stated. MSS also explains that it does not itself certify individual products to SP-58 \cite{mssInterpretations}. This distinction prevents a software report from treating a cited practice as product certification.
+
+ASME B31.1 provides another established setting for pipe-support design and span guidance \cite{asmeB311}. Suggested spans apply under their stated assumptions about pipe, contents, temperature, loading and support arrangement. They are useful starting points, but they do not establish acceptable shipboard dynamics. A valve or heavy fitting introduces a concentrated mass. An insulated water-filled pipe differs from an empty pipe with the same outside diameter. A change in material affects both mass and stiffness. A span recommendation should preserve these inputs instead of becoming a lookup based only on nominal diameter.
+
+The structural mechanisms explain why one span limit cannot represent every criterion. For an idealised beam under distributed load, bending stress grows with span squared, while sag grows with span to the fourth power \cite{timoshenko1972}. A modest increase in spacing can therefore affect sag more strongly than stress. The support reaction depends on continuity and the arrangement of neighbouring spans. The continuity factor used by this project represents an assumed reaction envelope. It is not a substitute for analysing every possible multi-span piping layout.
+
+Support function also matters. A sliding guide, clamp and anchor impose different restraints. Friction can transfer a longitudinal force without providing the restraint assumed for a true anchor. Thermal expansion and pressure transients can create loads that a gravity-based span calculation does not contain. The present bracket model must therefore identify its guide-like behaviour and its excluded piping actions. It cannot infer a complete piping-system assessment from a satisfactory local support calculation.
+
+\subsection{Ship motion and load definitions}
+\label{sec:lit-ship-accelerations}
+
+The IMO CSS Code Annex 13 provides a documented example of calculating shipboard forces using directional accelerations \cite{imoCSS13}. Its advanced method addresses securing arrangements for non-standardised cargo. The acceleration data depend on defined vessel and operating conditions, with corrections for relevant characteristics and position. Annex 13 also distinguishes acceleration components from static weight. This matters when an application asks for vertical acceleration in units of gravity because adding gravity twice would overstate the load, while omitting it could understate the downward reaction.
+
+The CSS method concerns cargo securing and does not automatically govern permanent pipe supports. Its value here lies in showing that vessel accelerations require a published basis and a clear convention. The applicable class rules or agreed design basis must determine which accelerations a particular pipe support needs. A user-entered constant can be useful in a calculation engine, but calling it conservative for all ship locations would require evidence that this project does not possess. Position high above the roll axis or near a vessel end can change the acceleration envelope.
+
+This project therefore treats accelerations as engineering inputs and converts the supported mass into directional loads. The report must state whether the vertical input is additional to gravity and which vessel direction acts across the pipe. It should also state any assumptions about simultaneous actions. These requirements address the same transfer problem found in the rejected \NEMO{}~1 studies. A correct stress calculation cannot repair a load definition that represents the wrong job.
+
+\subsection{Excitation and natural frequency}
+\label{sec:lit-pipe-dynamics}
+
+ABS's guidance on ship vibration describes machinery and propeller excitation and the need to consider the response of the supporting structure \cite{absVibration2023}. Shaft rotation produces a rotational frequency. A propeller with a given number of blades produces blade-rate excitation at that multiple of shaft rate, with harmonics that may also matter. Engine firing frequency depends on speed, cylinder count and operating cycle. These frequencies identify possible resonance mechanisms, but their presence alone does not determine the forcing amplitude at a particular pipe.
+
+For a uniform simply supported pipe span, the first bending frequency follows the beam relation
+\begin{equation}
+f_1=\frac{\pi}{2S^2}\sqrt{\frac{EI}{\mu}},
+\label{eq:lit-pipe-frequency}
+\end{equation}
+where $S$ is span, $EI$ is bending stiffness and $\mu$ is mass per unit length \cite{blevins1979}. Contents and insulation contribute mass even when they contribute little bending stiffness. The inverse-square dependence on span explains why moving supports can alter resonance proximity more effectively than thickening the support plate. The support bracket and pipe span therefore require linked but separate design decisions.
+
+A frequency separation screen asks whether an idealised natural frequency lies sufficiently far from selected excitation frequencies. It does not calculate vibration amplitude. Damping, excitation strength, higher modes, fittings and support compliance remain absent. A flexible bracket can lower the actual coupled frequency, while a valve can change the mode shape. A separation percentage used as project practice must consequently remain distinguishable from a universal acceptance rule for pipe fatigue \cite{absVibration2023,nasa7009}.
+
+The geometry of the accepted frequency regions also matters. As spacing changes, the pipe frequency can pass through several excitation bands. The set of spacings that pass a separation check can contain gaps. A recommendation that keeps the first frequency above the highest considered excitation is more restrictive and easier to interpret, but it can exclude a spacing that passes the individual band checks. This is a difference between two stated criteria rather than a contradiction. The application should explain it whenever its advisory maximum spacing differs from the result at the user's selected span.
+
+For this project, the literature supports calculating filled-pipe mass, bracket reactions, beam stress, sag and a first-frequency screen together. It requires the program to keep span failures visible because resizing the bracket alone cannot correct them. It also limits the claim. The tool provides a span and resonance screen under declared supports and inputs, while full piping flexibility, measured vibration and fatigue assessment remain separate tasks.
+
+\section{Roll-stabilizer fins and hydrodynamic loading}
+\label{sec:lit-stabilizer}
+
+\subsection{Roll control and low-aspect-ratio lift}
+\label{sec:lit-fin-lift}
+
+Perez and Blanke review the development of ship roll-damping control and the restrictions affecting its performance \cite{perez2012}. Their account includes the dependence on wave-induced roll characteristics and the difficulty of controller design. A fin generates useful roll moment through its force and distance from the roll axis, but actuator limits and operating speed constrain that force. Structural adequacy under one maximum load does not demonstrate successful roll reduction. This project therefore needs a structural load envelope without claiming to model the vessel's closed-loop roll response.
+
+The thin-airfoil lift slope for a two-dimensional section cannot be applied unchanged to a short fin. Finite span permits tip flow and induced velocity, which alter lift and its dependence on angle. Whicker and Fehlner reported free-stream characteristics of low-aspect-ratio all-movable control surfaces in David Taylor Model Basin Report 933 \cite{whicker1958}. Their work gives a named experimental basis for treating the low-aspect-ratio regime. Molland and Turnock place control-surface data within marine design practice, including aspect ratio, hull effects and practical operating conditions \cite{molland2007}.
+
+The force calculation has the familiar dynamic-pressure form
+\begin{equation}
+L=\tfrac{1}{2}\rho V^2 A C_L,
+\label{eq:lit-foil-lift}
+\end{equation}
+but its usefulness depends on the coefficient model. Density, speed and area are direct inputs; $C_L$ requires an applicable relationship with angle and geometry. The lift coefficient assumed in \NEMO{}~1 obscured this distinction. Naming a low-aspect-ratio model improves traceability only if its aspect-ratio definition, angle units and correction factors remain visible. The measured conditions behind a relation also limit how far it can be extrapolated.
+
+The hull can reduce root-end flow, which motivates treating it approximately as a mirror plane. This is an idealisation of hull influence rather than a solution of the actual hull-fin flow. Boundary-layer velocity, hull curvature, free-surface proximity and roll-induced inflow can all change the effective condition \cite{molland2007}. At large angle, separation and stall further limit a smooth empirical lift relation. This project must therefore call its calculated force quasi-static and identify the assumptions connecting the selected fin to the source data.
+
+\subsection{NACA geometry and panel methods}
+\label{sec:lit-panels}
+
+Abbott and von Doenhoff document wing-section geometry and aerodynamic theory in \emph{Theory of Wing Sections} \cite{abbott1959}. A symmetric NACA section gives the project a reproducible thickness distribution and leading-edge shape. That geometric definition supports CAD construction, spar height calculation and pressure discretisation. It does not prescribe marine lift, drag or cavitation performance. Section data describe particular flow conditions and cannot remove the finite-span and installation questions associated with a ship fin.
+
+Hess and Smith developed methods for calculating incompressible potential flow around arbitrary bodies \cite{hess1967}. Boundary-panel methods replace the surrounding fluid volume with singularity distributions on the body surface. Katz and Plotkin explain the theoretical and numerical basis of such methods, including source and vortex representations and the trailing-edge condition for lifting flow \cite{katz2001}. Their low computational cost makes them suitable for a local engineering application that needs a pressure estimate rather than a full viscous-flow solution.
+
+A source-vortex method can enforce no normal flow at surface panels and use a Kutta condition to select the circulation. Tangential velocity then gives pressure through Bernoulli's relation. Panel arrangement matters because the largest gradients commonly occur near the leading edge. Cosine spacing concentrates panels in that region. Nevertheless, convergence of the panel calculation only shows that the discretised potential-flow solution has stabilised. It does not supply boundary-layer separation, viscous drag or a turbulent wake \cite{hess1967,katz2001}.
+
+Two-dimensional section pressure and three-dimensional fin force also require reconciliation. Applying the physical fin angle directly to a two-dimensional solver can overstate the section loading when finite-span effects reduce the net lift. The present method selects a section angle consistent with its finite-span lift coefficient before obtaining the pressure curve. This creates a declared connection between the models. It remains an approximation because a single section calculation cannot resolve spanwise pressure changes or the local flow at the hull.
+
+\subsection{Cavitation and structural rule application}
+\label{sec:lit-cavitation-rules}
+
+Brennen explains cavitation as a pressure-dependent multiphase phenomenon affected by nuclei and bubble dynamics \cite{brennen1995}. A basic inception screen compares the lowest predicted surface pressure with vapour pressure. With a consistent reference pressure, the comparison can be written as $-C_{p,\min}\leq\sigma$, where $\sigma$ is the cavitation number. Depth raises the available static pressure, while increasing speed raises dynamic pressure and can reduce the available margin. The pressure coefficient and cavitation number must refer to the same local velocity and pressure basis.
+
+An inviscid pressure threshold cannot predict erosion rate, noise, cavity extent or changes in lift after cavitation begins. Surface roughness, water nuclei and unsteady motion affect inception. A panel method also omits the feedback of a cavity on the flow. Cavitation output should therefore be advisory and describe a condition requiring further assessment. Stating that a fin will certainly cavitate or remain free of cavitation would exceed the evidence of the present model \cite{brennen1995,molland2007}.
+
+IACS UR S10 Rev.8 covers rudders, sole pieces and rudder horns \cite{iacsS10}. It gives rudder-force and torque expressions and provisions for stocks, blade structure and plating. The revision records implementation for ships contracted for construction on or after 1 January 2027. Its explicit scope is steel rudders, so adopting selected provisions for a stabilizer fin requires an engineering applicability argument. Similarities in stock bending and twisting support the comparison, but the different purpose, inflow and loading history prevent an automatic equivalence claim.
+
+Comparing the independent foil force with the UR S10 force offers a useful envelope check. Choosing the larger value reduces reliance on one estimate within the compared models. It does not prove that the result bounds unsteady or impact loads that neither model contains. Speed units also require care. A rule expression calibrated for knots cannot accept metres per second without conversion. The report should display both force calculations and the adopted value rather than hide their selection behind one final force.
+
+Stock stress under combined bending and torsion can be assessed with elementary shaft theory and the selected UR S10 limits. Blade section stress, skin-panel thickness and web thickness require different checks. Plate buckling adds another mechanism that a yield check alone does not cover. The project uses a stated plate model for that purpose, but the rule source must remain separate from supplementary project practice. UR S10 also discusses the assessment of alternative designs and possible test requirements \cite{iacsS10}. A subset of its equations does not establish compliance with the complete requirement.
+
+For this project, the literature supports an independent low-aspect-ratio force model, a transparent comparison with the rudder force and a section-panel calculation for pressure advice. It supports using shaft and blade checks for distinct parts of the structure. It also sets a firm evidence boundary. Stock-only FEA verifies the represented stock calculation; it does not confirm the full blade, bearings or hull installation. Dynamic loading, fatigue and physical hydrodynamic validation remain outside the present study.
+
+\section{Finite element verification and interpretation}
+\label{sec:lit-fea}
+
+\subsection{Verification, validation and intended use}
+\label{sec:lit-vv}
+
+ASME V\&V 10 distinguishes verification of a computational model from validation of its representation of physical behaviour \cite{asmeVV10}. Verification concerns the implementation and numerical solution of the stated equations. Validation requires comparison with suitable physical evidence for the intended use. Agreement with beam theory therefore supports a solver's treatment of that beam problem. It cannot establish the adequacy of a fin hydrodynamic load or a welded attachment under repeated service. The evidence must answer the particular question on which the design decision depends.
+
+NASA-STD-7009B requires attention to model purpose, acceptance criteria, input pedigree and communicated credibility \cite{nasa7009}. This framework is relevant as engineering practice even though NASA does not govern the present project. It prevents acceptance tolerances from being chosen after inspecting the results. It also requires limitations to accompany the output. A small numerical error on a simplified problem and an uncertain operating load belong to different parts of the credibility argument. Combining them into one undifferentiated factor of safety would conceal the source of uncertainty.
+
+An automatic pipeline creates several verification tasks. The geometry stage must reproduce the requested dimensions and volume. The mesh must represent the relevant regions and element connectivity. The finite element assembly must represent the intended material and equations. Load integration must recover the specified resultant. Boundary conditions must constrain the intended degrees of freedom without leaving an unintended mechanism. The solver must reduce its algebraic error sufficiently. Finally, the postprocessor must extract the quantity and location used for acceptance. A failure at any one stage can survive a visually plausible final contour.
+
+\subsection{Equilibrium and mesh refinement}
+\label{sec:lit-convergence}
+
+Reaction balance provides a basic numerical check. Autodesk's help explains reaction results in relation to the loads and constraints in a study \cite{autodeskReaction}. For a static model, the total support reaction should oppose the applied force, with a corresponding moment balance about a common point. The force residual can be normalised by the applied force to make its scale interpretable. Component-wise reporting remains useful because a small residual magnitude alone may conceal an unexpected load direction or a weak component.
+
+Equilibrium cannot prove that the correct job load entered the model. A study loaded at 1.472~N can balance perfectly at 1.472~N. It passes numerical equilibrium while failing agreement with the intended 1472~N job. The pipeline therefore needs two comparisons. It must compare assembled loads with the job definition, then compare those assembled loads with the reactions. The \NEMO{}~1 error makes this distinction concrete. Replacing manual entry reduces one opportunity for error, while a recorded comparison still tests whether the replacement passes the right value.
+
+Mesh refinement addresses discretisation error. Autodesk notes the need to examine changes in results as the mesh becomes finer \cite{autodeskMesh}. Stress commonly requires more local refinement than displacement because it depends on displacement gradients. Quadratic displacement interpolation can improve representation of curved displacement fields, but element order alone does not prove accuracy. Element shape, local curvature, load interpolation and the region used for extracting stress still matter. Comparisons must use the same physical quantity under unchanged loads and restraints.
+
+Three refinement levels provide evidence about a trend, but they do not guarantee entry into an asymptotic convergence range. A small difference between the last two values can arise from accidental cancellation or stress averaging. A useful record includes element counts, degrees of freedom, local sizes, displacement, stress location and changes between levels. When the convergence criterion fails, the report should preserve the failure. It should not silently report the finest result as though refinement had established stability \cite{asmeVV10,nasa7009}.
+
+\subsection{Stress singularities and benchmark selection}
+\label{sec:lit-singularities}
+
+A sharp re-entrant corner or an abrupt transition between a fully fixed face and a free surface can produce a singular elastic stress field. Mesh refinement can then raise the reported maximum without approaching a finite value. This behaviour differs from an ordinary concentration around a smooth hole. Pilkey and Pilkey compile stress-concentration solutions with explicit geometric and nominal-stress definitions \cite{peterson2008}. Those definitions matter when a numerical result is compared with a reference factor. A gross-section nominal stress and a net-section nominal stress produce different factors for the same peak.
+
+Excluding a singular edge from a reported design stress can be justified only when the excluded region and the alternative measure have a physical basis. Moving the extraction boundary until a design passes would be an arbitrary adjustment. The global maximum should remain visible alongside the reported regional maximum. The bracket fixed face and the stock bearing idealisation both require this treatment. The remaining regional stress still describes the idealised support model, while the real weld toe or bearing contact may require another assessment.
+
+Beam benchmarks test several independent mechanisms. Timoshenko-type beam theory includes a shear contribution to deflection, which can matter for a short beam \cite{timoshenko1972}. A cantilever comparison can check stiffness, stress at a specified section and reaction. A circular-hole plate benchmark checks curved geometry and stress recovery. The reference factor must match the plate width, hole ratio, loading and stress convention \cite{peterson2008}. A stock under bending and torsion checks another combination of response. No one benchmark covers every feature of the three component families.
+
+The circle in potential flow supplies an exact pressure benchmark for the foil solver, while a NACA-section lift-slope comparison tests its lifting formulation \cite{katz2001,abbott1959}. These are numerical and theoretical comparisons, not hydrodynamic validation in seawater. Similarly, reproducing a hand calculation can reveal a coding mistake but may retain a shared interpretation error if both calculations use the same mistaken expression. Independent reference problems and explicit tolerances reduce that dependence.
+
+For this project, the literature requires benchmark-specific claims, automatic load and reaction checks and monitored stress regions that remain fixed through refinement. It supports reporting analytical, geometric and numerical evidence separately. It does not support calling the whole tool physically validated because its benchmarks pass. Component tests, realistic support behaviour and operating-load evidence would be needed for that stronger claim.
+
+\section{Open-source geometry and analysis software}
+\label{sec:lit-open-source}
+
+\subsection{Geometry, meshing and finite element assembly}
+\label{sec:lit-open-pipeline}
+
+Open CASCADE Technology provides geometric modelling, boundary representations and CAD data exchange \cite{occtDocs}. build123d exposes parametric modelling through Python on that kernel \cite{build123dDocs}. Together they allow dimensions chosen by the calculation engine to generate solids without an interactive CAD session. This architecture also permits the application to calculate geometric properties and export STEP. It does not remove modelling failures. Boolean operations, small edges, tolerances and intersecting thin features can still produce invalid or unintended solids.
+
+Geuzaine and Remacle describe Gmsh as a three-dimensional finite element mesh generator with preprocessing and postprocessing capabilities \cite{gmsh2009}. Its programmable model supports automated meshing and local size control. These functions fit a repeated component workflow, but successful tetrahedralisation is only one acceptance condition. A mesh can omit a small feature, poorly resolve a thin region or supply an unsuitable element near a stress concentration. Solid validity, positive volume and correct boundary identification should therefore precede the numerical solve.
+
+Gustafsson and McBain present scikit-fem as a Python package for finite element assembly \cite{skfem2020}. It provides a framework for expressing and assembling weak forms rather than a complete marine design application. The project remains responsible for elasticity definitions, boundary conditions, loads, numerical solution and interpretation. This division is useful for traceability because the mechanics can be inspected directly. It also places more responsibility on project verification than would selecting a preconfigured analysis type in a commercial interface.
+
+Bell and colleagues describe PyAMG's algebraic multigrid solvers \cite{pyamg2023}. Multigrid preconditioning can reduce the cost of iterative solution as the mesh grows. For elasticity, information about near-rigid-body modes helps the preconditioner represent low-energy behaviour. Nevertheless, an efficient linear solver cannot correct a faulty stiffness matrix or load application. Solver residual, physical equilibrium and mesh convergence address different error sources. All need records if the application is to present an automatic result that another engineer can assess.
+
+\subsection{Fusion integration and simulation limits}
+\label{sec:lit-fusion}
+
+Autodesk documents scripts and add-ins as means of extending Fusion and automating supported operations \cite{autodeskAddins}. Its Simulation help separately describes static stress analysis and the assumptions of that study type \cite{autodeskStaticStress}. The distinction matters for CAD and analysis integration. Access to a geometry API does not establish access to every operation available through an application's interface. The \NEMO{}~1 API investigation could not create and solve the required Simulation studies or retrieve their results through the public Python interface used by the project.
+
+This is a limitation of the available project route, rather than evidence that CAD and simulation cannot be automated in general. Park and Dang demonstrate an integrated workflow using supported commercial interfaces \cite{park2010}. For \NEMO{}, however, retaining an inaccessible simulation step inside the required automatic loop would preserve the first phase's central barrier. The built-in pipeline therefore carries the automatic analysis. Fusion remains useful for optional native padeye modelling, edited-dimension checks and a manually prepared independent stress comparison.
+
+For this project, the open-source literature supports selecting inspectable geometry, mesh, assembly and solver components with separate responsibilities. It also requires the report to distinguish library capability from tested project behaviour. The padeye-only Fusion connector does not extend native integration to the bracket and fin. Its protocol tests do not prove that the add-in has completed a live Fusion run. Likewise, the presence of open-source dependencies does not prove that an installer works on a clean computer.
+
+\section{Structural optimisation and CAD-CAE integration}
+\label{sec:lit-optimisation}
+
+\subsection{Direct search and constrained sizing}
+\label{sec:lit-direct-search}
+
+Nelder and Mead introduced a simplex method that searches using objective-function values rather than derivatives \cite{nelder1965}. For a small number of continuous dimensions, its reflection, expansion, contraction and shrink operations provide a compact local search. This suits inexpensive structural equations whose derivatives the application does not calculate. It does not mean that Nelder-Mead is the best method for every structural problem. Its performance depends on scaling, starting geometry and the function being searched.
+
+Lagarias and colleagues establish limited convergence results for low-dimensional cases and discuss the method's theoretical restrictions \cite{lagarias1998}. Their results do not provide a general guarantee for constrained, clipped, mixed-variable engineering problems. Kolda, Lewis and Torczon review direct search more broadly and distinguish methods and the conditions behind their convergence arguments \cite{kolda2003}. These sources prevent the practical popularity of Nelder-Mead from becoming an unsupported optimality claim. A completed local run identifies a candidate, not proof of a global minimum.
+
+Plate stock introduces discrete decisions. A workshop holds particular thicknesses, and a shackle or U-bolt comes in catalogue sizes. Continuous optimisation followed by arbitrary thickness rounding can change fit, capacity and mass ranking. Enumerating permitted stock combinations separates this discrete choice from the continuous search. Within a combination, dimensions such as head radius, base length, knee depth or seat width can vary within declared bounds. The final rounded geometry still requires a new feasibility check because changing one dimension can alter several interacting constraints.
+
+Penalty functions offer a simple route to searching with inequality constraints. A normalised excess above a target utilisation can increase the objective and discourage a light but inadequate design. The penalty coefficient controls the trade-off, however. A finite penalty may still rank an infeasible candidate below a feasible one. Explicit feasibility filtering must therefore govern final selection. \NEMO{}~1's rejected minimum-objective stabilizer rows demonstrate this problem within the project's own evidence. The penalty steers the search; the original engineering constraints determine acceptance.
+
+Different reserve targets also require interpretation. Searching for lower maximum utilisation can give an engineer several buildable options, but the targets do not form a probability of failure. Nor do they prove that each candidate's every reported percentage meets the target when fit or advisory requirements use another convention. The project must identify which strength checks the target controls. The fin uses stock sizing and discrete plate and rib-spacing enumeration, so the report should not describe every part as undergoing the same continuous search merely because the application shares a result screen.
+
+\subsection{Integrated models and offshore examples}
+\label{sec:lit-integration}
+
+Park and Dang connect CAD, analysis and metamodels in a structural optimisation framework \cite{park2010}. Their work demonstrates that automation can remove repeated manual geometry and analysis operations. Nolan and colleagues address simulation intent, which records modelling and idealisation decisions so that analysis meaning survives changes in geometry and representation \cite{nolan2015}. These contributions are complementary. Passing dimensions between programs is necessary, but the workflow must also preserve what a face, restraint or load region means.
+
+For a padeye, simulation intent includes the pin-bearing surface and the load direction relative to the plate. For a bracket it includes the support interface and the pipe contact region. A geometric selector based on coordinates or surface type can maintain those roles only within the geometry assumptions for which it was written. A topology change may split a face or create another surface with similar properties. The pipeline therefore needs checks on selected regions and their resultant loads. Successful CAD regeneration cannot alone verify preserved analysis meaning \cite{nolan2015}.
+
+Gentils, Wang and Kolios combine parametric FEA and a genetic algorithm for offshore wind turbine support-structure optimisation \cite{gentils2017}. Their formulation includes vibration, stress, displacement, buckling and fatigue constraints. Zheng, Li and Xiao use sensitivity analysis and surrogate models to reduce the cost of jacket optimisation, followed by further structural checks \cite{zheng2023}. These applications concern much larger structures, but they demonstrate why mass minimisation must remain subordinate to a credible load and failure-mode set. A large computed mass saving has little meaning when a governing mechanism is omitted.
+
+The use of inexpensive checks followed by selected FEA also needs accurate terminology. Peherstorfer, Willcox and Gunzburger review methods that coordinate models of different fidelity for inference and optimisation \cite{peherstorfer2018}. In this project, rule calculations size the candidates and FEA assesses the shortlist. Unless the numerical results feed back into the search, this is a staged calculation process rather than a formal multifidelity optimiser that corrects its low-cost model. Closing an automatic workflow and coupling fidelity levels inside an optimisation algorithm are separate achievements.
+
+For this project, the literature supports discrete stock enumeration, bounded local sizing, rounding and explicit final feasibility checks. It requires the claim to remain the best feasible design found within the implemented search. It also supports preserving engineering roles through geometry changes and documenting which failure modes remain absent. The contribution lies in a tested application of these methods to the selected marine details, without claiming a new search algorithm or the first automated CAD and analysis system.
+
+\section{Traceability and use by non-programmers}
+\label{sec:lit-traceability}
+
+\subsection{Calculation records and review}
+\label{sec:lit-calculation-packages}
+
+Engineering calculation software must communicate enough information for someone other than its author to assess a result. PTC describes Mathcad Prime as calculation software that combines mathematical notation, units and documentation \cite{ptcMathcad}. This is a product description rather than independent evidence that a particular calculation is correct. It nevertheless identifies an established expectation for calculation packages. Equations, units and explanatory text belong alongside numerical output, while a bare spreadsheet cell or solver image may omit the basis needed for review.
+
+Traceability has several levels. A source identifies where an equation came from. Substituted working shows which input values entered it. A run record connects those values to selected dimensions and exported geometry. Numerical records show which mesh, loads and solver settings produced an analysis result. Review identity records who assessed an independent check. These levels answer different questions. A source citation cannot establish that the software used the correct expression, and a file checksum cannot establish that the engineering assumption was appropriate \cite{nasa7009,asmeVV10}.
+
+An audit trail should therefore preserve decisions as well as final values. Rejected candidates explain the search boundary. Failed runs reveal limits that a report containing only successful designs would hide. Versioned inputs and software identifiers allow later repetition. Reusing one project folder or request file without a clear run identity can attach the wrong result to a new design. \NEMO{}~1's stale-request behaviour shows why explicit initiation and one-use exchanges matter even for a local application with one user.
+
+The calculation package also needs a distinction between provenance and authority. A check labelled as project practice can be transparent and useful without being a code provision. A named design standard can supply the source of an equation without certifying the software implementing it. MSS explicitly separates its standard from certification of a support product \cite{mssInterpretations}. LR's lifting code and IACS UR S10 place calculations within wider design and acceptance responsibilities \cite{lrLifting2026,iacsS10}. The sources reviewed here do not establish a general class approval of this project's software.
+
+\subsection{Usability and evidence of unaided operation}
+\label{sec:lit-usability}
+
+Removing programming tasks changes the workflow but does not by itself establish usability. The engineer still needs to understand a sling angle, decide how many points carry a lift and provide applicable accelerations. Plain-language questions should expose these decisions without disguising them as software defaults. A live model can help show the effect of an input, while a provisional marker prevents the preview from being confused with a completed analysis. The interface should show units and reasons for rejected inputs at the point where the user acts.
+
+A live engineering record can show why a calculation takes time and what the program has completed. It should report physical quantities and engineering steps rather than only processor activity. For example, a force resultant, selected shackle and mesh-convergence result tell the reviewer more than a generic progress percentage. The PDF should retain the same working so that closing the application does not remove the evidence. This consistency also provides a testable software property because displayed working can be compared with the values used by the checks.
+
+The research question about unaided use requires an observed task. A suitable walkthrough asks an intended user to install or open the application, define a job, inspect assumptions, run the calculation and retrieve its package without programming assistance. Completion, errors and requests for help provide evidence that screen inspection alone cannot supply. A fresh-computer installation tests a different risk from a user operating an already configured development machine. The project record identifies both activities as pending, so the report cannot claim that they have already succeeded.
+
+For this project, the reviewed practice supports visible calculation working, retained run evidence and a package suitable for engineering review. It also requires usability claims to follow observed use and software claims to remain distinct from component approval. These requirements connect the non-programmer interface objective with the traceability objective. Simplifying operation is useful only if it preserves the engineering decisions that the reviewer must still make.
+
+\section{Comparison of the reviewed approaches}
+\label{sec:lit-method-comparison}
+
+Table~\ref{tab:lit-methods} compares the methods by the questions they answer and the work they leave to the engineer. None supplies every part of the intended calculation process. The comparison concerns the reviewed methods and documented tools; it does not claim an exhaustive survey of every commercial marine application.
+
+\begin{table}[H]
+\centering
+\caption{Capabilities and limits of the reviewed design approaches}
+\label{tab:lit-methods}
+\small
+\begin{tabularx}{\textwidth}{p{0.21\textwidth}XX}
+\toprule
+Method or tool & Main contribution & Limit relevant to this project \\
+\midrule
+Published rule calculations \cite{asmeBTH1,aisc2016,iacsS10} & Named resistance models and design assumptions & Require applicable loads, correct interpretation and assessment of omitted provisions \\
+Documented worksheets \cite{ptcMathcad} & Visible equations, units and explanatory working & Do not automatically generate and verify these three component families \\
+General CAD and static FEA \cite{autodeskStaticStress,autodeskMesh} & Editable geometry and numerical stress assessment & Require correct supports, loads, convergence and accessible automation functions \\
+Open geometry and analysis libraries \cite{gmsh2009,skfem2020,build123dDocs} & Programmable components for a local automatic pipeline & Require application code, integration tests and engineering verification \\
+Low-aspect-ratio and panel models \cite{whicker1958,katz2001} & Explicit force and inviscid section-pressure estimates & Omit installation-specific unsteady and viscous effects \\
+Direct structural search \cite{nelder1965,kolda2003} & Repeated sizing within a declared design space & Cannot compensate for missing constraints or prove a general global optimum \\
+Integrated offshore optimisation \cite{gentils2017,zheng2023} & Coordinated structural models and multiple constraints & Application-specific methods do not supply the intended local component calculation package \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For this project, the comparison supports assigning each method a defined role. Rule calculations establish the represented capacities, sizing chooses candidates, geometry defines the exported part and FEA checks a stated numerical model. The package must retain these roles so that agreement on volume or one benchmark cannot silently become a claim about complete structural qualification.
+
+\section{Research gap}
+\label{sec:lit-research-gap}
+
+The literature supplies pin-connection provisions, steel and weld design methods, pipe-support practice, control-surface data, finite element verification principles and structural search algorithms. Integrated CAD and analysis research already demonstrates automatic design iteration \cite{park2010,nolan2015}. The missing element for this project is a tested local workflow that joins those methods for the three selected marine details while keeping the job basis, buildable dimensions and review evidence together. \NEMO{}~1 did not provide that workflow because its analysis loop remained manual, its screening factors lacked sources and its installation demanded programming knowledge.
+
+Objective 1 addresses the engineering-definition gap by implementing named rule checks with substituted working. The padeye, bracket and fin retain different load and resistance models. Project practice and adaptations, particularly the fin's use of rudder provisions, must remain explicit. Objective 2 addresses the manufacturing gap by selecting actual plate stock, sizing permitted continuous dimensions and checking rounded candidates at different reserve targets. These choices define a bounded sizing problem rather than unrestricted structural optimisation.
+
+Objectives 3 and 4 address the numerical-evidence gap. The open-source pipeline removes the inaccessible Fusion solve from the required automatic path, while refinements and load-balance records test each reported analysis. Benchmarks compare particular quantities with hand calculations and published theory. They establish reproducible verification evidence without claiming physical validation of every service condition. The stock-only fin analysis and simplified contact assumptions must accompany the resulting claims.
+
+Objective 5 addresses the operation and review gap through structured engineering inputs, a visible record of calculation steps and a retained PDF and geometry package. The non-programmer walkthrough remains necessary evidence for that objective. Objective 6 tests the combined method through one case study per part and changes in governing inputs. Those studies can reveal which checks control within the selected cases. They cannot establish universal governing behaviour for all vessels or class approval of the resulting details.
+
+This project consequently contributes an implemented and evaluated design aid with a declared evidence boundary. Its research question concerns whether established methods can work together accessibly and traceably for this scope. The next chapter describes how the project constructs and tests that connection.

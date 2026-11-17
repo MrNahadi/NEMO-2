@@ -1,0 +1,287 @@
+import { ArrowLeft, Search } from "lucide-react";
+import type { ReactNode } from "react";
+import { PreviewPanel, usePreview } from "../components/PreviewPanel";
+import { Select } from "../components/Select";
+import { Banner, Chips, Field, NumberInput, Segmented } from "../components/ui";
+import { HELP_BRACKET as HB, HELP_FIN as HF } from "../help";
+import type { BracketJob, FinJob, Reference } from "../types";
+
+interface StepProps<J> {
+  job: J;
+  reference: Reference;
+  onChange: (job: J) => void;
+  onNext: () => void;
+  onBack: () => void;
+  starting?: boolean;
+  error?: string | null;
+}
+
+function Num({ label, value, unit, onChange, help, width = 160, step }: {
+  label: string; value: number; unit?: string; onChange: (v: number) => void; help?: string; width?: number; step?: number;
+}) {
+  return (
+    <Field label={label} help={help}>
+      <div style={{ width }}>
+        <NumberInput label={label} value={value} unit={unit} step={step} onChange={(v) => onChange(v ?? 0)} />
+      </div>
+    </Field>
+  );
+}
+
+function Layout({ step, title, lead, form, job, actions }: { step: number; title: string; lead: string; form: ReactNode; job: BracketJob | FinJob; actions: ReactNode }) {
+  const { preview, error, busy } = usePreview(job, true);
+  return (
+    <div className="page">
+      <div className="step-label">Step {step} of 3</div>
+      <h1 className="title">{title}</h1>
+      <p className="lead">{lead}</p>
+      <div className="split">
+        <div className="form">
+          {form}
+          {actions}
+        </div>
+        <PreviewPanel job={job} preview={preview} error={error} busy={busy} />
+      </div>
+    </div>
+  );
+}
+
+function PlateChips({ job, reference, onChange }: { job: BracketJob | FinJob; reference: Reference; onChange: (t: number[]) => void }) {
+  return (
+    <Chips
+      options={reference.plates.steel_mm.filter((t) => t <= 50)}
+      selected={job.plate_thicknesses_mm}
+      format={(t) => `${t} mm`}
+      onToggle={(t) =>
+        onChange(job.plate_thicknesses_mm.includes(t) ? job.plate_thicknesses_mm.filter((x) => x !== t) : [...job.plate_thicknesses_mm, t].sort((a, b) => a - b))
+      }
+    />
+  );
+}
+
+const steelOptions = (reference: Reference, families: string[]) =>
+  reference.materials.filter((m) => families.includes(m.family)).map((m) => ({
+    value: m.id, label: m.name, hint: `Yield ${m.yield_bands[0].yield_strength_mpa} MPa, tensile ${m.tensile_strength_mpa} MPa`,
+  }));
+
+// ------------------------------------------------------------------ bracket
+export function DescribeBracket({ job, reference, onChange, onNext, onBack }: StepProps<BracketJob>) {
+  const set = (patch: Partial<BracketJob>) => onChange({ ...job, ...patch });
+  const pipes = reference.piping.pipes;
+  const insulated = job.insulation_id !== "none";
+  return (
+    <Layout step={1} title="Describe the pipe" lead="Answer a few questions about the pipe and where it runs. The bracket on the right resizes as you go." job={job}
+      form={
+        <>
+          <Field label="Pipe size" help={HB.pipe}>
+            <div className="row">
+              <Select label="Pipe size" value={job.pipe_nps} width={260}
+                options={pipes.map((p) => ({ value: p.nps, label: `NPS ${p.nps} (DN ${p.dn})`, hint: `${p.od_mm} mm outside` }))}
+                onChange={(v) => set({ pipe_nps: v })} />
+              <Segmented label="Wall" value={job.schedule} onChange={(v) => set({ schedule: v })}
+                options={[{ value: "STD", label: "Standard" }, { value: "XS", label: "Extra strong" }]} />
+            </div>
+          </Field>
+          <Field label="Pipe material">
+            <Select label="Pipe material" value={job.pipe_material_id} onChange={(v) => set({ pipe_material_id: v })}
+              options={reference.piping.pipe_materials.map((m) => ({ value: m.id, label: m.name }))} />
+          </Field>
+          <Field label="What is in the pipe?" help={HB.contents}>
+            <Select label="Pipe contents" value={job.fluid_id} onChange={(v) => set({ fluid_id: v })}
+              options={reference.piping.fluids.map((f) => ({ value: f.id, label: f.name, hint: f.density_kg_m3 ? `${f.density_kg_m3} kg/m³` : undefined }))} />
+          </Field>
+          <Field label="Insulation" help={HB.insulation}>
+            <div className="row">
+              <Select label="Insulation" value={job.insulation_id} width={280}
+                onChange={(v) => set({ insulation_id: v, insulation_thickness_mm: v === "none" ? 0 : job.insulation_thickness_mm || 50 })}
+                options={reference.piping.insulation.map((f) => ({ value: f.id, label: f.name }))} />
+              {insulated && (
+                <div style={{ width: 140 }}>
+                  <NumberInput label="Insulation thickness" value={job.insulation_thickness_mm} unit="mm" onChange={(v) => set({ insulation_thickness_mm: v ?? 0 })} />
+                </div>
+              )}
+            </div>
+          </Field>
+          <Num label="Distance to the next supports" value={job.span_m} unit="m" step={0.1} help={HB.span} onChange={(v) => set({ span_m: v })} />
+          <Field label="Which way does the pipe run?" help={HB.direction}>
+            <Segmented label="Pipe direction" value={job.pipe_direction} onChange={(v) => set({ pipe_direction: v })}
+              options={[{ value: "fore_aft", label: "Fore and aft" }, { value: "athwartships", label: "Athwartships" }]} />
+          </Field>
+          <Num label="Gap between the bulkhead and the pipe" value={job.gap_mm} unit="mm" help={HB.gap} onChange={(v) => set({ gap_mm: v })} />
+          <Field label="Bracket material" help={HB.material}>
+            <Select label="Bracket material" value={job.material_id} onChange={(v) => set({ material_id: v })} options={steelOptions(reference, ["steel", "stainless"])} />
+          </Field>
+          <Field label="Which plate thicknesses does your workshop have?" help={HB.plates}>
+            <PlateChips job={job} reference={reference} onChange={(t) => set({ plate_thicknesses_mm: t })} />
+          </Field>
+          <details className="more">
+            <summary>More about the support</summary>
+            <div className="form">
+              <Num label="Continuity factor" value={job.continuity_factor} step={0.05} help={HB.continuity} onChange={(v) => set({ continuity_factor: v })} />
+              <Num label="Friction between pipe and bracket" value={job.friction} step={0.05} help={HB.friction} onChange={(v) => set({ friction: v })} />
+              <Field label="U-bolt material" help={HB.ubolt}>
+                <Select label="U-bolt material" value={job.ubolt_grade_id} onChange={(v) => set({ ubolt_grade_id: v })}
+                  options={reference.piping.ubolt_grades.map((g) => ({ value: g.id, label: g.name }))} />
+              </Field>
+            </div>
+          </details>
+        </>
+      }
+      actions={
+        <div className="actions" style={{ marginTop: 16 }}>
+          <button className="btn btn-primary" onClick={onNext} disabled={job.plate_thicknesses_mm.length === 0}>Next: ship motion and vibration</button>
+          <button className="btn btn-ghost" onClick={onBack}><ArrowLeft aria-hidden /> Back</button>
+        </div>
+      }
+    />
+  );
+}
+
+export function BracketAssumptions({ job, reference, onChange, onNext, onBack, starting, error }: StepProps<BracketJob>) {
+  const set = (patch: Partial<BracketJob>) => onChange({ ...job, ...patch });
+  const rules = reference.rule_sets.filter((r) => (reference.part_rule_sets["pipe-bracket"] ?? []).includes(r.id));
+  return (
+    <Layout step={2} title="Ship motion and vibration" lead="How the ship moves and shakes where this pipe runs. Replace the starting values with the ones for your vessel." job={job}
+      form={
+        <>
+          <Field label="Ship-motion accelerations" help={HB.accel}>
+            <div className="row" style={{ flexWrap: "wrap" }}>
+              {([["accel_vertical_g", "Vertical, extra"], ["accel_transverse_g", "Athwartships"], ["accel_longitudinal_g", "Fore and aft"]] as const).map(([key, label]) => (
+                <div key={key} className="stack" style={{ width: 150 }}>
+                  <span className="caption">{label}</span>
+                  <NumberInput label={label} value={job[key]} unit="g" step={0.1} onChange={(v) => set({ [key]: v ?? 0 } as Partial<BracketJob>)} />
+                </div>
+              ))}
+            </div>
+          </Field>
+          <Field label="Propeller" help={HB.propeller}>
+            <div className="row">
+              <div style={{ width: 150 }}><NumberInput label="Propeller speed" value={job.propeller_rpm} unit="rpm" onChange={(v) => set({ propeller_rpm: v ?? 0 })} /></div>
+              <div style={{ width: 150 }}><NumberInput label="Propeller blades" value={job.propeller_blades} unit="blades" onChange={(v) => set({ propeller_blades: Math.round(v ?? 0) })} /></div>
+            </div>
+          </Field>
+          <Field label="Main engine" help={HB.engine}>
+            <div className="row" style={{ flexWrap: "wrap" }}>
+              <div style={{ width: 150 }}><NumberInput label="Engine speed" value={job.engine_rpm} unit="rpm" onChange={(v) => set({ engine_rpm: v ?? 0 })} /></div>
+              <div style={{ width: 150 }}><NumberInput label="Cylinders" value={job.engine_cylinders} unit="cyl." onChange={(v) => set({ engine_cylinders: Math.round(v ?? 0) })} /></div>
+              <Segmented label="Engine type" value={job.engine_stroke} onChange={(v) => set({ engine_stroke: v })}
+                options={[{ value: 4, label: "4-stroke" }, { value: 2, label: "2-stroke" }]} />
+            </div>
+          </Field>
+          <Num label="Keep the pipe's frequency this far from every excitation" value={Math.round(job.frequency_margin * 100)} unit="%" help={HB.margin}
+            onChange={(v) => set({ frequency_margin: v / 100 })} />
+          <Num label="Largest bracket deflection" value={job.deflection_limit_mm} unit="mm" step={0.1} help={HB.deflection} onChange={(v) => set({ deflection_limit_mm: v })} />
+          <Field label="Design rules">
+            <Select label="Design rules" value={job.rule_set_id} onChange={(v) => set({ rule_set_id: v })} options={rules.map((r) => ({ value: r.id, label: r.name }))} />
+            <p className="field-help" style={{ marginTop: 8 }}>
+              ASME BTH-1 is for lifting devices, so pipe supports use the AISC 360 steel rules. Class rules (DNV, BV, LR, ABS) can be added the same way.
+            </p>
+          </Field>
+          {error && <Banner kind="error">{error}</Banner>}
+        </>
+      }
+      actions={
+        <>
+          <div className="actions" style={{ marginTop: 16 }}>
+            <button className="btn btn-primary" onClick={onNext} disabled={starting}><Search aria-hidden /> Find designs</button>
+            <button className="btn btn-ghost" onClick={onBack}><ArrowLeft aria-hidden /> Back</button>
+          </div>
+          <p className="caption">Takes about half a minute. It checks the pipe span, finds up to three brackets, builds their 3D models and runs a stress check on each.</p>
+        </>
+      }
+    />
+  );
+}
+
+// ---------------------------------------------------------------------- fin
+export function DescribeFin({ job, reference, onChange, onNext, onBack }: StepProps<FinJob>) {
+  const set = (patch: Partial<FinJob>) => onChange({ ...job, ...patch });
+  return (
+    <Layout step={1} title="Describe the fin" lead="The outer shape of the fin and how it is used. NEMO designs the structure inside it." job={job}
+      form={
+        <>
+          <Num label="Ship speed" value={job.speed_kn} unit="knots" help={HF.speed} onChange={(v) => set({ speed_kn: v })} />
+          <Field label="Fin size" help={HF.size}>
+            <div className="row">
+              <div className="stack" style={{ width: 150 }}><span className="caption">Span</span>
+                <NumberInput label="Fin span" value={job.span_m} unit="m" step={0.1} onChange={(v) => set({ span_m: v ?? 0 })} /></div>
+              <div className="stack" style={{ width: 150 }}><span className="caption">Chord</span>
+                <NumberInput label="Fin chord" value={job.chord_m} unit="m" step={0.1} onChange={(v) => set({ chord_m: v ?? 0 })} /></div>
+            </div>
+          </Field>
+          <Field label="Foil thickness" help={HF.thickness}>
+            <Segmented label="Foil thickness" value={Math.round(job.thickness_ratio * 100)} onChange={(v) => set({ thickness_ratio: v / 100 })}
+              options={[12, 15, 18, 20, 25].map((t) => ({ value: t, label: `${t}%` }))} />
+            <p className="field-help">NACA 00 series section, thickness as a share of the chord.</p>
+          </Field>
+          <Num label="Largest fin angle" value={job.max_angle_deg} unit="°" help={HF.angle} onChange={(v) => set({ max_angle_deg: v })} />
+          <Num label="Stock position from the leading edge" value={Math.round(job.stock_position * 100)} unit="% chord" width={180} help={HF.stock}
+            onChange={(v) => set({ stock_position: v / 100 })} />
+          <Field label="Depth and draught">
+            <div className="row">
+              <div className="stack" style={{ width: 150 }}><span className="caption">Fin depth below water</span>
+                <NumberInput label="Fin depth" value={job.depth_m} unit="m" step={0.5} onChange={(v) => set({ depth_m: v ?? 0 })} /></div>
+              <div className="stack" style={{ width: 150 }}><span className="caption">Ship draught</span>
+                <NumberInput label="Draught" value={job.draught_m} unit="m" step={0.5} onChange={(v) => set({ draught_m: v ?? 0 })} /></div>
+            </div>
+            <p className="field-help">{HF.depth} {HF.draught}</p>
+          </Field>
+          <Num label="Fin root to the outer stock bearing" value={job.bearing_gap_mm} unit="mm" help={HF.gap} onChange={(v) => set({ bearing_gap_mm: v })} />
+          <Field label="Materials" help={HF.material}>
+            <div className="stack gap-2">
+              <Select label="Skin, spars and ribs" value={job.material_id} onChange={(v) => set({ material_id: v })} options={steelOptions(reference, ["steel"])} />
+              <Select label="Stock" value={job.stock_material_id} onChange={(v) => set({ stock_material_id: v })} options={steelOptions(reference, ["forging", "steel"])} />
+            </div>
+          </Field>
+          <Field label="Which plate thicknesses does your workshop have?" help={HB.plates}>
+            <PlateChips job={job} reference={reference} onChange={(t) => set({ plate_thicknesses_mm: t })} />
+          </Field>
+        </>
+      }
+      actions={
+        <div className="actions" style={{ marginTop: 16 }}>
+          <button className="btn btn-primary" onClick={onNext} disabled={job.plate_thicknesses_mm.length === 0}>Next: check the assumptions</button>
+          <button className="btn btn-ghost" onClick={onBack}><ArrowLeft aria-hidden /> Back</button>
+        </div>
+      }
+    />
+  );
+}
+
+export function FinAssumptions({ job, reference, onChange, onNext, onBack, starting, error }: StepProps<FinJob>) {
+  const set = (patch: Partial<FinJob>) => onChange({ ...job, ...patch });
+  const rules = reference.rule_sets.filter((r) => (reference.part_rule_sets["stabilizer"] ?? []).includes(r.id));
+  return (
+    <Layout step={2} title="Check the assumptions" lead="The internal layout and the limits NEMO designs to." job={job}
+      form={
+        <>
+          <Field label="Spar positions" help={HF.spars}>
+            <div className="row">
+              <div className="stack" style={{ width: 150 }}><span className="caption">Front spar</span>
+                <NumberInput label="Front spar" value={Math.round(job.front_spar * 100)} unit="% chord" onChange={(v) => set({ front_spar: (v ?? 0) / 100 })} /></div>
+              <div className="stack" style={{ width: 150 }}><span className="caption">Rear spar</span>
+                <NumberInput label="Rear spar" value={Math.round(job.rear_spar * 100)} unit="% chord" onChange={(v) => set({ rear_spar: (v ?? 0) / 100 })} /></div>
+            </div>
+          </Field>
+          <Num label="Largest tip deflection" value={job.deflection_limit_mm} unit="mm" help={HF.deflection} onChange={(v) => set({ deflection_limit_mm: v })} />
+          <Field label="Design rules">
+            <Select label="Design rules" value={job.rule_set_id} onChange={(v) => set({ rule_set_id: v })} options={rules.map((r) => ({ value: r.id, label: r.name }))} />
+            <p className="field-help" style={{ marginTop: 8 }}>
+              A stabilizer fin turns on a stock like a spade rudder, so NEMO uses the IACS rudder requirements for its stresses and plating.
+            </p>
+          </Field>
+          {error && <Banner kind="error">{error}</Banner>}
+        </>
+      }
+      actions={
+        <>
+          <div className="actions" style={{ marginTop: 16 }}>
+            <button className="btn btn-primary" onClick={onNext} disabled={starting}><Search aria-hidden /> Find designs</button>
+            <button className="btn btn-ghost" onClick={onBack}><ArrowLeft aria-hidden /> Back</button>
+          </div>
+          <p className="caption">Takes about a minute. It works out the foil loads, sizes the structure, builds the 3D models and runs a stress check on each stock.</p>
+        </>
+      }
+    />
+  );
+}

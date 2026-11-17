@@ -1,0 +1,25 @@
+{
+  "v": 3,
+  "assetGroups": {},
+  "blobs": {},
+  "createdOnFiles": {
+    "at": "2026-10-16T04:32:46Z",
+    "v": 1
+  },
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "groups": [],
+  "lastChange": {
+    "at": "2026-10-16T04:32:46Z",
+    "by": "Farid Muigu",
+    "note": "First version: tokens, brand book, 24 components and cover",
+    "via": "Claude"
+  },
+  "layout": "files",
+  "libraries": [],
+  "namespace": "Graphite",
+  "sections": {},
+  "title": "Graphite"
+}

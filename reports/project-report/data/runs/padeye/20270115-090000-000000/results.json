@@ -1,0 +1,3019 @@
+{
+  "nemo_results_version": 2,
+  "part": "padeye",
+  "created_at": "2026-11-17T08:20:04+00:00",
+  "job": {
+    "part": "padeye",
+    "lift": {
+      "lifted_mass_kg": 5000.0,
+      "lift_points": 2,
+      "sling_angle_deg": 60.0,
+      "dynamic_factor": 1.0,
+      "points_carrying": null,
+      "side_load_fraction": 0.05
+    },
+    "material_id": "S355",
+    "plate_thicknesses_mm": [
+      6.0,
+      8.0,
+      10.0,
+      12.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      40.0,
+      50.0
+    ],
+    "allow_cheek_plates": true,
+    "rule_set_id": "asme-bth-1",
+    "design_category": "B",
+    "service_class": 0,
+    "fill_shackle_jaw": true,
+    "electrode_strength_mpa": 482.0
+  },
+  "loads": {
+    "sling_force_n": 28309.360086742217,
+    "sling_force_t": 2.8867513459481287,
+    "vertical_n": 24516.625,
+    "horizontal_n": 14154.680043371112,
+    "side_n": 1415.4680043371109,
+    "sling_angle_deg": 60.0,
+    "static_sling_force_n": 28309.360086742217
+  },
+  "load_steps": [
+    {
+      "label": "Weight of the load",
+      "symbol": "W",
+      "formula": "W = m \u00b7 g",
+      "substituted": "W = 5\u2009000 kg \u00d7 9.80665 m/s\u00b2",
+      "value": 49.03325,
+      "unit": "kN",
+      "result": "49.03 kN",
+      "note": ""
+    },
+    {
+      "label": "Vertical force on one padeye",
+      "symbol": "V",
+      "formula": "V = W \u00b7 DAF / n_c",
+      "substituted": "V = 49.03 kN \u00d7 1.00 / 2",
+      "value": 24.516625,
+      "unit": "kN",
+      "result": "24.52 kN",
+      "note": "n_c is the number of lifting points assumed to carry the load."
+    },
+    {
+      "label": "Force along the sling",
+      "symbol": "F",
+      "formula": "F = V / sin \u03b8",
+      "substituted": "F = 24.52 kN / sin 60.0\u00b0",
+      "value": 28.309360086742217,
+      "unit": "kN",
+      "result": "28.31 kN",
+      "note": "Equal to 2.89 t, compared with the shackle rating."
+    },
+    {
+      "label": "Horizontal part of the sling force",
+      "symbol": "H",
+      "formula": "H = F \u00b7 cos \u03b8",
+      "substituted": "H = 28.31 kN \u00d7 cos 60.0\u00b0",
+      "value": 14.154680043371112,
+      "unit": "kN",
+      "result": "14.15 kN",
+      "note": ""
+    },
+    {
+      "label": "Sideways allowance",
+      "symbol": "Q",
+      "formula": "Q = k \u00b7 F",
+      "substituted": "Q = 5.0% \u00d7 28.31 kN",
+      "value": 1.4154680043371108,
+      "unit": "kN",
+      "result": "1.415 kN",
+      "note": "Allows for the sling not lining up perfectly with the padeye."
+    }
+  ],
+  "rule_set": {
+    "id": "asme-bth-1",
+    "name": "ASME BTH-1, Design of Below-the-Hook Lifting Devices",
+    "design_category": "B",
+    "service_class": 0,
+    "design_factor": 3.0,
+    "pin_connection_design_factor": 3.5999999999999996
+  },
+  "material": {
+    "id": "S355",
+    "name": "S355 structural steel",
+    "source": "EN 10025-2:2019, plate 3-100 mm",
+    "tensile_strength_mpa": 470.0,
+    "elastic_modulus_gpa": 210.0,
+    "density_kg_m3": 7850.0
+  },
+  "search": {
+    "combinations": 36,
+    "evaluations": 19389,
+    "skipped": 0
+  },
+  "designs": [
+    {
+      "key": "lightest",
+      "label": "Lightest",
+      "target_utilization": 1.0,
+      "check_report": {
+        "passed": true,
+        "governing": "base_weld",
+        "mass_kg": 0.30500722463627267,
+        "design": {
+          "main_thickness_mm": 6.0,
+          "head_radius_mm": 21.0,
+          "hole_diameter_mm": 20.5,
+          "base_length_mm": 140.0,
+          "hole_height_mm": 39.0,
+          "weld_leg_mm": 4.0,
+          "cheek_thickness_mm": 6.0,
+          "cheek_radius_mm": 21.0,
+          "cheek_weld_leg_mm": 3.0
+        },
+        "material": "S355",
+        "shackle": {
+          "label": "3.25 t (5/8 in) Crosby G-2130",
+          "wll_t": 3.25,
+          "jaw_width_mm": 26.9,
+          "pin_diameter_mm": 19.1
+        },
+        "loads": {
+          "sling_force_n": 28309.360086742217,
+          "sling_force_t": 2.8867513459481287,
+          "vertical_n": 24516.625,
+          "horizontal_n": 14154.680043371112,
+          "side_n": 1415.4680043371109,
+          "sling_angle_deg": 60.0,
+          "static_sling_force_n": 28309.360086742217
+        },
+        "rule_set": {
+          "id": "asme-bth-1",
+          "name": "ASME BTH-1, Design of Below-the-Hook Lifting Devices",
+          "design_category": "B",
+          "service_class": 0,
+          "design_factor": 3.0,
+          "pin_connection_design_factor": 3.5999999999999996
+        },
+        "checks": [
+          {
+            "id": "head_tension",
+            "title": "Tearing across the sides of the hole",
+            "demand": 28309.360086742217,
+            "capacity": 45478.42460687764,
+            "unit": "N",
+            "utilization": 0.6224789079976405,
+            "passed": true,
+            "margin_percent": 37.75210920023595,
+            "source": "ASME BTH-1, pin-connected plates: tensile strength through the pinhole",
+            "explanation": "The pin pulls on the plate either side of the hole. Too little material there and the padeye tears straight across.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "Cr": 0.9001172608981224,
+              "beff_mm": 10.75
+            },
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 6 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 18.0,
+                "unit": "mm",
+                "result": "18.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Strength reduction for pin clearance",
+                "symbol": "C_r",
+                "formula": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 D_p^2 / D_h^2)",
+                "substituted": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 19.1\u00b2 / 20.5\u00b2)",
+                "value": 0.9001172608981224,
+                "unit": "",
+                "result": "0.9001",
+                "note": ""
+              },
+              {
+                "label": "Net width beside the hole",
+                "symbol": "b_e",
+                "formula": "b_e = R \u2212 D_h / 2",
+                "substituted": "b_e = 21 \u2212 20.5 / 2",
+                "value": 10.75,
+                "unit": "mm",
+                "result": "10.75 mm",
+                "note": ""
+              },
+              {
+                "label": "Effective width",
+                "symbol": "b_{eff}",
+                "formula": "b_{eff} = min(b_e, 4t, 0.6 (F_u / F_y) \u221a(D_h / b_e) b_e)",
+                "substituted": "b_{eff} = min(10.75, 72.00, 11.79)",
+                "value": 10.75,
+                "unit": "mm",
+                "result": "10.75 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_t",
+                "formula": "P_t = C_r F_u \u00b7 2 t b_{eff} / (1.20 N_d)",
+                "substituted": "P_t = 0.9001 \u00d7 470 \u00d7 2 \u00d7 18 \u00d7 10.75 / 3.60",
+                "value": 45.47842460687764,
+                "unit": "kN",
+                "result": "45.48 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_fracture",
+            "title": "Splitting above the hole",
+            "demand": 28309.360086742217,
+            "capacity": 39418.87931225725,
+            "unit": "N",
+            "utilization": 0.7181675527223691,
+            "passed": true,
+            "margin_percent": 28.18324472776309,
+            "source": "ASME BTH-1, pin-connected plates: fracture strength beyond the pinhole",
+            "explanation": "The material between the hole and the top edge can split along the line of the sling.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 6 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 18.0,
+                "unit": "mm",
+                "result": "18.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Strength reduction for pin clearance",
+                "symbol": "C_r",
+                "formula": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 D_p^2 / D_h^2)",
+                "substituted": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 19.1\u00b2 / 20.5\u00b2)",
+                "value": 0.9001172608981224,
+                "unit": "",
+                "result": "0.9001",
+                "note": ""
+              },
+              {
+                "label": "Net width beside the hole",
+                "symbol": "b_e",
+                "formula": "b_e = R \u2212 D_h / 2",
+                "substituted": "b_e = 21 \u2212 20.5 / 2",
+                "value": 10.75,
+                "unit": "mm",
+                "result": "10.75 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_b",
+                "formula": "P_b = C_r F_u [1.13 (R \u2212 D_h/2) + 0.92 b_e / (1 + b_e/D_h)] t / (1.20 N_d)",
+                "substituted": "P_b = 0.9001 \u00d7 470 \u00d7 [1.13 \u00d7 10.75 + 0.92 \u00d7 10.75 / (1 + 10.75/20.5)] \u00d7 18 / 3.60",
+                "value": 39.41887931225725,
+                "unit": "kN",
+                "result": "39.42 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_shear_out",
+            "title": "Shearing out above the hole",
+            "demand": 28309.360086742217,
+            "capacity": 42627.765792605984,
+            "unit": "N",
+            "utilization": 0.6641061186381161,
+            "passed": true,
+            "margin_percent": 33.58938813618839,
+            "source": "ASME BTH-1, pin-connected plates: double plane shear strength",
+            "explanation": "The pin can push a plug of material out of the top of the head along two shear lines.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "phi_deg": 51.24390243902439,
+              "Av_mm2": 466.4436378522235
+            },
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 6 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 18.0,
+                "unit": "mm",
+                "result": "18.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Shear plane angle",
+                "symbol": "\u03c6",
+                "formula": "\u03c6 = 55\u00b0 \u00b7 D_p / D_h",
+                "substituted": "\u03c6 = 55\u00b0 \u00d7 19.1 / 20.5",
+                "value": 51.24390243902439,
+                "unit": "\u00b0",
+                "result": "51.24 \u00b0",
+                "note": ""
+              },
+              {
+                "label": "Material above the hole",
+                "symbol": "a",
+                "formula": "a = R \u2212 D_h / 2",
+                "substituted": "a = 21 \u2212 20.5 / 2",
+                "value": 10.75,
+                "unit": "mm",
+                "result": "10.75 mm",
+                "note": ""
+              },
+              {
+                "label": "Loss from the curved edge",
+                "symbol": "Z",
+                "formula": "Z = r \u2212 \u221a(r^2 \u2212 (D_p/2 \u00b7 sin \u03c6)^2)",
+                "substituted": "Z = 21 \u2212 \u221a(21\u00b2 \u2212 (9.550 \u00d7 sin 51.2\u00b0)\u00b2)",
+                "value": 1.3648705324635664,
+                "unit": "mm",
+                "result": "1.365 mm",
+                "note": ""
+              },
+              {
+                "label": "Area of the two shear planes",
+                "symbol": "A_v",
+                "formula": "A_v = 2 [a + D_p/2 (1 \u2212 cos \u03c6) \u2212 Z] t",
+                "substituted": "A_v = 2 \u00d7 [10.75 + 9.550 \u00d7 (1 \u2212 cos 51.2\u00b0) \u2212 1.365] \u00d7 18",
+                "value": 466.4436378522235,
+                "unit": "mm\u00b2",
+                "result": "466.4 mm\u00b2",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_v",
+                "formula": "P_v = 0.70 F_u A_v / (1.20 N_d)",
+                "substituted": "P_v = 0.70 \u00d7 470 \u00d7 466.4 / 3.60",
+                "value": 42.627765792605985,
+                "unit": "kN",
+                "result": "42.63 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_bearing",
+            "title": "Crushing under the shackle pin",
+            "demand": 28309.360086742217,
+            "capacity": 50853.75,
+            "unit": "N",
+            "utilization": 0.5566818589925466,
+            "passed": true,
+            "margin_percent": 44.33181410074533,
+            "source": "ASME BTH-1, pin-connected plates: bearing strength",
+            "explanation": "The pin presses on the hole surface. Too thin a plate and it dents.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 6 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 18.0,
+                "unit": "mm",
+                "result": "18.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_p",
+                "formula": "P_p = C F_y D_p t / N_d",
+                "substituted": "P_p = 1.25 \u00d7 355 \u00d7 19.1 \u00d7 18 / 3.00",
+                "value": 50.85375,
+                "unit": "kN",
+                "result": "50.85 kN",
+                "note": "C = 1.25 for service class 0. F_y is the lower yield of the plates at the hole."
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "pin_hole_fit",
+            "title": "Pin fits the hole closely",
+            "demand": 0.9,
+            "capacity": 0.9317073170731708,
+            "unit": "ratio",
+            "utilization": 0.9659685863874345,
+            "passed": true,
+            "margin_percent": 3.4031413612565453,
+            "source": "ASME BTH-1 commentary on pin-to-hole clearance",
+            "explanation": "A loose pin concentrates the load and weakens the head. Keep the pin at least 90% of the hole diameter.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Pin to hole ratio",
+                "symbol": "D_p/D_h",
+                "formula": "D_p / D_h \u2265 0.90",
+                "substituted": "19.1 / 20.5",
+                "value": 0.9317073170731708,
+                "unit": "",
+                "result": "0.9317",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "hole_clearance",
+            "title": "Hole is big enough for the pin",
+            "demand": 20.1,
+            "capacity": 20.5,
+            "unit": "mm",
+            "utilization": 0.9804878048780489,
+            "passed": true,
+            "margin_percent": 1.9512195121951126,
+            "source": "NEMO practice",
+            "explanation": "The hole must be at least 1 mm larger than the shackle pin so it fits.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest hole that fits",
+                "symbol": "D_{min}",
+                "formula": "D_{min} = D_p + 1 mm",
+                "substituted": "D_{min} = 19.1 + 1",
+                "value": 20.1,
+                "unit": "mm",
+                "result": "20.10 mm",
+                "note": ""
+              },
+              {
+                "label": "Hole diameter chosen",
+                "symbol": "D_h",
+                "formula": "D_h",
+                "substituted": "D_h = 20.5",
+                "value": 20.5,
+                "unit": "mm",
+                "result": "20.50 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "cheek_weld",
+            "title": "Cheek plate welds",
+            "demand": 33.71378731949658,
+            "capacity": 80.33333333333334,
+            "unit": "MPa",
+            "utilization": 0.4196737010725715,
+            "passed": true,
+            "margin_percent": 58.03262989274285,
+            "source": "ASME BTH-1, welded connections: fillet weld allowable shear",
+            "explanation": "Each cheek plate carries its share of the pin load into the main plate through the weld around its edge.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "load_per_cheek_n": 9436.453362247405
+            },
+            "working": [
+              {
+                "label": "Load carried by one cheek plate",
+                "symbol": "F_c",
+                "formula": "F_c = F \u00b7 t_c / t",
+                "substituted": "F_c = 28.31 kN \u00d7 6 / 18",
+                "value": 9.436453362247404,
+                "unit": "kN",
+                "result": "9.436 kN",
+                "note": ""
+              },
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 3",
+                "value": 2.1212999999999997,
+                "unit": "mm",
+                "result": "2.121 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld length around the cheek",
+                "symbol": "L_w",
+                "formula": "L_w = 2\u03c0 R_c",
+                "substituted": "L_w = 2\u03c0 \u00d7 21",
+                "value": 131.94689145077132,
+                "unit": "mm",
+                "result": "131.9 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld stress",
+                "symbol": "f_w",
+                "formula": "f_w = F_c / (L_w a)",
+                "substituted": "f_w = 9\u2009436 / (131.9 \u00d7 2.121)",
+                "value": 33.71378731949658,
+                "unit": "MPa",
+                "result": "33.71 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 E_{xx} / (1.20 N_d)",
+                "substituted": "F_w = 0.60 \u00d7 482 / (1.20 \u00d7 3.00)",
+                "value": 80.33333333333334,
+                "unit": "MPa",
+                "result": "80.33 MPa",
+                "note": "E_{xx} is the weld metal strength (E70XX / E7018 class electrodes)."
+              }
+            ]
+          },
+          {
+            "id": "cheek_weld_size",
+            "title": "Cheek weld size",
+            "demand": 3.0,
+            "capacity": 3.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack. This is the smallest weld size normally allowed for this plate thickness.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "thicker part 6 mm",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 3",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "base_combined",
+            "title": "Pulling and bending at the base",
+            "demand": 0.8813486524190552,
+            "capacity": 1.0,
+            "unit": "ratio",
+            "utilization": 0.8813486524190552,
+            "passed": true,
+            "margin_percent": 11.865134758094475,
+            "source": "ASME BTH-1, members: combined axial tension and bending",
+            "explanation": "At the base the padeye is pulled upward and bent by the sloping and sideways parts of the sling force. The three effects are added.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "axial_mpa": 29.186458333333334,
+              "bending_in_plane_mpa": 28.164924576095583,
+              "bending_side_mpa": 65.718157344223,
+              "allow_tension_mpa": 118.33333333333333,
+              "allow_bending_in_plane_mpa": 147.91666666666666,
+              "allow_bending_side_mpa": 147.91666666666666
+            },
+            "working": [
+              {
+                "label": "Pulling stress",
+                "symbol": "f_a",
+                "formula": "f_a = V / (L t)",
+                "substituted": "f_a = 24\u2009517 / (140 \u00d7 6)",
+                "value": 29.186458333333334,
+                "unit": "MPa",
+                "result": "29.19 MPa",
+                "note": ""
+              },
+              {
+                "label": "In-plane bending stress",
+                "symbol": "f_{bx}",
+                "formula": "f_{bx} = H h / (t L^2 / 6)",
+                "substituted": "f_{bx} = 14\u2009155 \u00d7 39 / (6 \u00d7 140\u00b2 / 6)",
+                "value": 28.164924576095583,
+                "unit": "MPa",
+                "result": "28.16 MPa",
+                "note": ""
+              },
+              {
+                "label": "Sideways bending stress",
+                "symbol": "f_{by}",
+                "formula": "f_{by} = Q h / (L t^2 / 6)",
+                "substituted": "f_{by} = 1\u2009415 \u00d7 39 / (140 \u00d7 6\u00b2 / 6)",
+                "value": 65.718157344223,
+                "unit": "MPa",
+                "result": "65.72 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed tension",
+                "symbol": "F_t",
+                "formula": "F_t = F_y / N_d",
+                "substituted": "F_t = 355 / 3.00",
+                "value": 118.33333333333333,
+                "unit": "MPa",
+                "result": "118.3 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed in-plane bending",
+                "symbol": "F_{bx}",
+                "formula": "\u03bb = h L / t^2, then BTH-1 rectangular-bar rule",
+                "substituted": "\u03bb = 39 \u00d7 140 / 6\u00b2 = 151.7 (limit for full strength 47.32)",
+                "value": 147.91666666666666,
+                "unit": "MPa",
+                "result": "147.9 MPa",
+                "note": "Long thin plates bent on edge can buckle sideways; \u03bb measures that risk."
+              },
+              {
+                "label": "Allowed sideways bending",
+                "symbol": "F_{by}",
+                "formula": "F_{by} = 1.25 F_y / N_d",
+                "substituted": "F_{by} = 1.25 \u00d7 355 / 3.00",
+                "value": 147.91666666666666,
+                "unit": "MPa",
+                "result": "147.9 MPa",
+                "note": ""
+              },
+              {
+                "label": "Combined use",
+                "symbol": "U",
+                "formula": "U = f_a/F_t + f_{bx}/F_{bx} + f_{by}/F_{by}",
+                "substituted": "U = 29.19/118.3 + 28.16/147.9 + 65.72/147.9",
+                "value": 0.8813486524190552,
+                "unit": "",
+                "result": "0.8813",
+                "note": "Must not exceed 1.0."
+              }
+            ]
+          },
+          {
+            "id": "base_shear",
+            "title": "Shear at the base",
+            "demand": 16.9348540348383,
+            "capacity": 68.31978185410571,
+            "unit": "MPa",
+            "utilization": 0.24787628963748792,
+            "passed": true,
+            "margin_percent": 75.2123710362512,
+            "source": "ASME BTH-1, members: allowable shear stress",
+            "explanation": "The sloping and sideways parts of the sling force try to slide the padeye along its base.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Shear stress",
+                "symbol": "f_v",
+                "formula": "f_v = \u221a(H^2 + Q^2) / (L t)",
+                "substituted": "f_v = \u221a(14\u2009155\u00b2 + 1\u2009415\u00b2) / (140 \u00d7 6)",
+                "value": 16.9348540348383,
+                "unit": "MPa",
+                "result": "16.93 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed shear",
+                "symbol": "F_v",
+                "formula": "F_v = F_y / (\u221a3 N_d)",
+                "substituted": "F_v = 355 / (\u221a3 \u00d7 3.00)",
+                "value": 68.31978185410571,
+                "unit": "MPa",
+                "result": "68.32 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "base_weld",
+            "title": "Base weld strength",
+            "demand": 78.69933023835996,
+            "capacity": 80.33333333333334,
+            "unit": "MPa",
+            "utilization": 0.9796597125107048,
+            "passed": true,
+            "margin_percent": 2.0340287489295172,
+            "source": "ASME BTH-1, welded connections: fillet weld allowable shear",
+            "explanation": "Two fillet welds, one on each face, join the padeye to the deck or structure. All forces on the weld are combined on its throat.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "normal_mpa": 76.62206242540782,
+              "shear_mpa": 17.962297448916313,
+              "throat_mm": 2.8284
+            },
+            "working": [
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 4",
+                "value": 2.8284,
+                "unit": "mm",
+                "result": "2.828 mm",
+                "note": ""
+              },
+              {
+                "label": "Normal stress on the weld",
+                "symbol": "f_n",
+                "formula": "f_n = V/A_w + H h/S_x + Q h/S_y",
+                "substituted": "A_w = 2 \u00d7 140 \u00d7 2.828; S_x = 2 a L\u00b2/6; S_y = L a (t + a)",
+                "value": 76.62206242540782,
+                "unit": "MPa",
+                "result": "76.62 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear stress on the weld",
+                "symbol": "f_s",
+                "formula": "f_s = \u221a(H^2 + Q^2) / A_w",
+                "substituted": "f_s = \u221a(14\u2009155\u00b2 + 1\u2009415\u00b2) / 792",
+                "value": 17.962297448916313,
+                "unit": "MPa",
+                "result": "17.96 MPa",
+                "note": ""
+              },
+              {
+                "label": "Resultant on the throat",
+                "symbol": "f_w",
+                "formula": "f_w = \u221a(f_n^2 + f_s^2)",
+                "substituted": "f_w = \u221a(76.62\u00b2 + 17.96\u00b2)",
+                "value": 78.69933023835996,
+                "unit": "MPa",
+                "result": "78.70 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 E_{xx} / (1.20 N_d)",
+                "substituted": "F_w = 0.60 \u00d7 482 / (1.20 \u00d7 3.00)",
+                "value": 80.33333333333334,
+                "unit": "MPa",
+                "result": "80.33 MPa",
+                "note": "E_{xx} is the weld metal strength (E70XX / E7018 class electrodes)."
+              }
+            ]
+          },
+          {
+            "id": "base_weld_size",
+            "title": "Base weld size",
+            "demand": 3.0,
+            "capacity": 4.0,
+            "unit": "mm",
+            "utilization": 0.75,
+            "passed": true,
+            "margin_percent": 25.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack. This is the smallest weld size normally allowed for this plate thickness.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "plate 6 mm",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 4",
+                "value": 4.0,
+                "unit": "mm",
+                "result": "4.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_rating",
+            "title": "Shackle is rated for the load",
+            "demand": 2.8867513459481287,
+            "capacity": 3.25,
+            "unit": "t",
+            "utilization": 0.8882311833686549,
+            "passed": true,
+            "margin_percent": 11.176881663134509,
+            "source": "Crosby G-2130 working load limit",
+            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Sling force in tonnes",
+                "symbol": "F/g",
+                "formula": "F / g",
+                "substituted": "28.31 kN / 9.807",
+                "value": 2.8867513459481287,
+                "unit": "t",
+                "result": "2.887 t",
+                "note": ""
+              },
+              {
+                "label": "Shackle working load limit",
+                "symbol": "WLL",
+                "formula": "WLL",
+                "substituted": "3.25 t (5/8 in) Crosby G-2130",
+                "value": 3.25,
+                "unit": "t",
+                "result": "3.250 t",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_fit",
+            "title": "Padeye fits inside the shackle",
+            "demand": 20.0,
+            "capacity": 26.9,
+            "unit": "mm",
+            "utilization": 0.7434944237918216,
+            "passed": true,
+            "margin_percent": 25.65055762081784,
+            "source": "NEMO practice",
+            "explanation": "The padeye plus cheek plates must slide into the shackle jaw with a little room.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Space needed in the jaw",
+                "symbol": "t + c",
+                "formula": "t + 2 mm",
+                "substituted": "18 + 2",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Shackle jaw width",
+                "symbol": "J",
+                "formula": "J",
+                "substituted": "3.25 t (5/8 in) Crosby G-2130",
+                "value": 26.9,
+                "unit": "mm",
+                "result": "26.90 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_fill",
+            "title": "Padeye fills the shackle jaw",
+            "demand": 16.139999999999997,
+            "capacity": 18.0,
+            "unit": "mm",
+            "utilization": 0.8966666666666665,
+            "passed": true,
+            "margin_percent": 10.33333333333335,
+            "source": "NEMO practice (rigging guidance)",
+            "explanation": "A padeye much thinner than the shackle jaw lets the shackle tilt and bends its pin. Aim to fill at least 60% of the jaw, or add spacers.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Thinnest padeye that fills the jaw",
+                "symbol": "0.6 J",
+                "formula": "0.6 J",
+                "substituted": "0.6 \u00d7 26.9",
+                "value": 16.139999999999997,
+                "unit": "mm",
+                "result": "16.14 mm",
+                "note": ""
+              },
+              {
+                "label": "Padeye thickness at the hole",
+                "symbol": "t",
+                "formula": "t",
+                "substituted": "t = 6 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 18.0,
+                "unit": "mm",
+                "result": "18.00 mm",
+                "note": ""
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_main_mpa": 355.0,
+          "yield_head_mpa": 355.0,
+          "tensile_mpa": 470.0,
+          "total_thickness_mm": 18.0,
+          "net_width_mm": 10.75,
+          "design_factor": 3.0,
+          "strength_reduction_factor_cr": 0.9001172608981224,
+          "effective_width_mm": 10.75,
+          "shear_plane_angle_deg": 51.24390243902439,
+          "curvature_loss_mm": 1.3648705324635664,
+          "shear_area_mm2": 466.4436378522235,
+          "base_axial_mpa": 29.186458333333334,
+          "base_bending_in_plane_mpa": 28.164924576095583,
+          "base_bending_side_mpa": 65.718157344223,
+          "allowable_bending_in_plane_mpa": 147.91666666666666
+        }
+      },
+      "cad_volume_mm3": 38854.4235205443,
+      "fea": {
+        "head_von_mises_mpa": 228.09235446010223,
+        "factor_of_safety_on_yield": 1.5563871083723517,
+        "yield_strength_mpa": 355.0,
+        "convergence_change": 0.0020134708358516646,
+        "converged": true,
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 6.0,
+            "local_size_mm": 1.6100662349647687,
+            "elements": 6487,
+            "dofs": 34986,
+            "head_von_mises_mpa": 227.5587078543355,
+            "max_von_mises_mpa": 227.5587078543355,
+            "max_displacement_mm": 0.16470794487807067,
+            "applied_force_n": [
+              14155.419413856573,
+              1415.4680043371109,
+              24516.19809451965
+            ],
+            "reaction_force_n": [
+              -14155.419413860725,
+              -1415.4680043410383,
+              -24516.1980945486
+            ],
+            "reaction_balance_error": 1.041106277338207e-12,
+            "solve_seconds": 4.2125804999996035
+          },
+          {
+            "level": 2,
+            "global_size_mm": 4.199999999999999,
+            "local_size_mm": 1.1270463644753381,
+            "elements": 17200,
+            "dofs": 86325,
+            "head_von_mises_mpa": 227.63309715651607,
+            "max_von_mises_mpa": 227.63309715651607,
+            "max_displacement_mm": 0.16620843276969055,
+            "applied_force_n": [
+              14155.486822489873,
+              1415.4680043371109,
+              24516.15917045856
+            ],
+            "reaction_force_n": [
+              -14155.48682248075,
+              -1415.4680043356857,
+              -24516.159170451323
+            ],
+            "reaction_balance_error": 4.1385192411948234e-13,
+            "solve_seconds": 12.886544799999683
+          },
+          {
+            "level": 3,
+            "global_size_mm": 3.0,
+            "local_size_mm": 0.8050331174823844,
+            "elements": 44271,
+            "dofs": 209763,
+            "head_von_mises_mpa": 228.09235446010223,
+            "max_von_mises_mpa": 228.09235446010223,
+            "max_displacement_mm": 0.16706030092046895,
+            "applied_force_n": [
+              14154.73750720648,
+              1415.4680043371109,
+              24516.591823059596
+            ],
+            "reaction_force_n": [
+              -14154.737507206752,
+              -1415.4680043428798,
+              -24516.59182306098
+            ],
+            "reaction_balance_error": 2.0950776727138758e-13,
+            "solve_seconds": 26.912653299999874
+          }
+        ]
+      },
+      "files": {
+        "step": "designs\\lightest\\padeye.step",
+        "stl": "designs\\lightest\\padeye.stl",
+        "dxf": "designs\\lightest\\padeye-cutting.dxf",
+        "stress_surface": "designs/lightest/stress-surface.json"
+      }
+    },
+    {
+      "key": "balanced",
+      "label": "Balanced (at least 15% spare)",
+      "target_utilization": 0.85,
+      "check_report": {
+        "passed": true,
+        "governing": "base_weld",
+        "mass_kg": 0.4319738202833279,
+        "design": {
+          "main_thickness_mm": 8.0,
+          "head_radius_mm": 25.0,
+          "hole_diameter_mm": 23.5,
+          "base_length_mm": 140.0,
+          "hole_height_mm": 45.0,
+          "weld_leg_mm": 5.0,
+          "cheek_thickness_mm": 6.0,
+          "cheek_radius_mm": 22.0,
+          "cheek_weld_leg_mm": 5.0
+        },
+        "material": "S355",
+        "shackle": {
+          "label": "4.75 t (3/4 in) Crosby G-2130",
+          "wll_t": 4.75,
+          "jaw_width_mm": 31.8,
+          "pin_diameter_mm": 22.4
+        },
+        "loads": {
+          "sling_force_n": 28309.360086742217,
+          "sling_force_t": 2.8867513459481287,
+          "vertical_n": 24516.625,
+          "horizontal_n": 14154.680043371112,
+          "side_n": 1415.4680043371109,
+          "sling_angle_deg": 60.0,
+          "static_sling_force_n": 28309.360086742217
+        },
+        "rule_set": {
+          "id": "asme-bth-1",
+          "name": "ASME BTH-1, Design of Below-the-Hook Lifting Devices",
+          "design_category": "B",
+          "service_class": 0,
+          "design_factor": 3.0,
+          "pin_connection_design_factor": 3.5999999999999996
+        },
+        "checks": [
+          {
+            "id": "head_tension",
+            "title": "Tearing across the sides of the hole",
+            "demand": 28309.360086742217,
+            "capacity": 49076.88911416988,
+            "unit": "N",
+            "utilization": 0.5768368899847099,
+            "passed": true,
+            "margin_percent": 42.31631100152901,
+            "source": "ASME BTH-1, pin-connected plates: tensile strength through the pinhole",
+            "explanation": "The pin pulls on the plate either side of the hole. Too little material there and the padeye tears straight across.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "Cr": 0.9168489922730231,
+              "beff_mm": 10.25
+            },
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Strength reduction for pin clearance",
+                "symbol": "C_r",
+                "formula": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 D_p^2 / D_h^2)",
+                "substituted": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 22.4\u00b2 / 23.5\u00b2)",
+                "value": 0.9168489922730231,
+                "unit": "",
+                "result": "0.9168",
+                "note": ""
+              },
+              {
+                "label": "Net width beside the hole",
+                "symbol": "b_e",
+                "formula": "b_e = R \u2212 D_h / 2",
+                "substituted": "b_e = 22 \u2212 23.5 / 2",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Effective width",
+                "symbol": "b_{eff}",
+                "formula": "b_{eff} = min(b_e, 4t, 0.6 (F_u / F_y) \u221a(D_h / b_e) b_e)",
+                "substituted": "b_{eff} = min(10.25, 80.00, 12.33)",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_t",
+                "formula": "P_t = C_r F_u \u00b7 2 t b_{eff} / (1.20 N_d)",
+                "substituted": "P_t = 0.9168 \u00d7 470 \u00d7 2 \u00d7 20 \u00d7 10.25 / 3.60",
+                "value": 49.07688911416988,
+                "unit": "kN",
+                "result": "49.08 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_fracture",
+            "title": "Splitting above the hole",
+            "demand": 28309.360086742217,
+            "capacity": 43447.58816651861,
+            "unit": "N",
+            "utilization": 0.6515749499890042,
+            "passed": true,
+            "margin_percent": 34.842505001099575,
+            "source": "ASME BTH-1, pin-connected plates: fracture strength beyond the pinhole",
+            "explanation": "The material between the hole and the top edge can split along the line of the sling.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Strength reduction for pin clearance",
+                "symbol": "C_r",
+                "formula": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 D_p^2 / D_h^2)",
+                "substituted": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 22.4\u00b2 / 23.5\u00b2)",
+                "value": 0.9168489922730231,
+                "unit": "",
+                "result": "0.9168",
+                "note": ""
+              },
+              {
+                "label": "Net width beside the hole",
+                "symbol": "b_e",
+                "formula": "b_e = R \u2212 D_h / 2",
+                "substituted": "b_e = 22 \u2212 23.5 / 2",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_b",
+                "formula": "P_b = C_r F_u [1.13 (R \u2212 D_h/2) + 0.92 b_e / (1 + b_e/D_h)] t / (1.20 N_d)",
+                "substituted": "P_b = 0.9168 \u00d7 470 \u00d7 [1.13 \u00d7 10.25 + 0.92 \u00d7 10.25 / (1 + 10.25/23.5)] \u00d7 20 / 3.60",
+                "value": 43.44758816651861,
+                "unit": "kN",
+                "result": "43.45 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_shear_out",
+            "title": "Shearing out above the hole",
+            "demand": 28309.360086742217,
+            "capacity": 46608.401754328355,
+            "unit": "N",
+            "utilization": 0.6073874885468097,
+            "passed": true,
+            "margin_percent": 39.26125114531903,
+            "source": "ASME BTH-1, pin-connected plates: double plane shear strength",
+            "explanation": "The pin can push a plug of material out of the top of the head along two shear lines.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "phi_deg": 52.42553191489362,
+              "Av_mm2": 510.00074867958074
+            },
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Shear plane angle",
+                "symbol": "\u03c6",
+                "formula": "\u03c6 = 55\u00b0 \u00b7 D_p / D_h",
+                "substituted": "\u03c6 = 55\u00b0 \u00d7 22.4 / 23.5",
+                "value": 52.42553191489362,
+                "unit": "\u00b0",
+                "result": "52.43 \u00b0",
+                "note": ""
+              },
+              {
+                "label": "Material above the hole",
+                "symbol": "a",
+                "formula": "a = R \u2212 D_h / 2",
+                "substituted": "a = 22 \u2212 23.5 / 2",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Loss from the curved edge",
+                "symbol": "Z",
+                "formula": "Z = r \u2212 \u221a(r^2 \u2212 (D_p/2 \u00b7 sin \u03c6)^2)",
+                "substituted": "Z = 22 \u2212 \u221a(22\u00b2 \u2212 (11.20 \u00d7 sin 52.4\u00b0)\u00b2)",
+                "value": 1.8703103632371558,
+                "unit": "mm",
+                "result": "1.870 mm",
+                "note": ""
+              },
+              {
+                "label": "Area of the two shear planes",
+                "symbol": "A_v",
+                "formula": "A_v = 2 [a + D_p/2 (1 \u2212 cos \u03c6) \u2212 Z] t",
+                "substituted": "A_v = 2 \u00d7 [10.25 + 11.20 \u00d7 (1 \u2212 cos 52.4\u00b0) \u2212 1.870] \u00d7 20",
+                "value": 510.00074867958074,
+                "unit": "mm\u00b2",
+                "result": "510.0 mm\u00b2",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_v",
+                "formula": "P_v = 0.70 F_u A_v / (1.20 N_d)",
+                "substituted": "P_v = 0.70 \u00d7 470 \u00d7 510.0 / 3.60",
+                "value": 46.608401754328355,
+                "unit": "kN",
+                "result": "46.61 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_bearing",
+            "title": "Crushing under the shackle pin",
+            "demand": 28309.360086742217,
+            "capacity": 66266.66666666667,
+            "unit": "N",
+            "utilization": 0.42720362303936943,
+            "passed": true,
+            "margin_percent": 57.279637696063055,
+            "source": "ASME BTH-1, pin-connected plates: bearing strength",
+            "explanation": "The pin presses on the hole surface. Too thin a plate and it dents.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_p",
+                "formula": "P_p = C F_y D_p t / N_d",
+                "substituted": "P_p = 1.25 \u00d7 355 \u00d7 22.4 \u00d7 20 / 3.00",
+                "value": 66.26666666666667,
+                "unit": "kN",
+                "result": "66.27 kN",
+                "note": "C = 1.25 for service class 0. F_y is the lower yield of the plates at the hole."
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "pin_hole_fit",
+            "title": "Pin fits the hole closely",
+            "demand": 0.9,
+            "capacity": 0.9531914893617021,
+            "unit": "ratio",
+            "utilization": 0.9441964285714287,
+            "passed": true,
+            "margin_percent": 5.580357142857128,
+            "source": "ASME BTH-1 commentary on pin-to-hole clearance",
+            "explanation": "A loose pin concentrates the load and weakens the head. Keep the pin at least 90% of the hole diameter.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Pin to hole ratio",
+                "symbol": "D_p/D_h",
+                "formula": "D_p / D_h \u2265 0.90",
+                "substituted": "22.4 / 23.5",
+                "value": 0.9531914893617021,
+                "unit": "",
+                "result": "0.9532",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "hole_clearance",
+            "title": "Hole is big enough for the pin",
+            "demand": 23.4,
+            "capacity": 23.5,
+            "unit": "mm",
+            "utilization": 0.9957446808510638,
+            "passed": true,
+            "margin_percent": 0.42553191489361764,
+            "source": "NEMO practice",
+            "explanation": "The hole must be at least 1 mm larger than the shackle pin so it fits.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest hole that fits",
+                "symbol": "D_{min}",
+                "formula": "D_{min} = D_p + 1 mm",
+                "substituted": "D_{min} = 22.4 + 1",
+                "value": 23.4,
+                "unit": "mm",
+                "result": "23.40 mm",
+                "note": ""
+              },
+              {
+                "label": "Hole diameter chosen",
+                "symbol": "D_h",
+                "formula": "D_h",
+                "substituted": "D_h = 23.5",
+                "value": 23.5,
+                "unit": "mm",
+                "result": "23.50 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "cheek_weld",
+            "title": "Cheek plate welds",
+            "demand": 17.377924918322332,
+            "capacity": 80.33333333333334,
+            "unit": "MPa",
+            "utilization": 0.21632271682558918,
+            "passed": true,
+            "margin_percent": 78.36772831744108,
+            "source": "ASME BTH-1, welded connections: fillet weld allowable shear",
+            "explanation": "Each cheek plate carries its share of the pin load into the main plate through the weld around its edge.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "load_per_cheek_n": 8492.808026022665
+            },
+            "working": [
+              {
+                "label": "Load carried by one cheek plate",
+                "symbol": "F_c",
+                "formula": "F_c = F \u00b7 t_c / t",
+                "substituted": "F_c = 28.31 kN \u00d7 6 / 20",
+                "value": 8.492808026022665,
+                "unit": "kN",
+                "result": "8.493 kN",
+                "note": ""
+              },
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 5",
+                "value": 3.5355,
+                "unit": "mm",
+                "result": "3.535 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld length around the cheek",
+                "symbol": "L_w",
+                "formula": "L_w = 2\u03c0 R_c",
+                "substituted": "L_w = 2\u03c0 \u00d7 22",
+                "value": 138.23007675795088,
+                "unit": "mm",
+                "result": "138.2 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld stress",
+                "symbol": "f_w",
+                "formula": "f_w = F_c / (L_w a)",
+                "substituted": "f_w = 8\u2009493 / (138.2 \u00d7 3.535)",
+                "value": 17.377924918322332,
+                "unit": "MPa",
+                "result": "17.38 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 E_{xx} / (1.20 N_d)",
+                "substituted": "F_w = 0.60 \u00d7 482 / (1.20 \u00d7 3.00)",
+                "value": 80.33333333333334,
+                "unit": "MPa",
+                "result": "80.33 MPa",
+                "note": "E_{xx} is the weld metal strength (E70XX / E7018 class electrodes)."
+              }
+            ]
+          },
+          {
+            "id": "cheek_weld_size",
+            "title": "Cheek weld size",
+            "demand": 5.0,
+            "capacity": 5.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack. This is the smallest weld size normally allowed for this plate thickness.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "thicker part 8 mm",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 5",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "base_combined",
+            "title": "Pulling and bending at the base",
+            "demand": 0.6381255809371824,
+            "capacity": 1.0,
+            "unit": "ratio",
+            "utilization": 0.6381255809371824,
+            "passed": true,
+            "margin_percent": 36.18744190628176,
+            "source": "ASME BTH-1, members: combined axial tension and bending",
+            "explanation": "At the base the padeye is pulled upward and bent by the sloping and sideways parts of the sling force. The three effects are added.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "axial_mpa": 21.88984375,
+              "bending_in_plane_mpa": 24.373492421621176,
+              "bending_side_mpa": 42.653611737837046,
+              "allow_tension_mpa": 118.33333333333333,
+              "allow_bending_in_plane_mpa": 147.91666666666666,
+              "allow_bending_side_mpa": 147.91666666666666
+            },
+            "working": [
+              {
+                "label": "Pulling stress",
+                "symbol": "f_a",
+                "formula": "f_a = V / (L t)",
+                "substituted": "f_a = 24\u2009517 / (140 \u00d7 8)",
+                "value": 21.88984375,
+                "unit": "MPa",
+                "result": "21.89 MPa",
+                "note": ""
+              },
+              {
+                "label": "In-plane bending stress",
+                "symbol": "f_{bx}",
+                "formula": "f_{bx} = H h / (t L^2 / 6)",
+                "substituted": "f_{bx} = 14\u2009155 \u00d7 45 / (8 \u00d7 140\u00b2 / 6)",
+                "value": 24.373492421621176,
+                "unit": "MPa",
+                "result": "24.37 MPa",
+                "note": ""
+              },
+              {
+                "label": "Sideways bending stress",
+                "symbol": "f_{by}",
+                "formula": "f_{by} = Q h / (L t^2 / 6)",
+                "substituted": "f_{by} = 1\u2009415 \u00d7 45 / (140 \u00d7 8\u00b2 / 6)",
+                "value": 42.653611737837046,
+                "unit": "MPa",
+                "result": "42.65 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed tension",
+                "symbol": "F_t",
+                "formula": "F_t = F_y / N_d",
+                "substituted": "F_t = 355 / 3.00",
+                "value": 118.33333333333333,
+                "unit": "MPa",
+                "result": "118.3 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed in-plane bending",
+                "symbol": "F_{bx}",
+                "formula": "\u03bb = h L / t^2, then BTH-1 rectangular-bar rule",
+                "substituted": "\u03bb = 45 \u00d7 140 / 8\u00b2 = 98.44 (limit for full strength 47.32)",
+                "value": 147.91666666666666,
+                "unit": "MPa",
+                "result": "147.9 MPa",
+                "note": "Long thin plates bent on edge can buckle sideways; \u03bb measures that risk."
+              },
+              {
+                "label": "Allowed sideways bending",
+                "symbol": "F_{by}",
+                "formula": "F_{by} = 1.25 F_y / N_d",
+                "substituted": "F_{by} = 1.25 \u00d7 355 / 3.00",
+                "value": 147.91666666666666,
+                "unit": "MPa",
+                "result": "147.9 MPa",
+                "note": ""
+              },
+              {
+                "label": "Combined use",
+                "symbol": "U",
+                "formula": "U = f_a/F_t + f_{bx}/F_{bx} + f_{by}/F_{by}",
+                "substituted": "U = 21.89/118.3 + 24.37/147.9 + 42.65/147.9",
+                "value": 0.6381255809371824,
+                "unit": "",
+                "result": "0.6381",
+                "note": "Must not exceed 1.0."
+              }
+            ]
+          },
+          {
+            "id": "base_shear",
+            "title": "Shear at the base",
+            "demand": 12.701140526128725,
+            "capacity": 68.31978185410571,
+            "unit": "MPa",
+            "utilization": 0.18590721722811596,
+            "passed": true,
+            "margin_percent": 81.4092782771884,
+            "source": "ASME BTH-1, members: allowable shear stress",
+            "explanation": "The sloping and sideways parts of the sling force try to slide the padeye along its base.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Shear stress",
+                "symbol": "f_v",
+                "formula": "f_v = \u221a(H^2 + Q^2) / (L t)",
+                "substituted": "f_v = \u221a(14\u2009155\u00b2 + 1\u2009415\u00b2) / (140 \u00d7 8)",
+                "value": 12.701140526128725,
+                "unit": "MPa",
+                "result": "12.70 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed shear",
+                "symbol": "F_v",
+                "formula": "F_v = F_y / (\u221a3 N_d)",
+                "substituted": "F_v = 355 / (\u221a3 \u00d7 3.00)",
+                "value": 68.31978185410571,
+                "unit": "MPa",
+                "result": "68.32 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "base_weld",
+            "title": "Base weld strength",
+            "demand": 65.10289602333782,
+            "capacity": 80.33333333333334,
+            "unit": "MPa",
+            "utilization": 0.8104094940664458,
+            "passed": true,
+            "margin_percent": 18.95905059335542,
+            "source": "ASME BTH-1, welded connections: fillet weld allowable shear",
+            "explanation": "Two fillet welds, one on each face, join the padeye to the deck or structure. All forces on the weld are combined on its throat.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "normal_mpa": 63.497203305766114,
+              "shear_mpa": 14.369837959133053,
+              "throat_mm": 3.5355
+            },
+            "working": [
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 5",
+                "value": 3.5355,
+                "unit": "mm",
+                "result": "3.535 mm",
+                "note": ""
+              },
+              {
+                "label": "Normal stress on the weld",
+                "symbol": "f_n",
+                "formula": "f_n = V/A_w + H h/S_x + Q h/S_y",
+                "substituted": "A_w = 2 \u00d7 140 \u00d7 3.535; S_x = 2 a L\u00b2/6; S_y = L a (t + a)",
+                "value": 63.497203305766114,
+                "unit": "MPa",
+                "result": "63.50 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear stress on the weld",
+                "symbol": "f_s",
+                "formula": "f_s = \u221a(H^2 + Q^2) / A_w",
+                "substituted": "f_s = \u221a(14\u2009155\u00b2 + 1\u2009415\u00b2) / 990",
+                "value": 14.369837959133053,
+                "unit": "MPa",
+                "result": "14.37 MPa",
+                "note": ""
+              },
+              {
+                "label": "Resultant on the throat",
+                "symbol": "f_w",
+                "formula": "f_w = \u221a(f_n^2 + f_s^2)",
+                "substituted": "f_w = \u221a(63.50\u00b2 + 14.37\u00b2)",
+                "value": 65.10289602333782,
+                "unit": "MPa",
+                "result": "65.10 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 E_{xx} / (1.20 N_d)",
+                "substituted": "F_w = 0.60 \u00d7 482 / (1.20 \u00d7 3.00)",
+                "value": 80.33333333333334,
+                "unit": "MPa",
+                "result": "80.33 MPa",
+                "note": "E_{xx} is the weld metal strength (E70XX / E7018 class electrodes)."
+              }
+            ]
+          },
+          {
+            "id": "base_weld_size",
+            "title": "Base weld size",
+            "demand": 5.0,
+            "capacity": 5.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack. This is the smallest weld size normally allowed for this plate thickness.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "plate 8 mm",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 5",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_rating",
+            "title": "Shackle is rated for the load",
+            "demand": 2.8867513459481287,
+            "capacity": 4.75,
+            "unit": "t",
+            "utilization": 0.6077371254627639,
+            "passed": true,
+            "margin_percent": 39.22628745372361,
+            "source": "Crosby G-2130 working load limit",
+            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Sling force in tonnes",
+                "symbol": "F/g",
+                "formula": "F / g",
+                "substituted": "28.31 kN / 9.807",
+                "value": 2.8867513459481287,
+                "unit": "t",
+                "result": "2.887 t",
+                "note": ""
+              },
+              {
+                "label": "Shackle working load limit",
+                "symbol": "WLL",
+                "formula": "WLL",
+                "substituted": "4.75 t (3/4 in) Crosby G-2130",
+                "value": 4.75,
+                "unit": "t",
+                "result": "4.750 t",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_fit",
+            "title": "Padeye fits inside the shackle",
+            "demand": 22.0,
+            "capacity": 31.8,
+            "unit": "mm",
+            "utilization": 0.6918238993710691,
+            "passed": true,
+            "margin_percent": 30.817610062893085,
+            "source": "NEMO practice",
+            "explanation": "The padeye plus cheek plates must slide into the shackle jaw with a little room.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Space needed in the jaw",
+                "symbol": "t + c",
+                "formula": "t + 2 mm",
+                "substituted": "20 + 2",
+                "value": 22.0,
+                "unit": "mm",
+                "result": "22.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Shackle jaw width",
+                "symbol": "J",
+                "formula": "J",
+                "substituted": "4.75 t (3/4 in) Crosby G-2130",
+                "value": 31.8,
+                "unit": "mm",
+                "result": "31.80 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_fill",
+            "title": "Padeye fills the shackle jaw",
+            "demand": 19.08,
+            "capacity": 20.0,
+            "unit": "mm",
+            "utilization": 0.954,
+            "passed": true,
+            "margin_percent": 4.600000000000004,
+            "source": "NEMO practice (rigging guidance)",
+            "explanation": "A padeye much thinner than the shackle jaw lets the shackle tilt and bends its pin. Aim to fill at least 60% of the jaw, or add spacers.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Thinnest padeye that fills the jaw",
+                "symbol": "0.6 J",
+                "formula": "0.6 J",
+                "substituted": "0.6 \u00d7 31.8",
+                "value": 19.08,
+                "unit": "mm",
+                "result": "19.08 mm",
+                "note": ""
+              },
+              {
+                "label": "Padeye thickness at the hole",
+                "symbol": "t",
+                "formula": "t",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_main_mpa": 355.0,
+          "yield_head_mpa": 355.0,
+          "tensile_mpa": 470.0,
+          "total_thickness_mm": 20.0,
+          "net_width_mm": 10.25,
+          "design_factor": 3.0,
+          "strength_reduction_factor_cr": 0.9168489922730231,
+          "effective_width_mm": 10.25,
+          "shear_plane_angle_deg": 52.42553191489362,
+          "curvature_loss_mm": 1.8703103632371558,
+          "shear_area_mm2": 510.00074867958074,
+          "base_axial_mpa": 21.88984375,
+          "base_bending_in_plane_mpa": 24.373492421621176,
+          "base_bending_side_mpa": 42.653611737837046,
+          "allowable_bending_in_plane_mpa": 147.91666666666666
+        }
+      },
+      "cad_volume_mm3": 55028.512138003556,
+      "fea": {
+        "head_von_mises_mpa": 189.54527243407017,
+        "factor_of_safety_on_yield": 1.8729034781043152,
+        "yield_strength_mpa": 355.0,
+        "convergence_change": 0.0008940686973403749,
+        "converged": true,
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 8.0,
+            "local_size_mm": 1.8456856839840037,
+            "elements": 5530,
+            "dofs": 30201,
+            "head_von_mises_mpa": 188.7096226454797,
+            "max_von_mises_mpa": 188.7096226454797,
+            "max_displacement_mm": 0.10865418824001949,
+            "applied_force_n": [
+              14155.08165595531,
+              1415.4680043371109,
+              24516.39312009435
+            ],
+            "reaction_force_n": [
+              -14155.081655957081,
+              -1415.4680043329533,
+              -24516.393120106906
+            ],
+            "reaction_balance_error": 4.707505990662757e-13,
+            "solve_seconds": 3.285216999998738
+          },
+          {
+            "level": 2,
+            "global_size_mm": 5.6,
+            "local_size_mm": 1.2919799787888024,
+            "elements": 13982,
+            "dofs": 71370,
+            "head_von_mises_mpa": 189.71473892888233,
+            "max_von_mises_mpa": 189.71473892888233,
+            "max_displacement_mm": 0.10913372538639195,
+            "applied_force_n": [
+              14154.561376121568,
+              1415.4680043371109,
+              24516.69351180263
+            ],
+            "reaction_force_n": [
+              -14154.56137611501,
+              -1415.4680043431695,
+              -24516.693511790785
+            ],
+            "reaction_balance_error": 5.23306220884554e-13,
+            "solve_seconds": 9.76748310000039
+          },
+          {
+            "level": 3,
+            "global_size_mm": 4.0,
+            "local_size_mm": 0.9228428419920018,
+            "elements": 35940,
+            "dofs": 172938,
+            "head_von_mises_mpa": 189.54527243407017,
+            "max_von_mises_mpa": 189.54527243407017,
+            "max_displacement_mm": 0.10967819193507118,
+            "applied_force_n": [
+              14154.661461851914,
+              1415.4680043371109,
+              24516.63572802633
+            ],
+            "reaction_force_n": [
+              -14154.661461841893,
+              -1415.4680043384733,
+              -24516.635728024947
+            ],
+            "reaction_balance_error": 3.6010427012931437e-13,
+            "solve_seconds": 19.06089769999926
+          }
+        ]
+      },
+      "files": {
+        "step": "designs\\balanced\\padeye.step",
+        "stl": "designs\\balanced\\padeye.stl",
+        "dxf": "designs\\balanced\\padeye-cutting.dxf",
+        "stress_surface": "designs/balanced/stress-surface.json"
+      }
+    },
+    {
+      "key": "robust",
+      "label": "Extra margin (at least 30% spare)",
+      "target_utilization": 0.7,
+      "check_report": {
+        "passed": true,
+        "governing": "base_weld",
+        "mass_kg": 0.44726599252408344,
+        "design": {
+          "main_thickness_mm": 8.0,
+          "head_radius_mm": 22.0,
+          "hole_diameter_mm": 23.5,
+          "base_length_mm": 160.0,
+          "hole_height_mm": 45.0,
+          "weld_leg_mm": 5.0,
+          "cheek_thickness_mm": 6.0,
+          "cheek_radius_mm": 22.0,
+          "cheek_weld_leg_mm": 5.0
+        },
+        "material": "S355",
+        "shackle": {
+          "label": "4.75 t (3/4 in) Crosby G-2130",
+          "wll_t": 4.75,
+          "jaw_width_mm": 31.8,
+          "pin_diameter_mm": 22.4
+        },
+        "loads": {
+          "sling_force_n": 28309.360086742217,
+          "sling_force_t": 2.8867513459481287,
+          "vertical_n": 24516.625,
+          "horizontal_n": 14154.680043371112,
+          "side_n": 1415.4680043371109,
+          "sling_angle_deg": 60.0,
+          "static_sling_force_n": 28309.360086742217
+        },
+        "rule_set": {
+          "id": "asme-bth-1",
+          "name": "ASME BTH-1, Design of Below-the-Hook Lifting Devices",
+          "design_category": "B",
+          "service_class": 0,
+          "design_factor": 3.0,
+          "pin_connection_design_factor": 3.5999999999999996
+        },
+        "checks": [
+          {
+            "id": "head_tension",
+            "title": "Tearing across the sides of the hole",
+            "demand": 28309.360086742217,
+            "capacity": 49076.88911416988,
+            "unit": "N",
+            "utilization": 0.5768368899847099,
+            "passed": true,
+            "margin_percent": 42.31631100152901,
+            "source": "ASME BTH-1, pin-connected plates: tensile strength through the pinhole",
+            "explanation": "The pin pulls on the plate either side of the hole. Too little material there and the padeye tears straight across.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "Cr": 0.9168489922730231,
+              "beff_mm": 10.25
+            },
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Strength reduction for pin clearance",
+                "symbol": "C_r",
+                "formula": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 D_p^2 / D_h^2)",
+                "substituted": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 22.4\u00b2 / 23.5\u00b2)",
+                "value": 0.9168489922730231,
+                "unit": "",
+                "result": "0.9168",
+                "note": ""
+              },
+              {
+                "label": "Net width beside the hole",
+                "symbol": "b_e",
+                "formula": "b_e = R \u2212 D_h / 2",
+                "substituted": "b_e = 22 \u2212 23.5 / 2",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Effective width",
+                "symbol": "b_{eff}",
+                "formula": "b_{eff} = min(b_e, 4t, 0.6 (F_u / F_y) \u221a(D_h / b_e) b_e)",
+                "substituted": "b_{eff} = min(10.25, 80.00, 12.33)",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_t",
+                "formula": "P_t = C_r F_u \u00b7 2 t b_{eff} / (1.20 N_d)",
+                "substituted": "P_t = 0.9168 \u00d7 470 \u00d7 2 \u00d7 20 \u00d7 10.25 / 3.60",
+                "value": 49.07688911416988,
+                "unit": "kN",
+                "result": "49.08 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_fracture",
+            "title": "Splitting above the hole",
+            "demand": 28309.360086742217,
+            "capacity": 43447.58816651861,
+            "unit": "N",
+            "utilization": 0.6515749499890042,
+            "passed": true,
+            "margin_percent": 34.842505001099575,
+            "source": "ASME BTH-1, pin-connected plates: fracture strength beyond the pinhole",
+            "explanation": "The material between the hole and the top edge can split along the line of the sling.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Strength reduction for pin clearance",
+                "symbol": "C_r",
+                "formula": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 D_p^2 / D_h^2)",
+                "substituted": "C_r = 1 \u2212 0.275 \u221a(1 \u2212 22.4\u00b2 / 23.5\u00b2)",
+                "value": 0.9168489922730231,
+                "unit": "",
+                "result": "0.9168",
+                "note": ""
+              },
+              {
+                "label": "Net width beside the hole",
+                "symbol": "b_e",
+                "formula": "b_e = R \u2212 D_h / 2",
+                "substituted": "b_e = 22 \u2212 23.5 / 2",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_b",
+                "formula": "P_b = C_r F_u [1.13 (R \u2212 D_h/2) + 0.92 b_e / (1 + b_e/D_h)] t / (1.20 N_d)",
+                "substituted": "P_b = 0.9168 \u00d7 470 \u00d7 [1.13 \u00d7 10.25 + 0.92 \u00d7 10.25 / (1 + 10.25/23.5)] \u00d7 20 / 3.60",
+                "value": 43.44758816651861,
+                "unit": "kN",
+                "result": "43.45 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_shear_out",
+            "title": "Shearing out above the hole",
+            "demand": 28309.360086742217,
+            "capacity": 46608.401754328355,
+            "unit": "N",
+            "utilization": 0.6073874885468097,
+            "passed": true,
+            "margin_percent": 39.26125114531903,
+            "source": "ASME BTH-1, pin-connected plates: double plane shear strength",
+            "explanation": "The pin can push a plug of material out of the top of the head along two shear lines.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "phi_deg": 52.42553191489362,
+              "Av_mm2": 510.00074867958074
+            },
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Shear plane angle",
+                "symbol": "\u03c6",
+                "formula": "\u03c6 = 55\u00b0 \u00b7 D_p / D_h",
+                "substituted": "\u03c6 = 55\u00b0 \u00d7 22.4 / 23.5",
+                "value": 52.42553191489362,
+                "unit": "\u00b0",
+                "result": "52.43 \u00b0",
+                "note": ""
+              },
+              {
+                "label": "Material above the hole",
+                "symbol": "a",
+                "formula": "a = R \u2212 D_h / 2",
+                "substituted": "a = 22 \u2212 23.5 / 2",
+                "value": 10.25,
+                "unit": "mm",
+                "result": "10.25 mm",
+                "note": ""
+              },
+              {
+                "label": "Loss from the curved edge",
+                "symbol": "Z",
+                "formula": "Z = r \u2212 \u221a(r^2 \u2212 (D_p/2 \u00b7 sin \u03c6)^2)",
+                "substituted": "Z = 22 \u2212 \u221a(22\u00b2 \u2212 (11.20 \u00d7 sin 52.4\u00b0)\u00b2)",
+                "value": 1.8703103632371558,
+                "unit": "mm",
+                "result": "1.870 mm",
+                "note": ""
+              },
+              {
+                "label": "Area of the two shear planes",
+                "symbol": "A_v",
+                "formula": "A_v = 2 [a + D_p/2 (1 \u2212 cos \u03c6) \u2212 Z] t",
+                "substituted": "A_v = 2 \u00d7 [10.25 + 11.20 \u00d7 (1 \u2212 cos 52.4\u00b0) \u2212 1.870] \u00d7 20",
+                "value": 510.00074867958074,
+                "unit": "mm\u00b2",
+                "result": "510.0 mm\u00b2",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_v",
+                "formula": "P_v = 0.70 F_u A_v / (1.20 N_d)",
+                "substituted": "P_v = 0.70 \u00d7 470 \u00d7 510.0 / 3.60",
+                "value": 46.608401754328355,
+                "unit": "kN",
+                "result": "46.61 kN",
+                "note": ""
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "head_bearing",
+            "title": "Crushing under the shackle pin",
+            "demand": 28309.360086742217,
+            "capacity": 66266.66666666667,
+            "unit": "N",
+            "utilization": 0.42720362303936943,
+            "passed": true,
+            "margin_percent": 57.279637696063055,
+            "source": "ASME BTH-1, pin-connected plates: bearing strength",
+            "explanation": "The pin presses on the hole surface. Too thin a plate and it dents.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Thickness at the hole",
+                "symbol": "t",
+                "formula": "t = t_{main} + 2 t_c",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Allowed load",
+                "symbol": "P_p",
+                "formula": "P_p = C F_y D_p t / N_d",
+                "substituted": "P_p = 1.25 \u00d7 355 \u00d7 22.4 \u00d7 20 / 3.00",
+                "value": 66.26666666666667,
+                "unit": "kN",
+                "result": "66.27 kN",
+                "note": "C = 1.25 for service class 0. F_y is the lower yield of the plates at the hole."
+              },
+              {
+                "label": "Demand: sling force on the padeye",
+                "symbol": "F",
+                "formula": "F",
+                "substituted": "F = 28.31 kN (see forces)",
+                "value": 28.309360086742217,
+                "unit": "kN",
+                "result": "28.31 kN",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "pin_hole_fit",
+            "title": "Pin fits the hole closely",
+            "demand": 0.9,
+            "capacity": 0.9531914893617021,
+            "unit": "ratio",
+            "utilization": 0.9441964285714287,
+            "passed": true,
+            "margin_percent": 5.580357142857128,
+            "source": "ASME BTH-1 commentary on pin-to-hole clearance",
+            "explanation": "A loose pin concentrates the load and weakens the head. Keep the pin at least 90% of the hole diameter.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Pin to hole ratio",
+                "symbol": "D_p/D_h",
+                "formula": "D_p / D_h \u2265 0.90",
+                "substituted": "22.4 / 23.5",
+                "value": 0.9531914893617021,
+                "unit": "",
+                "result": "0.9532",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "hole_clearance",
+            "title": "Hole is big enough for the pin",
+            "demand": 23.4,
+            "capacity": 23.5,
+            "unit": "mm",
+            "utilization": 0.9957446808510638,
+            "passed": true,
+            "margin_percent": 0.42553191489361764,
+            "source": "NEMO practice",
+            "explanation": "The hole must be at least 1 mm larger than the shackle pin so it fits.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest hole that fits",
+                "symbol": "D_{min}",
+                "formula": "D_{min} = D_p + 1 mm",
+                "substituted": "D_{min} = 22.4 + 1",
+                "value": 23.4,
+                "unit": "mm",
+                "result": "23.40 mm",
+                "note": ""
+              },
+              {
+                "label": "Hole diameter chosen",
+                "symbol": "D_h",
+                "formula": "D_h",
+                "substituted": "D_h = 23.5",
+                "value": 23.5,
+                "unit": "mm",
+                "result": "23.50 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "cheek_weld",
+            "title": "Cheek plate welds",
+            "demand": 17.377924918322332,
+            "capacity": 80.33333333333334,
+            "unit": "MPa",
+            "utilization": 0.21632271682558918,
+            "passed": true,
+            "margin_percent": 78.36772831744108,
+            "source": "ASME BTH-1, welded connections: fillet weld allowable shear",
+            "explanation": "Each cheek plate carries its share of the pin load into the main plate through the weld around its edge.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "load_per_cheek_n": 8492.808026022665
+            },
+            "working": [
+              {
+                "label": "Load carried by one cheek plate",
+                "symbol": "F_c",
+                "formula": "F_c = F \u00b7 t_c / t",
+                "substituted": "F_c = 28.31 kN \u00d7 6 / 20",
+                "value": 8.492808026022665,
+                "unit": "kN",
+                "result": "8.493 kN",
+                "note": ""
+              },
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 5",
+                "value": 3.5355,
+                "unit": "mm",
+                "result": "3.535 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld length around the cheek",
+                "symbol": "L_w",
+                "formula": "L_w = 2\u03c0 R_c",
+                "substituted": "L_w = 2\u03c0 \u00d7 22",
+                "value": 138.23007675795088,
+                "unit": "mm",
+                "result": "138.2 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld stress",
+                "symbol": "f_w",
+                "formula": "f_w = F_c / (L_w a)",
+                "substituted": "f_w = 8\u2009493 / (138.2 \u00d7 3.535)",
+                "value": 17.377924918322332,
+                "unit": "MPa",
+                "result": "17.38 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 E_{xx} / (1.20 N_d)",
+                "substituted": "F_w = 0.60 \u00d7 482 / (1.20 \u00d7 3.00)",
+                "value": 80.33333333333334,
+                "unit": "MPa",
+                "result": "80.33 MPa",
+                "note": "E_{xx} is the weld metal strength (E70XX / E7018 class electrodes)."
+              }
+            ]
+          },
+          {
+            "id": "cheek_weld_size",
+            "title": "Cheek weld size",
+            "demand": 5.0,
+            "capacity": 5.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack. This is the smallest weld size normally allowed for this plate thickness.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "thicker part 8 mm",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 5",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "base_combined",
+            "title": "Pulling and bending at the base",
+            "demand": 0.5403372304730611,
+            "capacity": 1.0,
+            "unit": "ratio",
+            "utilization": 0.5403372304730611,
+            "passed": true,
+            "margin_percent": 45.96627695269389,
+            "source": "ASME BTH-1, members: combined axial tension and bending",
+            "explanation": "At the base the padeye is pulled upward and bent by the sloping and sideways parts of the sling force. The three effects are added.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "axial_mpa": 19.15361328125,
+              "bending_in_plane_mpa": 18.660955135303713,
+              "bending_side_mpa": 37.32191027060741,
+              "allow_tension_mpa": 118.33333333333333,
+              "allow_bending_in_plane_mpa": 147.91666666666666,
+              "allow_bending_side_mpa": 147.91666666666666
+            },
+            "working": [
+              {
+                "label": "Pulling stress",
+                "symbol": "f_a",
+                "formula": "f_a = V / (L t)",
+                "substituted": "f_a = 24\u2009517 / (160 \u00d7 8)",
+                "value": 19.15361328125,
+                "unit": "MPa",
+                "result": "19.15 MPa",
+                "note": ""
+              },
+              {
+                "label": "In-plane bending stress",
+                "symbol": "f_{bx}",
+                "formula": "f_{bx} = H h / (t L^2 / 6)",
+                "substituted": "f_{bx} = 14\u2009155 \u00d7 45 / (8 \u00d7 160\u00b2 / 6)",
+                "value": 18.660955135303713,
+                "unit": "MPa",
+                "result": "18.66 MPa",
+                "note": ""
+              },
+              {
+                "label": "Sideways bending stress",
+                "symbol": "f_{by}",
+                "formula": "f_{by} = Q h / (L t^2 / 6)",
+                "substituted": "f_{by} = 1\u2009415 \u00d7 45 / (160 \u00d7 8\u00b2 / 6)",
+                "value": 37.32191027060741,
+                "unit": "MPa",
+                "result": "37.32 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed tension",
+                "symbol": "F_t",
+                "formula": "F_t = F_y / N_d",
+                "substituted": "F_t = 355 / 3.00",
+                "value": 118.33333333333333,
+                "unit": "MPa",
+                "result": "118.3 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed in-plane bending",
+                "symbol": "F_{bx}",
+                "formula": "\u03bb = h L / t^2, then BTH-1 rectangular-bar rule",
+                "substituted": "\u03bb = 45 \u00d7 160 / 8\u00b2 = 112.5 (limit for full strength 47.32)",
+                "value": 147.91666666666666,
+                "unit": "MPa",
+                "result": "147.9 MPa",
+                "note": "Long thin plates bent on edge can buckle sideways; \u03bb measures that risk."
+              },
+              {
+                "label": "Allowed sideways bending",
+                "symbol": "F_{by}",
+                "formula": "F_{by} = 1.25 F_y / N_d",
+                "substituted": "F_{by} = 1.25 \u00d7 355 / 3.00",
+                "value": 147.91666666666666,
+                "unit": "MPa",
+                "result": "147.9 MPa",
+                "note": ""
+              },
+              {
+                "label": "Combined use",
+                "symbol": "U",
+                "formula": "U = f_a/F_t + f_{bx}/F_{bx} + f_{by}/F_{by}",
+                "substituted": "U = 19.15/118.3 + 18.66/147.9 + 37.32/147.9",
+                "value": 0.5403372304730611,
+                "unit": "",
+                "result": "0.5403",
+                "note": "Must not exceed 1.0."
+              }
+            ]
+          },
+          {
+            "id": "base_shear",
+            "title": "Shear at the base",
+            "demand": 11.113497960362634,
+            "capacity": 68.31978185410571,
+            "unit": "MPa",
+            "utilization": 0.16266881507460146,
+            "passed": true,
+            "margin_percent": 83.73311849253986,
+            "source": "ASME BTH-1, members: allowable shear stress",
+            "explanation": "The sloping and sideways parts of the sling force try to slide the padeye along its base.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Shear stress",
+                "symbol": "f_v",
+                "formula": "f_v = \u221a(H^2 + Q^2) / (L t)",
+                "substituted": "f_v = \u221a(14\u2009155\u00b2 + 1\u2009415\u00b2) / (160 \u00d7 8)",
+                "value": 11.113497960362634,
+                "unit": "MPa",
+                "result": "11.11 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed shear",
+                "symbol": "F_v",
+                "formula": "F_v = F_y / (\u221a3 N_d)",
+                "substituted": "F_v = 355 / (\u221a3 \u00d7 3.00)",
+                "value": 68.31978185410571,
+                "unit": "MPa",
+                "result": "68.32 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "base_weld",
+            "title": "Base weld strength",
+            "demand": 54.027429722510405,
+            "capacity": 80.33333333333334,
+            "unit": "MPa",
+            "utilization": 0.6725406189524116,
+            "passed": true,
+            "margin_percent": 32.74593810475884,
+            "source": "ASME BTH-1, welded connections: fillet weld allowable shear",
+            "explanation": "Two fillet welds, one on each face, join the padeye to the deck or structure. All forces on the weld are combined on its throat.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "normal_mpa": 52.54395815786589,
+              "shear_mpa": 12.573608214241421,
+              "throat_mm": 3.5355
+            },
+            "working": [
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 5",
+                "value": 3.5355,
+                "unit": "mm",
+                "result": "3.535 mm",
+                "note": ""
+              },
+              {
+                "label": "Normal stress on the weld",
+                "symbol": "f_n",
+                "formula": "f_n = V/A_w + H h/S_x + Q h/S_y",
+                "substituted": "A_w = 2 \u00d7 160 \u00d7 3.535; S_x = 2 a L\u00b2/6; S_y = L a (t + a)",
+                "value": 52.54395815786589,
+                "unit": "MPa",
+                "result": "52.54 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear stress on the weld",
+                "symbol": "f_s",
+                "formula": "f_s = \u221a(H^2 + Q^2) / A_w",
+                "substituted": "f_s = \u221a(14\u2009155\u00b2 + 1\u2009415\u00b2) / 1\u2009131",
+                "value": 12.573608214241421,
+                "unit": "MPa",
+                "result": "12.57 MPa",
+                "note": ""
+              },
+              {
+                "label": "Resultant on the throat",
+                "symbol": "f_w",
+                "formula": "f_w = \u221a(f_n^2 + f_s^2)",
+                "substituted": "f_w = \u221a(52.54\u00b2 + 12.57\u00b2)",
+                "value": 54.027429722510405,
+                "unit": "MPa",
+                "result": "54.03 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 E_{xx} / (1.20 N_d)",
+                "substituted": "F_w = 0.60 \u00d7 482 / (1.20 \u00d7 3.00)",
+                "value": 80.33333333333334,
+                "unit": "MPa",
+                "result": "80.33 MPa",
+                "note": "E_{xx} is the weld metal strength (E70XX / E7018 class electrodes)."
+              }
+            ]
+          },
+          {
+            "id": "base_weld_size",
+            "title": "Base weld size",
+            "demand": 5.0,
+            "capacity": 5.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack. This is the smallest weld size normally allowed for this plate thickness.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "plate 8 mm",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 5",
+                "value": 5.0,
+                "unit": "mm",
+                "result": "5.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_rating",
+            "title": "Shackle is rated for the load",
+            "demand": 2.8867513459481287,
+            "capacity": 4.75,
+            "unit": "t",
+            "utilization": 0.6077371254627639,
+            "passed": true,
+            "margin_percent": 39.22628745372361,
+            "source": "Crosby G-2130 working load limit",
+            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Sling force in tonnes",
+                "symbol": "F/g",
+                "formula": "F / g",
+                "substituted": "28.31 kN / 9.807",
+                "value": 2.8867513459481287,
+                "unit": "t",
+                "result": "2.887 t",
+                "note": ""
+              },
+              {
+                "label": "Shackle working load limit",
+                "symbol": "WLL",
+                "formula": "WLL",
+                "substituted": "4.75 t (3/4 in) Crosby G-2130",
+                "value": 4.75,
+                "unit": "t",
+                "result": "4.750 t",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_fit",
+            "title": "Padeye fits inside the shackle",
+            "demand": 22.0,
+            "capacity": 31.8,
+            "unit": "mm",
+            "utilization": 0.6918238993710691,
+            "passed": true,
+            "margin_percent": 30.817610062893085,
+            "source": "NEMO practice",
+            "explanation": "The padeye plus cheek plates must slide into the shackle jaw with a little room.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Space needed in the jaw",
+                "symbol": "t + c",
+                "formula": "t + 2 mm",
+                "substituted": "20 + 2",
+                "value": 22.0,
+                "unit": "mm",
+                "result": "22.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Shackle jaw width",
+                "symbol": "J",
+                "formula": "J",
+                "substituted": "4.75 t (3/4 in) Crosby G-2130",
+                "value": 31.8,
+                "unit": "mm",
+                "result": "31.80 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "shackle_fill",
+            "title": "Padeye fills the shackle jaw",
+            "demand": 19.08,
+            "capacity": 20.0,
+            "unit": "mm",
+            "utilization": 0.954,
+            "passed": true,
+            "margin_percent": 4.600000000000004,
+            "source": "NEMO practice (rigging guidance)",
+            "explanation": "A padeye much thinner than the shackle jaw lets the shackle tilt and bends its pin. Aim to fill at least 60% of the jaw, or add spacers.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Thinnest padeye that fills the jaw",
+                "symbol": "0.6 J",
+                "formula": "0.6 J",
+                "substituted": "0.6 \u00d7 31.8",
+                "value": 19.08,
+                "unit": "mm",
+                "result": "19.08 mm",
+                "note": ""
+              },
+              {
+                "label": "Padeye thickness at the hole",
+                "symbol": "t",
+                "formula": "t",
+                "substituted": "t = 8 mm main plate + 2 \u00d7 6 mm cheek plates",
+                "value": 20.0,
+                "unit": "mm",
+                "result": "20.00 mm",
+                "note": ""
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_main_mpa": 355.0,
+          "yield_head_mpa": 355.0,
+          "tensile_mpa": 470.0,
+          "total_thickness_mm": 20.0,
+          "net_width_mm": 10.25,
+          "design_factor": 3.0,
+          "strength_reduction_factor_cr": 0.9168489922730231,
+          "effective_width_mm": 10.25,
+          "shear_plane_angle_deg": 52.42553191489362,
+          "curvature_loss_mm": 1.8703103632371558,
+          "shear_area_mm2": 510.00074867958074,
+          "base_axial_mpa": 19.15361328125,
+          "base_bending_in_plane_mpa": 18.660955135303713,
+          "base_bending_side_mpa": 37.32191027060741,
+          "allowable_bending_in_plane_mpa": 147.91666666666666
+        }
+      },
+      "cad_volume_mm3": 56976.55955720808,
+      "fea": {
+        "head_von_mises_mpa": 200.43481789901696,
+        "factor_of_safety_on_yield": 1.771149362776162,
+        "yield_strength_mpa": 355.0,
+        "convergence_change": 0.00020070571891242088,
+        "converged": true,
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 8.0,
+            "local_size_mm": 1.8456856839840037,
+            "elements": 5011,
+            "dofs": 27867,
+            "head_von_mises_mpa": 198.1060079850213,
+            "max_von_mises_mpa": 198.1060079850213,
+            "max_displacement_mm": 0.10450311243884519,
+            "applied_force_n": [
+              14154.71762888582,
+              1415.4680043371106,
+              24516.603299916136
+            ],
+            "reaction_force_n": [
+              -14154.717628880155,
+              -1415.468004341531,
+              -24516.603299906536
+            ],
+            "reaction_balance_error": 4.230900834112584e-13,
+            "solve_seconds": 3.176648300001034
+          },
+          {
+            "level": 2,
+            "global_size_mm": 5.6,
+            "local_size_mm": 1.2919799787888024,
+            "elements": 12648,
+            "dofs": 65556,
+            "head_von_mises_mpa": 200.39458948479546,
+            "max_von_mises_mpa": 200.39458948479546,
+            "max_displacement_mm": 0.10560921049399176,
+            "applied_force_n": [
+              14154.358481771449,
+              1415.4680043371109,
+              24516.810648052713
+            ],
+            "reaction_force_n": [
+              -14154.358481774338,
+              -1415.4680043416984,
+              -24516.810648068826
+            ],
+            "reaction_balance_error": 5.997640232642323e-13,
+            "solve_seconds": 8.88553850000062
+          },
+          {
+            "level": 3,
+            "global_size_mm": 4.0,
+            "local_size_mm": 0.9228428419920018,
+            "elements": 32096,
+            "dofs": 155709,
+            "head_von_mises_mpa": 200.43481789901696,
+            "max_von_mises_mpa": 200.43481789901696,
+            "max_displacement_mm": 0.10603171830133025,
+            "applied_force_n": [
+              14154.777056755187,
+              1415.4680043371109,
+              24516.56898878474
+            ],
+            "reaction_force_n": [
+              -14154.777056758294,
+              -1415.4680043534674,
+              -24516.568988783234
+            ],
+            "reaction_balance_error": 5.89775118912263e-13,
+            "solve_seconds": 22.82904140000028
+          }
+        ]
+      },
+      "files": {
+        "step": "designs\\robust\\padeye.step",
+        "stl": "designs\\robust\\padeye.stl",
+        "dxf": "designs\\robust\\padeye-cutting.dxf",
+        "stress_surface": "designs/robust/stress-surface.json"
+      }
+    }
+  ],
+  "files": {
+    "engineering_log": "engineering-log.json",
+    "designs_evaluated": "designs-evaluated.csv"
+  },
+  "seconds": 138.14238730000034
+}

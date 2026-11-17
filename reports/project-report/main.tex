@@ -1,0 +1,346 @@
+\documentclass[12pt,a4paper]{report}
+
+% ==============================================================================
+% JKUAT UPRO PROJECT REPORT: NEMO 2
+% ==============================================================================
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{pgfgantt}
+\usepackage{setspace}
+\usepackage{cite}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pdflscape}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{siunitx}
+
+\sisetup{group-separator={\,}, group-minimum-digits=4, detect-all}
+
+\usetikzlibrary{arrows, arrows.meta, calc, fit, positioning, shapes.geometric, shapes.multipart, backgrounds}
+
+\definecolor{nemoblue}{HTML}{1D4ED8}
+\definecolor{nemoteal}{HTML}{0F766E}
+\definecolor{nemoorange}{HTML}{B45309}
+\definecolor{nemogray}{HTML}{475569}
+\definecolor{nemolight}{HTML}{EFF6FF}
+\definecolor{passgreen}{HTML}{166534}
+\definecolor{warningred}{HTML}{991B1B}
+
+\tikzstyle{startstop}=[rectangle, rounded corners, minimum width=3cm, minimum height=1cm, align=center, draw=nemoblue, fill=nemolight, thick]
+\tikzstyle{process}=[rectangle, rounded corners, minimum width=3cm, minimum height=1cm, align=center, draw=nemoblue, fill=nemolight, thick]
+\tikzstyle{decision}=[diamond, aspect=2, minimum width=3cm, minimum height=1cm, align=center, draw=nemoblue, fill=nemolight, thick]
+\tikzstyle{arrow}=[thick,->,>=stealth,draw=nemoblue]
+\tikzstyle{layer}=[rectangle, rounded corners=2pt, align=center, draw=nemogray, fill=white, thick, font=\small, inner sep=5pt]
+
+\lstdefinestyle{nemo}{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    keywordstyle=\color{nemoblue}\bfseries,
+    stringstyle=\color{nemoorange},
+    commentstyle=\color{passgreen},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{nemogray},
+    captionpos=b,
+    columns=fullflexible,
+    upquote=true,
+    literate={×}{{$\times$}}1 {·}{{$\cdot$}}1 {°}{{$^\circ$}}1 {≥}{{$\geq$}}1 {≤}{{$\leq$}}1 {√}{{$\surd$}}1
+}
+\lstset{style=nemo}
+
+\geometry{top=2cm, bottom=2.5cm, left=1in, right=1in}
+\onehalfspacing
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\setlist{itemsep=0.25em,topsep=0.4em}
+\emergencystretch=2em
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black,
+    urlcolor=black,
+    citecolor=black,
+    plainpages=false,
+    pdftitle={NEMO 2: A Rule-Based, Verified Design Tool for Marine Steelwork},
+    pdfauthor={Amina Ahmed Bwana and Mboje Abdullah}
+}
+
+\captionsetup{font=small, labelfont=bf, justification=centering, singlelinecheck=false}
+\captionsetup[table]{position=top}
+
+\newcommand{\NEMO}{\textsc{Nemo}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\title{NEMO 2: A Rule-Based, Verified Design Tool for Marine Steelwork}
+\author{Amina Ahmed Bwana \and Mboje Abdullah}
+\date{March 2027}
+
+% ==============================================================================
+% FRONT MATTER
+% ==============================================================================
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+{\setstretch{1.0}
+
+\vspace*{0.2cm}
+
+\includegraphics[width=0.20\textwidth]{./media/HDlogo.png}\\[0.45cm]
+
+JOMO KENYATTA UNIVERSITY\\[0.2cm]
+OF\\[0.2cm]
+AGRICULTURE AND TECHNOLOGY\\[0.35cm]
+
+COLLEGE OF ENGINEERING AND TECHNOLOGY\\[0.35cm]
+
+SCHOOL OF MECHANICAL, MANUFACTURING AND MATERIALS ENGINEERING\\[0.35cm]
+
+DEPARTMENT OF MARINE ENGINEERING AND MARITIME OPERATIONS\\[0.35cm]
+
+BACHELOR OF SCIENCE IN MARINE ENGINEERING
+
+\vspace{0.55cm}
+\hrule
+\vspace{0.3cm}
+
+{\large\bfseries
+NEMO 2: A RULE-BASED, VERIFIED DESIGN TOOL\\[0.08cm]
+FOR MARINE STEELWORK: LIFTING PADEYES,\\[0.08cm]
+PIPE SUPPORT BRACKETS AND STABILIZER FINS}
+
+\vspace{0.3cm}
+\hrule
+
+\vspace{0.5cm}
+
+{\normalsize\textbf{MR-PRO-26-XX}}\\[0.25cm]
+
+{\normalsize by}\\[0.2cm]
+{\large\textbf{AMINA AHMED BWANA}}\\[0.05cm]
+{\normalsize ENM241-0087/2022}\\[0.25cm]
+
+{\large\textbf{MBOJE ABDULLAH}}\\[0.05cm]
+{\normalsize ENM241-0088/2022}\\[0.35cm]
+
+{\normalsize Supervised by}\\[0.15cm]
+{\large\textbf{SUPERVISOR NAME}}
+
+\vfill
+
+{\footnotesize\textit{A project report submitted in partial fulfilment of the requirements}}\\
+{\footnotesize\textit{for the award of the Degree of Bachelor of Science in Marine Engineering}}\\
+{\footnotesize\textit{at the Jomo Kenyatta University of Agriculture and Technology}}\\[0.2cm]
+
+{\footnotesize March 2027}
+}
+\end{center}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\pagenumbering{roman}
+
+\section*{DECLARATION}
+\addcontentsline{toc}{section}{Declaration}
+
+We hereby declare that this Project Report is our original work and has not
+been presented for a degree in any other university or for any other award.
+
+\vspace{1cm}
+\noindent
+\textbf{Name:} Amina Ahmed Bwana
+\hfill
+\textbf{REG NUMBER:} ENM241-0087/2022\\[0.5cm]
+\noindent
+\textbf{Signature:} \underline{\hspace{5cm}}
+\hfill
+\textbf{Date:} \underline{\hspace{4cm}}
+
+\vspace{1cm}
+\noindent
+\textbf{Name:} Mboje Abdullah
+\hfill
+\textbf{REG NUMBER:} ENM241-0088/2022\\[0.5cm]
+\noindent
+\textbf{Signature:} \underline{\hspace{5cm}}
+\hfill
+\textbf{Date:} \underline{\hspace{4cm}}
+
+\vspace{1cm}
+\noindent
+\textbf{Supervisor Declaration}
+
+\noindent
+This Project Report has been submitted for examination with my approval as
+the University Supervisor.
+
+\vspace{0.8cm}
+\noindent
+\textbf{Name:} Supervisor Name
+
+\vspace{1cm}
+\noindent
+\textbf{Signature:} \underline{\hspace{5cm}}
+\hfill
+\textbf{Date:} \underline{\hspace{4cm}}
+
+\clearpage
+
+\chapter*{Dedication}
+\addcontentsline{toc}{section}{Dedication}
+
+We dedicate this Project Report to our parents, guardians, lecturers and
+mentors. Their encouragement, sacrifice and guidance carried us through our
+studies and through this project.
+
+\clearpage
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{section}{Acknowledgements}
+
+We thank our supervisor for the guidance, the hard questions and the
+direction given throughout this project, and in particular for agreeing to
+the change of scope between the first and second phases of the work. We
+thank the staff of the Department of Marine Engineering and Maritime
+Operations for the teaching that this project draws on, and our families for
+their patience and support.
+
+The work depends on open-source software written and maintained by others.
+We thank the developers of OpenCASCADE and build123d, Gmsh, scikit-fem,
+PyAMG, NumPy, SciPy, FastAPI, ReportLab, Matplotlib, React and three.js.
+Autodesk educational access made the Fusion connector possible.
+
+\clearpage
+
+\chapter*{Abstract}
+\addcontentsline{toc}{section}{Abstract}
+
+\input{structure/00-abstract}
+
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+
+\section*{LIST OF ABBREVIATIONS AND SYMBOLS}
+\addcontentsline{toc}{section}{List of Abbreviations and Symbols}
+
+\subsection*{Abbreviations}
+\begin{longtable}{p{0.22\textwidth}p{0.68\textwidth}}
+\textbf{AISC} & American Institute of Steel Construction\\
+\textbf{AMG} & Algebraic multigrid\\
+\textbf{API} & Application programming interface\\
+\textbf{ASD} & Allowable strength design\\
+\textbf{ASME} & American Society of Mechanical Engineers\\
+\textbf{AWS} & American Welding Society\\
+\textbf{BTH-1} & ASME BTH-1, Design of Below-the-Hook Lifting Devices\\
+\textbf{CAD} & Computer-aided design\\
+\textbf{CG} & Conjugate gradient method\\
+\textbf{DAF} & Dynamic amplification factor\\
+\textbf{DN} & Nominal diameter (metric pipe size)\\
+\textbf{DXF} & Drawing Exchange Format\\
+\textbf{FEA} & Finite element analysis\\
+\textbf{FoS} & Factor of safety\\
+\textbf{IACS} & International Association of Classification Societies\\
+\textbf{JKUAT} & Jomo Kenyatta University of Agriculture and Technology\\
+\textbf{JSON} & JavaScript Object Notation\\
+\textbf{NACA} & National Advisory Committee for Aeronautics\\
+\textbf{NEMO} & Nelder-Mead Marine Optimizer\\
+\textbf{NPS} & Nominal pipe size\\
+\textbf{PDF} & Portable Document Format\\
+\textbf{STEP} & Standard for the Exchange of Product Model Data (ISO 10303)\\
+\textbf{STL} & Stereolithography triangle mesh format\\
+\textbf{UR} & Unified Requirement (IACS)\\
+\textbf{WLL} & Working load limit\\
+\end{longtable}
+
+\subsection*{Symbols}
+\begin{longtable}{p{0.22\textwidth}p{0.68\textwidth}}
+$A$ & Area (mm$^2$ or m$^2$)\\
+$A_e$ & Effective aspect ratio of the fin\\
+$a_v$, $a_h$ & Vertical and horizontal ship-motion accelerations (g)\\
+$b$, $c$ & Fin span and chord (m)\\
+$C_L$ & Lift coefficient\\
+$C_p$ & Pressure coefficient\\
+$C_R$ & Rudder force from IACS UR S10 (N)\\
+$C_r$ & Strength reduction factor for pin clearance\\
+$D_h$, $D_p$ & Hole and pin diameters (mm)\\
+$E$ & Young's modulus (MPa)\\
+$F$ & Sling force or design force (N)\\
+$F_y$, $F_u$ & Minimum yield and tensile strengths (MPa)\\
+$f_n$ & Natural frequency (Hz)\\
+$g$ & Standard gravity, 9.80665~m/s$^2$\\
+$I$ & Second moment of area (mm$^4$)\\
+$k$ & IACS material factor\\
+$M$ & Bending moment (N\,mm or N\,m)\\
+$N_d$ & ASME BTH-1 design factor\\
+$Q$ & Twisting moment on the fin stock (N\,m)\\
+$q$ & Weight per unit length (N/m)\\
+$S$ & Support spacing (m) or elastic section modulus (mm$^3$)\\
+$t$ & Plate thickness (mm)\\
+$U$ & Utilisation, demand divided by capacity\\
+$V$ & Speed (m/s) or shear force (N), as stated\\
+$\alpha$ & Fin angle of attack\\
+$\theta$ & Sling angle from horizontal\\
+$\rho$ & Density (kg/m$^3$)\\
+$\sigma$ & Normal stress (MPa) or cavitation number, as stated\\
+$\sigma_e$ & Equivalent (von Mises) stress (MPa)\\
+$\tau$ & Shear stress (MPa)\\
+$\Omega$ & AISC 360 safety factor\\
+\end{longtable}
+
+\clearpage
+
+% ==============================================================================
+% MAIN CONTENT
+% ==============================================================================
+
+\pagenumbering{arabic}
+
+\input{structure/01-introduction}
+\input{structure/02-literature-review}
+\input{structure/03-methodology}
+\input{structure/04-results}
+\input{structure/05-workplan}
+\input{structure/06-budget}
+\input{structure/07-conclusion}
+
+\clearpage
+
+% ==============================================================================
+% REFERENCES AND APPENDICES
+% ==============================================================================
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\appendix
+\input{structure/08-appendices}
+
+\end{document}

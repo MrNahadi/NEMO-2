@@ -1,0 +1,129 @@
+\chapter{Conclusions and recommendations}
+\label{chap:conclusion}
+
+This chapter states what the project achieved against each objective, what
+the results mean for the design of these details, and what should be done
+next.
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+The project set out to build and verify a desktop tool that sizes three
+marine structural details from a plain description of the job, checks them
+against published rules, confirms them with a built-in finite element
+analysis and issues a calculation package that a non-programmer can produce
+and review. \NEMO{}~2 does this for lifting padeyes, pipe support brackets and
+stabilizer fins. The objectives were met as follows.
+
+\begin{enumerate}
+    \item \textbf{Rule-based check models.} The padeye is checked to ASME
+    BTH-1, the bracket to AISC 360-16 in allowable strength design with a
+    check of the pipe span against five machinery excitations, and the fin to
+    IACS UR S10 with a Whicker-Fehlner foil load and a Hess-Smith panel method.
+    Every check returns its working and names its source, and the 15 padeye,
+    14 bracket and 11 fin checks separate code rules from practice. Objective
+    1 was met.
+    \item \textbf{Stock-aware sizing.} The search enumerates the plate stock,
+    shackles, U-bolts and weld sizes, sizes the continuous dimensions with a
+    bounded Nelder-Mead search, rounds to buildable sizes and returns designs
+    at 100\%, 85\% and 70\% maximum use. Lower-bound pruning skipped 60 of 63
+    combinations in the bracket case. Objective 2 was met.
+    \item \textbf{Open-source geometry and analysis.} Every design is built as
+    an exact solid, meshed three times and solved with quadratic tetrahedra.
+    Force balance closed to $10^{-11}$ or better and the assessed peak changed
+    by 0.54\% or less between the two finest meshes in all three case studies.
+    The manual stress step that blocked the first phase is gone. Objective 3
+    was met.
+    \item \textbf{Verification.} The engine matches a padeye hand calculation
+    within 0.002\%, CAD volumes exactly, beam theory within 2.6\%, a published
+    stress concentration factor within 0.9\% and foil theory within 1.7\%. All
+    153 automated tests pass. Objective 4 was met for code verification. A
+    comparison with a published BTH-1 worked example is still to be done.
+    \item \textbf{Interface and outputs.} The tool installs from one file and
+    runs in the browser. It shows the engineering steps live, gives the
+    working of every check, and writes a PDF package, STEP, STL and DXF files.
+    The Fusion connector builds a parametric padeye and re-checks edited
+    dimensions. Objective 5 was met in build. The connector has not been run
+    in a live Fusion session, and ease of use has not been measured with
+    users.
+    \item \textbf{Case studies.} One case per part was run, with sweeps of
+    load, sling angle, pipe size, support spacing and ship speed, and the
+    limits of the results were stated in Section~\ref{sec:limitations}.
+    Objective 6 was met.
+\end{enumerate}
+
+The case studies also gave findings about the parts themselves.
+
+\begin{itemize}
+    \item A 5~t two-point padeye weighs 0.305~kg and is governed by its base
+    weld at 98\%. Asking for 15\% spare capacity raises the mass by 42\%,
+    because the shackle has to move up a size. Catalogue steps, more than plate
+    dimensions, set the mass of small lifting details.
+    \item An NPS~4 seawater line bracket uses 25\% of its strength and is
+    sized by minimum plate, weld and U-bolt sizes. Its pipe span limits support
+    spacing to 2.3~m because of engine firing at 37.5~Hz. Shortening the 3~m
+    span to 2.5~m would move it into resonance, so pass or fail does not
+    improve steadily as spacing falls.
+    \item For a 1.4~m by 1.2~m fin at 18~knots, the foil model gives a force
+    21\% above the UR S10 rudder formula. The stock governs at 94.5\%, the
+    plating sits at rule minimums, and leading-edge cavitation begins between
+    18 and 20~knots at the largest angle.
+\end{itemize}
+
+The common lesson is that a design method for these details cannot stop at
+strength. Minimum sizes, catalogue steps, pipe vibration and foil
+hydrodynamics decided the design in every case study.
+
+\section{Recommendations}
+\label{sec:recommendations}
+
+For engineers using \NEMO{}~2:
+
+\begin{itemize}
+    \item Use the calculation package as a checked starting point, and have a
+    competent engineer review it before fabrication. The package is written so
+    that the review can be done without the software.
+    \item Enter ship-motion accelerations from the classification society
+    rules for the vessel, not the defaults, when designing brackets.
+    \item Treat the recommended support spacing as the limit for pipe runs
+    near machinery, even where the actual spacing passes the separation check.
+    \item For fins, use the larger of the two load methods, as the tool does,
+    and treat a cavitation warning as a limit on the largest fin angle at that
+    speed.
+    \item Run the Verification page after installing the tool on a new
+    computer, and keep its result with the project file.
+\end{itemize}
+
+For the department:
+
+\begin{itemize}
+    \item The tool could be used in teaching structural design of ship
+    details, because every check shows its working and the effect of an input
+    can be seen in a few minutes.
+    \item Future projects could add parts to the same engine, such as
+    foundations for small machinery or deck fittings, using the existing check
+    record, rule sets, sizing method and analysis pipeline.
+\end{itemize}
+
+\section{Future work}
+\label{sec:future-work}
+
+\begin{enumerate}
+    \item Compare the padeye checks with a published ASME BTH-1 worked
+    example.
+    \item Run the Fusion connector in a live Fusion session, and record a
+    Fusion Static Stress cross-check of at least one padeye.
+    \item Carry out a usability study in which marine engineering students who
+    have not used the tool complete a design from job description to
+    calculation package, and record their time, errors and comments.
+    \item Proof load test a padeye designed by the tool, with strain gauges
+    near the hole, to validate the finite element model.
+    \item Compute bracket accelerations from a classification society method,
+    such as the DNV rules for ship motions, from the vessel's main dimensions.
+    \item Extend the pipe span model to continuous runs with bends, valves and
+    flexible supports.
+    \item Add dynamic and fatigue checks for the fin, and a model of the whole
+    fin, not only the stock, in the finite element analysis.
+    \item Add rule sets from classification societies, such as DNV, Lloyd's
+    Register and Bureau Veritas, through the existing rule-set interface.
+\end{enumerate}

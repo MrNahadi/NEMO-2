@@ -1,0 +1,123 @@
+{
+  "note": "Minimum specified strengths. Yield depends on plate thickness for structural steels; each entry lists the thickness bands it covers. Units: MPa, kg/m3, GPa.",
+  "materials": [
+    {
+      "id": "S235",
+      "name": "S235 structural steel",
+      "family": "steel",
+      "source": "EN 10025-2:2019, plate 3-100 mm",
+      "density_kg_m3": 7850,
+      "elastic_modulus_gpa": 210,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 360,
+      "yield_bands": [
+        {"max_thickness_mm": 16, "yield_strength_mpa": 235},
+        {"max_thickness_mm": 40, "yield_strength_mpa": 225},
+        {"max_thickness_mm": 100, "yield_strength_mpa": 215}
+      ]
+    },
+    {
+      "id": "S275",
+      "name": "S275 structural steel",
+      "family": "steel",
+      "source": "EN 10025-2:2019, plate 3-100 mm",
+      "density_kg_m3": 7850,
+      "elastic_modulus_gpa": 210,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 410,
+      "yield_bands": [
+        {"max_thickness_mm": 16, "yield_strength_mpa": 275},
+        {"max_thickness_mm": 40, "yield_strength_mpa": 265},
+        {"max_thickness_mm": 63, "yield_strength_mpa": 255},
+        {"max_thickness_mm": 80, "yield_strength_mpa": 245},
+        {"max_thickness_mm": 100, "yield_strength_mpa": 235}
+      ]
+    },
+    {
+      "id": "S355",
+      "name": "S355 structural steel",
+      "family": "steel",
+      "source": "EN 10025-2:2019, plate 3-100 mm",
+      "density_kg_m3": 7850,
+      "elastic_modulus_gpa": 210,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 470,
+      "yield_bands": [
+        {"max_thickness_mm": 16, "yield_strength_mpa": 355},
+        {"max_thickness_mm": 40, "yield_strength_mpa": 345},
+        {"max_thickness_mm": 63, "yield_strength_mpa": 335},
+        {"max_thickness_mm": 80, "yield_strength_mpa": 325},
+        {"max_thickness_mm": 100, "yield_strength_mpa": 315}
+      ]
+    },
+    {
+      "id": "GRADE_A",
+      "name": "Shipbuilding steel grade A (normal strength)",
+      "family": "steel",
+      "source": "IACS UR W11, normal strength hull structural steel",
+      "density_kg_m3": 7850,
+      "elastic_modulus_gpa": 206,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 400,
+      "yield_bands": [
+        {"max_thickness_mm": 100, "yield_strength_mpa": 235}
+      ]
+    },
+    {
+      "id": "AH36",
+      "name": "Shipbuilding steel AH36 (higher strength)",
+      "family": "steel",
+      "source": "IACS UR W11, higher strength hull structural steel, grade AH36",
+      "density_kg_m3": 7850,
+      "elastic_modulus_gpa": 206,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 490,
+      "yield_bands": [
+        {"max_thickness_mm": 100, "yield_strength_mpa": 355}
+      ]
+    },
+    {
+      "id": "316L",
+      "name": "Stainless steel 316L (1.4404), hot-rolled plate",
+      "family": "stainless",
+      "source": "EN 10088-2, product form P (hot-rolled plate)",
+      "density_kg_m3": 8000,
+      "elastic_modulus_gpa": 200,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 520,
+      "yield_bands": [
+        {"max_thickness_mm": 75, "yield_strength_mpa": 220}
+      ]
+    },
+    {
+      "id": "42CRMO4_QT",
+      "name": "Forged steel 42CrMo4, quenched and tempered (stocks)",
+      "family": "forging",
+      "source": "EN 10083-3, 42CrMo4 (1.7225) +QT. Tensile strength is the minimum for the largest size band; check the mill certificate.",
+      "density_kg_m3": 7850,
+      "elastic_modulus_gpa": 210,
+      "poisson_ratio": 0.3,
+      "tensile_strength_mpa": 750,
+      "yield_bands": [
+        {"max_thickness_mm": 16, "yield_strength_mpa": 900},
+        {"max_thickness_mm": 40, "yield_strength_mpa": 750},
+        {"max_thickness_mm": 100, "yield_strength_mpa": 650},
+        {"max_thickness_mm": 160, "yield_strength_mpa": 550},
+        {"max_thickness_mm": 250, "yield_strength_mpa": 500}
+      ]
+    },
+    {
+      "id": "AL5083_H111",
+      "name": "Marine aluminium 5083-H111",
+      "family": "aluminium",
+      "source": "EN 485-2, 5083 O/H111 plate. Welded strength equals parent strength in this temper.",
+      "density_kg_m3": 2660,
+      "elastic_modulus_gpa": 70,
+      "poisson_ratio": 0.33,
+      "tensile_strength_mpa": 275,
+      "yield_bands": [
+        {"max_thickness_mm": 50, "yield_strength_mpa": 125}
+      ]
+    }
+  ]
+}

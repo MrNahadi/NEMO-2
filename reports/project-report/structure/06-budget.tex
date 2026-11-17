@@ -1,0 +1,81 @@
+\chapter{Project budget}
+\label{chap:budget}
+
+This chapter gives the direct cash budget and the resources the project used
+without paying for them. The project was planned around computers the
+authors already had, open-source software, Autodesk educational access and
+digital submission, so its cash budget is zero.
+
+\section{Direct cash budget}
+\label{sec:budget}
+
+No equipment, software licence, cloud service, data, printing, travel,
+fabrication or testing was paid for from project funds.
+Table~\ref{tab:cash-budget} sets out the reasons.
+
+\begin{table}[H]
+\centering
+\caption{Direct cash budget}
+\label{tab:cash-budget}
+\small
+\begin{tabularx}{\textwidth}{
+    >{\raggedright\arraybackslash}p{0.23\textwidth}
+    >{\raggedright\arraybackslash}X
+    >{\centering\arraybackslash}p{0.15\textwidth}}
+\toprule
+\textbf{Category} & \textbf{Why no cash is needed} & \textbf{Budget (KES)}\\
+\midrule
+Computers & Existing personal and university computers. The finite element models were kept small enough to solve on them, the largest at 209,763 unknowns in 27~s. & 0\\[0.35em]
+CAD and analysis software & build123d, OpenCASCADE, Gmsh, scikit-fem and PyAMG are open source. They replace the Fusion Simulation step of the first phase. & 0\\[0.35em]
+Fusion & Autodesk educational access, used only for the optional connector. & 0\\[0.35em]
+Other software & Python, NumPy, SciPy, FastAPI, ReportLab, React, three.js, Git and LaTeX are free to use. & 0\\[0.35em]
+Cloud services & Everything runs on the user's computer. No paid hosting or computation is used. & 0\\[0.35em]
+Internet and electricity & Existing personal and university services. & 0\\[0.35em]
+Printing and travel & The report is submitted digitally. & 0\\[0.35em]
+Fabrication and testing & Physical tests are outside the scope of this project. & 0\\[0.35em]
+Contingency & Schedule margin and scope control instead of a cash reserve. & 0\\
+\midrule
+\textbf{Total} & & \textbf{0}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{In-kind resources}
+\label{sec:in-kind-resources}
+
+A zero cash budget does not mean the project used no resources.
+Table~\ref{tab:in-kind} lists them. They are not given money values, because
+there is no sound basis for pricing them.
+
+\begin{table}[H]
+\centering
+\caption{In-kind resources}
+\label{tab:in-kind}
+\small
+\begin{tabularx}{\textwidth}{
+    >{\raggedright\arraybackslash}p{0.25\textwidth}
+    >{\raggedright\arraybackslash}X
+    >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Resource} & \textbf{How it was provided} & \textbf{What it was used for}\\
+\midrule
+Computers & Personal and university & Development, tests, case studies, report\\
+Open-source software & Public licences & Geometry, meshing, analysis, server, application, report\\
+Autodesk Fusion & Educational access & First phase CAD and studies; the connector in this phase\\
+Design codes and catalogues & University library and public sources & Rule sets and reference data\\
+Internet and electricity & Personal and university & Research, software downloads, running the tool\\
+Student time and supervision & Academic project & All of the engineering, programming and writing\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Costs beyond this project}
+\label{sec:budget-beyond}
+
+Taking a design from the tool into service would need money that this
+project does not include. A proof load test of a padeye, vibration
+measurements on a pipe run, tank or sea tests of a fin, certified material,
+fabrication and inspection would each need their own budget. A user who adopts
+the tool commercially would also need to buy the design codes it applies.
+ASME BTH-1, AISC 360 and AWS D1.1 are sold by their publishers, while IACS
+unified requirements are free to download.

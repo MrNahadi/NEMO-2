@@ -1,0 +1,487 @@
+{
+  "nemo_version": "0.1.0",
+  "ran_at": "2026-11-17T11:17:17",
+  "passed": true,
+  "benchmarks": [
+    {
+      "id": "padeye-hand-calc",
+      "title": "Padeye checks against a hand calculation",
+      "description": "Every ASME BTH-1 value for one padeye, worked out by hand first.",
+      "source": "Hand calculation in the engineering manual",
+      "setup": [
+        {
+          "label": "Lift",
+          "symbol": "",
+          "formula": "4 000 kg on 2 padeyes, slings at 60\u00b0",
+          "substituted": "S355 plate 20 mm, R 45, hole 21, base 200, hole height 90, weld 8",
+          "value": 0,
+          "unit": "",
+          "result": "0",
+          "note": ""
+        },
+        {
+          "label": "Design rules",
+          "symbol": "N_d",
+          "formula": "ASME BTH-1 category B",
+          "substituted": "N_d = 3.00; pin connections 1.20 N_d = 3.60",
+          "value": 3.0,
+          "unit": "",
+          "result": "3.000",
+          "note": ""
+        },
+        {
+          "label": "Shackle",
+          "symbol": "",
+          "formula": "Smallest Crosby G-2130 \u2265 2.309 t",
+          "substituted": "3.25 t: pin 19.1 mm, jaw 26.9 mm",
+          "value": 3.25,
+          "unit": "t",
+          "result": "3.250 t",
+          "note": ""
+        }
+      ],
+      "comparisons": [
+        {
+          "quantity": "Sling force F",
+          "reference": 22647.6,
+          "nemo": 22647.488069393774,
+          "unit": "N",
+          "error_percent": -0.0004942272303671575,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Strength reduction C_r",
+          "reference": 0.885696,
+          "nemo": 0.8856957480312277,
+          "unit": "",
+          "error_percent": -2.844867452165052e-05,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Effective width b_{eff}",
+          "reference": 22.0013,
+          "nemo": 22.00134383247493,
+          "unit": "mm",
+          "error_percent": 0.00019922674991783475,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Tension through pinhole P_t",
+          "reference": 101763,
+          "nemo": 101762.81601329088,
+          "unit": "N",
+          "error_percent": -0.00018079921888945047,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Fracture beyond pinhole P_b",
+          "reference": 117933,
+          "nemo": 117932.96215557186,
+          "unit": "N",
+          "error_percent": -3.2089769731762674e-05,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Shear plane area A_v",
+          "reference": 1492.61,
+          "nemo": 1492.614079263358,
+          "unit": "mm\u00b2",
+          "error_percent": 0.000273297335412982,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Double plane shear P_v",
+          "reference": 136408,
+          "nemo": 136408.34224379022,
+          "unit": "N",
+          "error_percent": 0.0002508971542864585,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Pin bearing P_p",
+          "reference": 54912.5,
+          "nemo": 54912.5,
+          "unit": "N",
+          "error_percent": 0.0,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Base combined use",
+          "reference": 0.14898,
+          "nemo": 0.1489823352823708,
+          "unit": "",
+          "error_percent": 0.0015675140091190886,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Base weld stress",
+          "reference": 26.179,
+          "nemo": 26.178778899547435,
+          "unit": "MPa",
+          "error_percent": -0.0008445718039780177,
+          "tolerance_percent": 0.1,
+          "passed": true
+        },
+        {
+          "quantity": "Plate mass",
+          "reference": 2.5958,
+          "nemo": 2.5957835601618386,
+          "unit": "kg",
+          "error_percent": -0.0006333245304516481,
+          "tolerance_percent": 0.1,
+          "passed": true
+        }
+      ],
+      "mesh": null,
+      "passed": true,
+      "error": null,
+      "seconds": 0.002319100000022445
+    },
+    {
+      "id": "cad-volume",
+      "title": "3D model volume against the exact formula",
+      "description": "The solid NEMO exports has exactly the volume the mass is calculated from.",
+      "source": "Exact geometry",
+      "setup": [
+        {
+          "label": "Formula",
+          "symbol": "V",
+          "formula": "V = A_{plate} t + 2 \u03c0 (R_c^2 \u2212 D_h^2/4) t_c",
+          "substituted": "A_{plate} from base corners, tangent points and head arc, minus the hole",
+          "value": 0,
+          "unit": "",
+          "result": "0",
+          "note": ""
+        },
+        {
+          "label": "Pipe bracket",
+          "symbol": "V",
+          "formula": "V = L b t_s \u2212 2 \u03c0 d^2/4 t_s + 2 \u00d7 \u00bd L h_k t_k",
+          "substituted": "seat with two U-bolt holes plus two knees",
+          "value": 0,
+          "unit": "",
+          "result": "0",
+          "note": ""
+        }
+      ],
+      "comparisons": [
+        {
+          "quantity": "Plain padeye volume",
+          "reference": 330673.06498876924,
+          "nemo": 330673.06498876936,
+          "unit": "mm\u00b3",
+          "error_percent": 3.520556530084743e-14,
+          "tolerance_percent": 0.01,
+          "passed": true
+        },
+        {
+          "quantity": "Padeye with cheek plates",
+          "reference": 424000.0720740801,
+          "nemo": 424000.07207408006,
+          "unit": "mm\u00b3",
+          "error_percent": -1.372821957994798e-14,
+          "tolerance_percent": 0.01,
+          "passed": true
+        },
+        {
+          "quantity": "Pipe support bracket",
+          "reference": 324921.239199482,
+          "nemo": 324921.239199482,
+          "unit": "mm\u00b3",
+          "error_percent": 0.0,
+          "tolerance_percent": 0.01,
+          "passed": true
+        }
+      ],
+      "mesh": null,
+      "passed": true,
+      "error": null,
+      "seconds": 0.2223708000001352
+    },
+    {
+      "id": "cantilever",
+      "title": "Cantilever beam",
+      "description": "The stress solver against beam theory for a bar fixed at one end.",
+      "source": "Timoshenko beam theory",
+      "setup": [
+        {
+          "label": "Bar",
+          "symbol": "",
+          "formula": "200 \u00d7 20 \u00d7 20 mm steel, fixed at one end",
+          "substituted": "E = 210 000 MPa, \u03bd = 0.3, end load P = 1 000 N",
+          "value": 0,
+          "unit": "",
+          "result": "0",
+          "note": ""
+        },
+        {
+          "label": "Second moment of area",
+          "symbol": "I",
+          "formula": "I = b d^3 / 12",
+          "substituted": "I = 20 \u00d7 20\u00b3 / 12",
+          "value": 13333.333333333334,
+          "unit": "mm\u2074",
+          "result": "13\u2009333 mm\u2074",
+          "note": ""
+        },
+        {
+          "label": "Bending deflection",
+          "symbol": "\u03b4_b",
+          "formula": "\u03b4_b = P L^3 / (3 E I)",
+          "substituted": "\u03b4_b = 1000 \u00d7 200\u00b3 / (3 \u00d7 210000 \u00d7 13\u2009333)",
+          "value": 0.9523809523809523,
+          "unit": "mm",
+          "result": "0.9524 mm",
+          "note": ""
+        },
+        {
+          "label": "Shear deflection (Timoshenko)",
+          "symbol": "\u03b4_s",
+          "formula": "\u03b4_s = P L / (\u03ba G A), \u03ba = 5/6",
+          "substituted": "\u03b4_s = 1000 \u00d7 200 / (0.833 \u00d7 80\u2009769 \u00d7 400)",
+          "value": 0.0074285714285714285,
+          "unit": "mm",
+          "result": "0.0074 mm",
+          "note": ""
+        },
+        {
+          "label": "Stress at mid-span surface",
+          "symbol": "\u03c3",
+          "formula": "\u03c3 = M c / I = P (L/2)(d/2) / I",
+          "substituted": "\u03c3 = 1000 \u00d7 100 \u00d7 10 / 13\u2009333",
+          "value": 75.0,
+          "unit": "MPa",
+          "result": "75.00 MPa",
+          "note": ""
+        }
+      ],
+      "comparisons": [
+        {
+          "quantity": "Tip deflection",
+          "reference": 0.9598095238095238,
+          "nemo": 0.9521628123881029,
+          "unit": "mm",
+          "error_percent": -0.7966905132458794,
+          "tolerance_percent": 3.0,
+          "passed": true
+        },
+        {
+          "quantity": "Bending stress at mid-span",
+          "reference": 75.0,
+          "nemo": 76.97189264612284,
+          "unit": "MPa",
+          "error_percent": 2.629190194830452,
+          "tolerance_percent": 4.0,
+          "passed": true
+        },
+        {
+          "quantity": "Support reaction",
+          "reference": 1000.0,
+          "nemo": 999.9999999693123,
+          "unit": "N",
+          "error_percent": -3.068771547987126e-09,
+          "tolerance_percent": 1e-06,
+          "passed": true
+        }
+      ],
+      "mesh": {
+        "elements": 3487,
+        "equations": 19479
+      },
+      "passed": true,
+      "error": null,
+      "seconds": 2.546650199999931
+    },
+    {
+      "id": "plate-hole",
+      "title": "Plate with a hole",
+      "description": "The stress solver against the known peak stress at a hole, the same effect that governs a padeye.",
+      "source": "Heywood (1952), as given in Peterson's Stress Concentration Factors",
+      "setup": [
+        {
+          "label": "Plate",
+          "symbol": "",
+          "formula": "800 \u00d7 200 \u00d7 10 mm steel with a 20 mm hole",
+          "substituted": "Pulled with 100 MPa average stress",
+          "value": 0,
+          "unit": "",
+          "result": "0",
+          "note": ""
+        },
+        {
+          "label": "Stress concentration on net section (Heywood)",
+          "symbol": "K_{tn}",
+          "formula": "K_{tn} = 2 + (1 \u2212 d/W)^3",
+          "substituted": "K_{tn} = 2 + (1 \u2212 0.1)\u00b3",
+          "value": 2.729,
+          "unit": "",
+          "result": "2.729",
+          "note": ""
+        },
+        {
+          "label": "On gross section",
+          "symbol": "K_t",
+          "formula": "K_t = K_{tn} / (1 \u2212 d/W)",
+          "substituted": "K_t = 2.729 / 0.9",
+          "value": 3.0322222222222224,
+          "unit": "",
+          "result": "3.032",
+          "note": ""
+        }
+      ],
+      "comparisons": [
+        {
+          "quantity": "Stress concentration factor",
+          "reference": 3.0322222222222224,
+          "nemo": 3.059706309043362,
+          "unit": "",
+          "error_percent": 0.9064008112504766,
+          "tolerance_percent": 5.0,
+          "passed": true
+        },
+        {
+          "quantity": "Support reaction",
+          "reference": 200000.0,
+          "nemo": 199999.99999990186,
+          "unit": "N",
+          "error_percent": -4.906905815005302e-11,
+          "tolerance_percent": 1e-06,
+          "passed": true
+        }
+      ],
+      "mesh": {
+        "elements": 16749,
+        "equations": 96000
+      },
+      "passed": true,
+      "error": null,
+      "seconds": 19.867594200000894
+    },
+    {
+      "id": "panel-method",
+      "title": "Foil pressure solver",
+      "description": "The panel method used for the stabilizer fin, against exact flow round a circle and thick-foil lift theory.",
+      "source": "Potential flow theory; Abbott and von Doenhoff, Theory of Wing Sections",
+      "setup": [
+        {
+          "label": "Circle in uniform flow",
+          "symbol": "C_{p,min}",
+          "formula": "C_p = 1 \u2212 4 sin^2 \u03b8, lowest \u22123 at the sides",
+          "substituted": "160 panels",
+          "value": -3.0,
+          "unit": "",
+          "result": "-3.000",
+          "note": ""
+        },
+        {
+          "label": "Thick symmetric foil",
+          "symbol": "dC_l/d\u03b1",
+          "formula": "dC_l/d\u03b1 \u2248 2\u03c0 (1 + 0.77 t/c)",
+          "substituted": "NACA 0012 and NACA 0020, 160 panels",
+          "value": 6.86375162956298,
+          "unit": "per rad",
+          "result": "6.864 per rad",
+          "note": ""
+        }
+      ],
+      "comparisons": [
+        {
+          "quantity": "Lowest pressure on a circle",
+          "reference": -3.0,
+          "nemo": -2.9984580724814474,
+          "unit": "",
+          "error_percent": -0.05139758395175479,
+          "tolerance_percent": 0.5,
+          "passed": true
+        },
+        {
+          "quantity": "NACA 0012 lift slope",
+          "reference": 6.86375162956298,
+          "nemo": 6.938689529922449,
+          "unit": "per rad",
+          "error_percent": 1.091792133571715,
+          "tolerance_percent": 3.0,
+          "passed": true
+        },
+        {
+          "quantity": "NACA 0020 lift slope",
+          "reference": 7.250795844485242,
+          "nemo": 7.370365025972965,
+          "unit": "per rad",
+          "error_percent": 1.6490490706432448,
+          "tolerance_percent": 3.0,
+          "passed": true
+        }
+      ],
+      "mesh": null,
+      "passed": true,
+      "error": null,
+      "seconds": 0.05840140000145766
+    },
+    {
+      "id": "stock-beam",
+      "title": "Fin stock against beam theory",
+      "description": "The stress solver on a round shaft that is bent and twisted, the load case of a stabilizer stock.",
+      "source": "Beam and torsion theory, as used in IACS UR S10.4",
+      "setup": [
+        {
+          "label": "Shaft",
+          "symbol": "D",
+          "formula": "solid round stock fixed at the bearing",
+          "substituted": "\u00d8160 mm, 200 mm to the fin root, load at mid-span",
+          "value": 160,
+          "unit": "mm",
+          "result": "160.0 mm",
+          "note": ""
+        },
+        {
+          "label": "Beam theory",
+          "symbol": "\u03c3_e",
+          "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4^2), \u03c3_b = 32 M / (\u03c0 D^3), \u03c4 = 16 Q / (\u03c0 D^3)",
+          "substituted": "section 80 mm from the bearing",
+          "value": 165.66998500379137,
+          "unit": "MPa",
+          "result": "165.7 MPa",
+          "note": ""
+        }
+      ],
+      "comparisons": [
+        {
+          "quantity": "Equivalent stress near the bearing",
+          "reference": 165.66998500379137,
+          "nemo": 165.45567140376676,
+          "unit": "MPa",
+          "error_percent": -0.1293617549489762,
+          "tolerance_percent": 4.0,
+          "passed": true
+        },
+        {
+          "quantity": "Support reaction",
+          "reference": 80487.73021618668,
+          "nemo": 80487.73021599163,
+          "unit": "N",
+          "error_percent": -2.4233988360352905e-10,
+          "tolerance_percent": 1e-06,
+          "passed": true
+        }
+      ],
+      "mesh": {
+        "elements": 6160,
+        "equations": 31584
+      },
+      "passed": true,
+      "error": null,
+      "seconds": 5.171746500000154
+    }
+  ],
+  "seconds_total": 27.869129700000485
+}

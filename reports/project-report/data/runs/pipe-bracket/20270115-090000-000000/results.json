@@ -1,0 +1,1202 @@
+{
+  "nemo_results_version": 2,
+  "part": "pipe-bracket",
+  "created_at": "2026-11-17T08:20:40+00:00",
+  "job": {
+    "pipe_nps": "4",
+    "schedule": "STD",
+    "pipe_material_id": "CS",
+    "fluid_id": "sea_water",
+    "insulation_id": "none",
+    "insulation_thickness_mm": 0.0,
+    "span_m": 3.0,
+    "continuity_factor": 1.25,
+    "pipe_direction": "fore_aft",
+    "accel_vertical_g": 1.0,
+    "accel_transverse_g": 0.8,
+    "accel_longitudinal_g": 0.5,
+    "friction": 0.3,
+    "gap_mm": 50.0,
+    "material_id": "GRADE_A",
+    "plate_thicknesses_mm": [
+      6.0,
+      8.0,
+      10.0,
+      12.0,
+      15.0,
+      20.0
+    ],
+    "ubolt_grade_id": "4.6",
+    "propeller_rpm": 120.0,
+    "propeller_blades": 4,
+    "engine_rpm": 750.0,
+    "engine_cylinders": 6,
+    "engine_stroke": 4,
+    "frequency_margin": 0.2,
+    "deflection_limit_mm": 1.0,
+    "electrode_strength_mpa": 482.0,
+    "rule_set_id": "aisc-360-asd",
+    "part": "pipe-bracket"
+  },
+  "loads": {
+    "mass_per_m": {
+      "pipe": 16.075491783643436,
+      "contents": 8.418317931076734,
+      "insulation": 0.0,
+      "total": 24.49380971472017
+    },
+    "weight_per_m_n": 240.20221903886056,
+    "static_n": 900.7583213957272,
+    "down_n": 1801.5166427914544,
+    "up_n": 0.0,
+    "across_n": 720.6066571165818,
+    "along_n": 540.4549928374363,
+    "accel": {
+      "vertical_g": 1.0,
+      "across_g": 0.8,
+      "direction": "fore_aft"
+    },
+    "sling_force_n": 1801.5166427914544,
+    "sling_force_t": 0.1837035728604013
+  },
+  "load_steps": [
+    {
+      "label": "Pipe metal per metre",
+      "symbol": "m_p",
+      "formula": "m_p = \u03c0/4 (D^2 \u2212 d^2) \u03c1_p",
+      "substituted": "m_p = \u03c0/4 \u00d7 (114.3\u00b2 \u2212 102.3\u00b2) mm\u00b2 \u00d7 7\u2009850 kg/m\u00b3",
+      "value": 16.075491783643436,
+      "unit": "kg/m",
+      "result": "16.08 kg/m",
+      "note": ""
+    },
+    {
+      "label": "Contents per metre",
+      "symbol": "m_f",
+      "formula": "m_f = \u03c0/4 d^2 \u03c1_f",
+      "substituted": "m_f = \u03c0/4 \u00d7 102.3\u00b2 mm\u00b2 \u00d7 1\u2009025 kg/m\u00b3 (sea water)",
+      "value": 8.418317931076734,
+      "unit": "kg/m",
+      "result": "8.418 kg/m",
+      "note": ""
+    },
+    {
+      "label": "Weight per metre",
+      "symbol": "q",
+      "formula": "q = (m_p + m_f + m_i) g",
+      "substituted": "q = 24.49 kg/m \u00d7 9.807 m/s\u00b2",
+      "value": 240.20221903886056,
+      "unit": "N/m",
+      "result": "240.2 N/m",
+      "note": ""
+    },
+    {
+      "label": "Weight on one bracket",
+      "symbol": "W",
+      "formula": "W = k_c q S",
+      "substituted": "W = 1.25 \u00d7 240.2 N/m \u00d7 3.00 m",
+      "value": 0.9007583213957272,
+      "unit": "kN",
+      "result": "0.9008 kN",
+      "note": "k_c allows for the pipe being continuous over several supports, which puts more than one span's weight on some of them."
+    },
+    {
+      "label": "Downward force",
+      "symbol": "F_z",
+      "formula": "F_z = W (1 + a_v)",
+      "substituted": "F_z = 901 N \u00d7 (1 + 1.00)",
+      "value": 1.8015166427914544,
+      "unit": "kN",
+      "result": "1.802 kN",
+      "note": "a_v is the vertical ship-motion acceleration in g, on top of gravity."
+    },
+    {
+      "label": "Force across the pipe",
+      "symbol": "F_x",
+      "formula": "F_x = W a_h",
+      "substituted": "F_x = 901 N \u00d7 0.80",
+      "value": 0.7206066571165818,
+      "unit": "kN",
+      "result": "0.7206 kN",
+      "note": "The pipe runs fore and aft, so a_h is the athwartships acceleration."
+    },
+    {
+      "label": "Friction along the pipe",
+      "symbol": "F_y",
+      "formula": "F_y = \u03bc F_z",
+      "substituted": "F_y = 0.30 \u00d7 1\u2009802 N",
+      "value": 0.5404549928374363,
+      "unit": "kN",
+      "result": "0.5405 kN",
+      "note": "The support is a sliding guide; the pipe anchors take the axial inertia of the run."
+    }
+  ],
+  "rule_set": {
+    "id": "aisc-360-asd",
+    "name": "AISC 360-16, Specification for Structural Steel Buildings, allowable strength design",
+    "design_factor": 1.67,
+    "omega_tension": 1.67,
+    "omega_flexure": 1.67,
+    "omega_shear": 1.67,
+    "omega_weld": 2.0,
+    "omega_bolt": 2.0
+  },
+  "material": {
+    "id": "GRADE_A",
+    "name": "Shipbuilding steel grade A (normal strength)",
+    "source": "IACS UR W11, normal strength hull structural steel",
+    "tensile_strength_mpa": 400.0,
+    "elastic_modulus_gpa": 206.0,
+    "density_kg_m3": 7850.0
+  },
+  "search": {
+    "combinations": 63,
+    "evaluations": 300,
+    "skipped": 60
+  },
+  "designs": [
+    {
+      "key": "lightest",
+      "label": "Lightest",
+      "target_utilization": 1.0,
+      "check_report": {
+        "passed": true,
+        "governing": "root_weld",
+        "mass_kg": 0.9957940366295602,
+        "design": {
+          "seat_length_mm": 195.0,
+          "seat_width_mm": 50.0,
+          "seat_thickness_mm": 6.0,
+          "knee_depth_mm": 60.0,
+          "knee_thickness_mm": 6.0,
+          "pipe_offset_mm": 107.15,
+          "pipe_od_mm": 114.3,
+          "ubolt_diameter_mm": 12,
+          "root_weld_mm": 3.0,
+          "knee_weld_mm": 3.0
+        },
+        "material": "GRADE_A",
+        "loads": {
+          "mass_per_m": {
+            "pipe": 16.075491783643436,
+            "contents": 8.418317931076734,
+            "insulation": 0.0,
+            "total": 24.49380971472017
+          },
+          "weight_per_m_n": 240.20221903886056,
+          "static_n": 900.7583213957272,
+          "down_n": 1801.5166427914544,
+          "up_n": 0.0,
+          "across_n": 720.6066571165818,
+          "along_n": 540.4549928374363,
+          "accel": {
+            "vertical_g": 1.0,
+            "across_g": 0.8,
+            "direction": "fore_aft"
+          },
+          "sling_force_n": 1801.5166427914544,
+          "sling_force_t": 0.1837035728604013
+        },
+        "rule_set": {
+          "id": "aisc-360-asd",
+          "name": "AISC 360-16, Specification for Structural Steel Buildings, allowable strength design",
+          "design_factor": 1.67,
+          "omega_tension": 1.67,
+          "omega_flexure": 1.67,
+          "omega_shear": 1.67,
+          "omega_weld": 2.0,
+          "omega_bolt": 2.0
+        },
+        "checks": [
+          {
+            "id": "arm_bending",
+            "title": "Bending along the bracket arm",
+            "demand": 0.19114034248074413,
+            "capacity": 1.0,
+            "unit": "ratio",
+            "utilization": 0.19114034248074413,
+            "passed": true,
+            "margin_percent": 80.8859657519256,
+            "source": "AISC 360-16 (ASD): combined axial force and flexure (Chapter H)",
+            "explanation": "The pipe pushes down at the end of a short beam. The seat plate and the two knees act together as that beam. NEMO checks 60 sections between the bulkhead and the pipe; the tapering knees mean the worst one is not always at the bulkhead.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "station_mm": 25.00166666666667,
+              "axial_mpa": 0.776778497910066,
+              "bending_mpa": 23.105583271307577,
+              "side_bending_mpa": 3.0146325319649128
+            },
+            "working": [
+              {
+                "label": "Section checked",
+                "symbol": "x",
+                "formula": "worst of 60 sections from the bulkhead to the pipe",
+                "substituted": "x = 25 mm, knee depth 52 mm",
+                "value": 25.00166666666667,
+                "unit": "mm",
+                "result": "25.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Second moment of area",
+                "symbol": "I_y",
+                "formula": "I_y = \u03a3 (b t^3/12 + A d^2), seat plus two knees",
+                "substituted": "seat 50 \u00d7 6, knees 2 \u00d7 6 \u00d7 52",
+                "value": 316537.51087349246,
+                "unit": "mm\u2074",
+                "result": "316\u2009538 mm\u2074",
+                "note": ""
+              },
+              {
+                "label": "Bending moment",
+                "symbol": "M_y",
+                "formula": "M_y = F_z (e \u2212 x) + F_x (D/2 \u2212 z\u0304)",
+                "substituted": "M_y = 1\u2009802 \u00d7 82 + 721 \u00d7 80",
+                "value": 0.20555058645630528,
+                "unit": "kN\u00b7m",
+                "result": "0.2056 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "f_b",
+                "formula": "f_b = M_y / S_{min}",
+                "substituted": "f_b = 205\u2009551 / 8\u2009896",
+                "value": 23.105583271307577,
+                "unit": "MPa",
+                "result": "23.11 MPa",
+                "note": ""
+              },
+              {
+                "label": "Sideways bending stress",
+                "symbol": "f_{bz}",
+                "formula": "f_{bz} = F_y (e \u2212 x) / S_z",
+                "substituted": "f_{bz} = 44\u2009397 / 14\u2009727",
+                "value": 3.0146325319649128,
+                "unit": "MPa",
+                "result": "3.015 MPa",
+                "note": ""
+              },
+              {
+                "label": "Axial stress",
+                "symbol": "f_a",
+                "formula": "f_a = F_x / A",
+                "substituted": "f_a = 721 / 928",
+                "value": 0.776778497910066,
+                "unit": "MPa",
+                "result": "0.7768 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed bending",
+                "symbol": "F_b",
+                "formula": "F_b = F_y / \u03a9_b",
+                "substituted": "F_b = 235 / 1.67",
+                "value": 140.7185628742515,
+                "unit": "MPa",
+                "result": "140.7 MPa",
+                "note": "First-yield moment, because the knees are not compact plates."
+              },
+              {
+                "label": "Combined use",
+                "symbol": "U",
+                "formula": "U = f_a/F_t + f_b/F_b + f_{bz}/F_b",
+                "substituted": "U = 0.7768/140.7 + 23.11/140.7 + 3.015/140.7",
+                "value": 0.19114034248074413,
+                "unit": "",
+                "result": "0.1911",
+                "note": "Must not exceed 1.0."
+              }
+            ]
+          },
+          {
+            "id": "arm_shear",
+            "title": "Shear in the arm",
+            "demand": 2.885338600962067,
+            "capacity": 84.43113772455091,
+            "unit": "MPa",
+            "utilization": 0.034173868536217386,
+            "passed": true,
+            "margin_percent": 96.58261314637826,
+            "source": "AISC 360-16 (ASD): shear yield of plate webs (Chapter G)",
+            "explanation": "The vertical force passes back to the bulkhead as shear through the knees and the seat.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "station_mm": 107.15
+            },
+            "working": [
+              {
+                "label": "Shear force",
+                "symbol": "V",
+                "formula": "V = max(F_z, F_u)",
+                "substituted": "V = 1\u2009802 N",
+                "value": 1.8015166427914544,
+                "unit": "kN",
+                "result": "1.802 kN",
+                "note": ""
+              },
+              {
+                "label": "Shear area",
+                "symbol": "A_v",
+                "formula": "A_v = 2 t_k h(x) + b t_s",
+                "substituted": "at x = 107 mm: 2 \u00d7 6 \u00d7 27 + 50 \u00d7 6",
+                "value": 624.3692307692307,
+                "unit": "mm\u00b2",
+                "result": "624.4 mm\u00b2",
+                "note": ""
+              },
+              {
+                "label": "Shear stress",
+                "symbol": "f_v",
+                "formula": "f_v = V / A_v",
+                "substituted": "f_v = 1\u2009802 / 624",
+                "value": 2.885338600962067,
+                "unit": "MPa",
+                "result": "2.885 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed shear",
+                "symbol": "F_v",
+                "formula": "F_v = 0.6 F_y / \u03a9_v",
+                "substituted": "F_v = 0.6 \u00d7 235 / 1.67",
+                "value": 84.43113772455091,
+                "unit": "MPa",
+                "result": "84.43 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "root_weld",
+            "title": "Welds to the bulkhead",
+            "demand": 36.72607936653445,
+            "capacity": 144.6,
+            "unit": "MPa",
+            "utilization": 0.2539839513591594,
+            "passed": true,
+            "margin_percent": 74.60160486408405,
+            "source": "AISC 360-16 (ASD): fillet welds, J2.4 (elastic method)",
+            "explanation": "Fillet welds on both sides of the seat and of each knee hold the bracket to the bulkhead. The bending and the forces are shared over the whole weld group and combined on the throat.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "normal_mpa": 36.6333782584721,
+              "shear_mpa": 2.60777740781129,
+              "throat_mm": 2.1212999999999997
+            },
+            "working": [
+              {
+                "label": "Weld throat",
+                "symbol": "a",
+                "formula": "a = 0.707 w",
+                "substituted": "a = 0.707 \u00d7 3",
+                "value": 2.1212999999999997,
+                "unit": "mm",
+                "result": "2.121 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld group area",
+                "symbol": "A_w",
+                "formula": "A_w = a (2 b + 4 h_k)",
+                "substituted": "A_w = 2.121 \u00d7 (2 \u00d7 50 + 4 \u00d7 60)",
+                "value": 721.242,
+                "unit": "mm\u00b2",
+                "result": "721.2 mm\u00b2",
+                "note": ""
+              },
+              {
+                "label": "Weld group second moment",
+                "symbol": "I_w",
+                "formula": "I_w = \u03a3 a L (z \u2212 z\u0304_w)^2 + knee lines a h^3/12",
+                "substituted": "neutral axis z\u0304_w = -26.29 mm",
+                "value": 317708.3488235294,
+                "unit": "mm\u2074",
+                "result": "317\u2009708 mm\u2074",
+                "note": ""
+              },
+              {
+                "label": "Normal stress on the weld",
+                "symbol": "f_n",
+                "formula": "f_n = F_x/A_w + M_y c/I_w + M_z (b/2)/I_{wz}",
+                "substituted": "M_y = 0.253 kN\u00b7m, c = 39.71 mm, M_z = 0.0579 kN\u00b7m",
+                "value": 36.6333782584721,
+                "unit": "MPa",
+                "result": "36.63 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear on the weld",
+                "symbol": "f_s",
+                "formula": "f_s = \u221a(V^2 + F_y^2) / A_w",
+                "substituted": "f_s = \u221a(1\u2009802\u00b2 + 540\u00b2) / 721",
+                "value": 2.60777740781129,
+                "unit": "MPa",
+                "result": "2.608 MPa",
+                "note": ""
+              },
+              {
+                "label": "Resultant on the throat",
+                "symbol": "f_w",
+                "formula": "f_w = \u221a(f_n^2 + f_s^2)",
+                "substituted": "f_w = \u221a(36.63\u00b2 + 2.608\u00b2)",
+                "value": 36.72607936653445,
+                "unit": "MPa",
+                "result": "36.73 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 F_{EXX} / \u03a9_w",
+                "substituted": "F_w = 0.60 \u00d7 482 / 2.00",
+                "value": 144.6,
+                "unit": "MPa",
+                "result": "144.6 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "knee_weld",
+            "title": "Knee-to-seat welds",
+            "demand": 3.3154253784063057,
+            "capacity": 144.6,
+            "unit": "MPa",
+            "utilization": 0.02292825296269921,
+            "passed": true,
+            "margin_percent": 97.70717470373008,
+            "source": "AISC 360-16 (ASD): fillet welds, J2.4 (shear flow VQ/I)",
+            "explanation": "The welds between the knees and the seat make them work as one beam. They carry the shear flow.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "shear_flow_n_per_mm": 28.13204742085318
+            },
+            "working": [
+              {
+                "label": "First moment of the seat",
+                "symbol": "Q",
+                "formula": "Q = b t_s (z_f \u2212 z\u0304)",
+                "substituted": "Q = 50 \u00d7 6 \u00d7 23.29",
+                "value": 6988.235294117647,
+                "unit": "mm\u00b3",
+                "result": "6\u2009988 mm\u00b3",
+                "note": ""
+              },
+              {
+                "label": "Shear flow",
+                "symbol": "q",
+                "formula": "q = V Q / I_y",
+                "substituted": "q = 1\u2009802 \u00d7 6\u2009988 / 447\u2009512",
+                "value": 28.13204742085318,
+                "unit": "N/mm",
+                "result": "28.13 N/mm",
+                "note": ""
+              },
+              {
+                "label": "Weld stress",
+                "symbol": "f_w",
+                "formula": "f_w = q / (4 \u00d7 0.707 w_k)",
+                "substituted": "f_w = 28.13 / (4 \u00d7 2.121)",
+                "value": 3.3154253784063057,
+                "unit": "MPa",
+                "result": "3.315 MPa",
+                "note": "Two knees, welded on both sides."
+              },
+              {
+                "label": "Allowed weld stress",
+                "symbol": "F_w",
+                "formula": "F_w = 0.60 F_{EXX} / \u03a9_w",
+                "substituted": "F_w = 0.60 \u00d7 482 / 2.00",
+                "value": 144.6,
+                "unit": "MPa",
+                "result": "144.6 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "seat_bending",
+            "title": "Seat plate between the knees",
+            "demand": 37.531596724821966,
+            "capacity": 211.07784431137725,
+            "unit": "MPa",
+            "utilization": 0.17780926675305725,
+            "passed": true,
+            "margin_percent": 82.21907332469426,
+            "source": "AISC 360-16 (ASD): flexure of plates about their weak axis (F11)",
+            "explanation": "Between the two knees the seat plate spans like a small beam, carrying the pipe resting on it or the pull of a U-bolt leg.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "moment_nmm": 9908.341535353,
+              "effective_width_mm": 44.0
+            },
+            "working": [
+              {
+                "label": "Span between knees",
+                "symbol": "l",
+                "formula": "l = b \u2212 t_k",
+                "substituted": "l = 50 \u2212 6",
+                "value": 44.0,
+                "unit": "mm",
+                "result": "44.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Moment",
+                "symbol": "M",
+                "formula": "M = max(F_z l / 8, T l / 4)",
+                "substituted": "max(1\u2009802 \u00d7 44 / 8, 326 \u00d7 44 / 4)",
+                "value": 0.009908341535352999,
+                "unit": "kN\u00b7m",
+                "result": "0.0099 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Plate strip resisting",
+                "symbol": "w",
+                "formula": "w = min(L, l)",
+                "substituted": "w = min(195, 44)",
+                "value": 44.0,
+                "unit": "mm",
+                "result": "44.00 mm",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "f_b",
+                "formula": "f_b = 6 M / (w t_s^2)",
+                "substituted": "f_b = 6 \u00d7 9\u2009908 / (44 \u00d7 6\u00b2)",
+                "value": 37.531596724821966,
+                "unit": "MPa",
+                "result": "37.53 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "F_b",
+                "formula": "F_b = 1.5 F_y / \u03a9_b",
+                "substituted": "F_b = 1.5 \u00d7 235 / 1.67",
+                "value": 211.07784431137725,
+                "unit": "MPa",
+                "result": "211.1 MPa",
+                "note": "Z/S = 1.5 for a plate bent flat."
+              }
+            ]
+          },
+          {
+            "id": "ubolt",
+            "title": "U-bolt legs",
+            "demand": 0.00292020211058713,
+            "capacity": 1.0,
+            "unit": "ratio",
+            "utilization": 0.00292020211058713,
+            "passed": true,
+            "margin_percent": 99.70797978894129,
+            "source": "AISC 360-16 (ASD): bolts in tension and shear, J3.6 and J3.7 (elliptical interaction)",
+            "explanation": "The U-bolt stops the pipe sliding off sideways and lifting. Each leg is pulled and sheared; the two effects are combined.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {
+              "tension_n": 326.0702332083345,
+              "shear_n": 360.3033285582909,
+              "thread": "M12"
+            },
+            "working": [
+              {
+                "label": "Tension in one leg",
+                "symbol": "T",
+                "formula": "T = F_u/2 + F_x (D/2) / s",
+                "substituted": "T = 0/2 + 721 \u00d7 57.15 / 126.3",
+                "value": 326.0702332083345,
+                "unit": "N",
+                "result": "326.1 N",
+                "note": "s is the distance between the legs."
+              },
+              {
+                "label": "Shear in one leg",
+                "symbol": "V_b",
+                "formula": "V_b = F_x / 2",
+                "substituted": "V_b = 721 / 2",
+                "value": 360.3033285582909,
+                "unit": "N",
+                "result": "360.3 N",
+                "note": ""
+              },
+              {
+                "label": "Stresses on the thread",
+                "symbol": "f_t, f_v",
+                "formula": "f = force / A_s",
+                "substituted": "A_s = 84.3 mm\u00b2 (M12)",
+                "value": 3.8679742966587725,
+                "unit": "MPa",
+                "result": "3.868 MPa",
+                "note": "f_v = 4.274 MPa"
+              },
+              {
+                "label": "Allowed",
+                "symbol": "F_t, F_v",
+                "formula": "F_t = 0.75 F_u / \u03a9, F_v = 0.45 F_u / \u03a9",
+                "substituted": "F_t = 150.0, F_v = 90.00",
+                "value": 150.0,
+                "unit": "MPa",
+                "result": "150.0 MPa",
+                "note": ""
+              },
+              {
+                "label": "Interaction",
+                "symbol": "U",
+                "formula": "U = (f_t/F_t)^2 + (f_v/F_v)^2",
+                "substituted": "U = (3.868/150.0)\u00b2 + (4.274/90.00)\u00b2",
+                "value": 0.00292020211058713,
+                "unit": "",
+                "result": "0.0029",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "deflection",
+            "title": "Bracket deflection under the pipe",
+            "demand": 0.015640856964106636,
+            "capacity": 1.0,
+            "unit": "mm",
+            "utilization": 0.015640856964106636,
+            "passed": true,
+            "margin_percent": 98.43591430358933,
+            "source": "Design limit set for this job",
+            "explanation": "A bracket that bends too much lets the pipe sag and vibrate. This is the drop at the pipe under the design load.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "stiffness",
+            "details": {},
+            "working": [
+              {
+                "label": "Drop at the pipe",
+                "symbol": "\u03b4",
+                "formula": "\u03b4 = \u222b F_z (e \u2212 x)^2 / (E I(x)) dx + \u222b F_z / (G A_v(x)) dx",
+                "substituted": "Simpson's rule over the 60 sections, bending plus shear",
+                "value": 0.015640856964106636,
+                "unit": "mm",
+                "result": "0.0156 mm",
+                "note": ""
+              },
+              {
+                "label": "Limit",
+                "symbol": "\u03b4_{max}",
+                "formula": "set for this job",
+                "substituted": "1.00 mm",
+                "value": 1.0,
+                "unit": "mm",
+                "result": "1.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "knee_edge",
+            "title": "Knee free edge",
+            "demand": 204.02205763103166,
+            "capacity": 300.0,
+            "unit": "mm",
+            "utilization": 0.6800735254367722,
+            "passed": true,
+            "margin_percent": 31.992647456322775,
+            "source": "NEMO practice, after ship-structure bracket rules (unflanged free edge up to 50 t \u221a(235/F_y))",
+            "explanation": "A long, thin free edge on a knee can buckle. Past this length, flange the edge or fit a face bar.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Free edge length",
+                "symbol": "l_e",
+                "formula": "l_e = \u221a(L^2 + h_k^2)",
+                "substituted": "l_e = \u221a(195\u00b2 + 60\u00b2)",
+                "value": 204.02205763103166,
+                "unit": "mm",
+                "result": "204.0 mm",
+                "note": ""
+              },
+              {
+                "label": "Limit",
+                "symbol": "l_{max}",
+                "formula": "l_{max} = 50 t_k \u221a(235 / F_y)",
+                "substituted": "l_{max} = 50 \u00d7 6 \u00d7 \u221a(235 / 235)",
+                "value": 300.0,
+                "unit": "mm",
+                "result": "300.0 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "root_weld_size",
+            "title": "Bulkhead weld size",
+            "demand": 3.0,
+            "capacity": 3.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "thicker part 6 mm",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 3",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "knee_weld_size",
+            "title": "Knee weld size",
+            "demand": 3.0,
+            "capacity": 3.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "AWS D1.1 minimum fillet weld size",
+            "explanation": "Very small welds on thick plate cool too fast and can crack.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Smallest fillet allowed",
+                "symbol": "w_{min}",
+                "formula": "AWS D1.1 table",
+                "substituted": "thicker part 6 mm",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              },
+              {
+                "label": "Weld chosen",
+                "symbol": "w",
+                "formula": "w",
+                "substituted": "w = 3",
+                "value": 3.0,
+                "unit": "mm",
+                "result": "3.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "pipe_vibration",
+            "title": "Pipe span clear of vibration",
+            "demand": 0.2,
+            "capacity": 0.26483187113835205,
+            "unit": "ratio",
+            "utilization": 0.7551961142000053,
+            "passed": true,
+            "margin_percent": 24.480388579999467,
+            "source": "NEMO practice: natural frequency at least 20% from every excitation",
+            "explanation": "The pipe between two supports has a natural frequency of 27.6 Hz. If it is close to a frequency the propeller or engine shakes the ship at (propeller shaft rotation 2.0 Hz, propeller blade rate 8.0 Hz, blade rate, second harmonic 16.0 Hz, engine rotation 12.5 Hz, engine firing 37.5 Hz), the pipe resonates and its welds and supports crack. Change the support spacing to move it.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "span",
+            "details": {},
+            "working": [
+              {
+                "label": "Pipe bending stiffness",
+                "symbol": "EI",
+                "formula": "EI = E \u03c0/64 (D^4 \u2212 d^4)",
+                "substituted": "EI = 203\u2009000 MPa \u00d7 3\u2009010\u2009519 mm\u2074",
+                "value": 611135.4581072,
+                "unit": "N\u00b7m\u00b2",
+                "result": "611\u2009135 N\u00b7m\u00b2",
+                "note": ""
+              },
+              {
+                "label": "Natural frequency of one span",
+                "symbol": "f_n",
+                "formula": "f_n = (\u03c0/2) \u221a(EI / (m S^4))",
+                "substituted": "f_n = (\u03c0/2) \u00d7 \u221a(611\u2009135 / (24.49 \u00d7 3.00\u2074))",
+                "value": 27.5688048323118,
+                "unit": "Hz",
+                "result": "27.57 Hz",
+                "note": "Simply supported span: the lowest, safest estimate."
+              },
+              {
+                "label": "Nearest excitation",
+                "symbol": "f_e",
+                "formula": "Engine firing",
+                "substituted": "f_e = 37.50 Hz",
+                "value": 37.5,
+                "unit": "Hz",
+                "result": "37.50 Hz",
+                "note": ""
+              },
+              {
+                "label": "Separation",
+                "symbol": "\u0394",
+                "formula": "\u0394 = |f_n \u2212 f_e| / f_e",
+                "substituted": "\u0394 = |27.57 \u2212 37.50| / 37.50",
+                "value": 26.483187113835204,
+                "unit": "%",
+                "result": "26.48 %",
+                "note": "Must be at least 20%."
+              }
+            ]
+          },
+          {
+            "id": "pipe_stress",
+            "title": "Pipe bending between supports",
+            "demand": 8.84002117520464,
+            "capacity": 143.7125748502994,
+            "unit": "MPa",
+            "utilization": 0.06151181401079896,
+            "passed": true,
+            "margin_percent": 93.8488185989201,
+            "source": "AISC 360-16 (ASD): flexure, applied to the pipe as a continuous beam",
+            "explanation": "The pipe itself bends between supports under its weight and the ship's motion.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "span",
+            "details": {},
+            "working": [
+              {
+                "label": "Pipe bending between supports",
+                "symbol": "\u03c3_p",
+                "formula": "\u03c3_p = q_d S^2 / (10 Z)",
+                "substituted": "\u03c3_p = 0.5174 N/mm \u00d7 3\u2009000\u00b2 / (10 \u00d7 52\u2009678)",
+                "value": 8.84002117520464,
+                "unit": "MPa",
+                "result": "8.840 MPa",
+                "note": "q_d is the pipe weight with the vertical and horizontal accelerations combined; S\u00b2/10 for a continuous pipe."
+              },
+              {
+                "label": "Allowed",
+                "symbol": "F_b",
+                "formula": "F_b = F_y / \u03a9_b",
+                "substituted": "F_b = 240 / 1.67",
+                "value": 143.7125748502994,
+                "unit": "MPa",
+                "result": "143.7 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "pipe_sag",
+            "title": "Pipe sag between supports",
+            "demand": 0.4145370302636079,
+            "capacity": 2.5,
+            "unit": "mm",
+            "utilization": 0.16581481210544316,
+            "passed": true,
+            "margin_percent": 83.41851878945569,
+            "source": "MSS SP-58 / SP-69 style span guidance (2.5 mm sag)",
+            "explanation": "Too much sag lets liquid collect at low points and makes the pipe look and act loose.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "span",
+            "details": {},
+            "working": [
+              {
+                "label": "Sag under its own weight",
+                "symbol": "\u03b4_p",
+                "formula": "\u03b4_p = 5 q S^4 / (384 E I)",
+                "substituted": "\u03b4_p = 5 \u00d7 0.2402 \u00d7 3\u2009000\u2074 / (384 \u00d7 203\u2009000 \u00d7 3\u2009010\u2009519)",
+                "value": 0.4145370302636079,
+                "unit": "mm",
+                "result": "0.4145 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "span_limit",
+            "title": "Support spacing within NEMO's recommended maximum",
+            "demand": 3.0,
+            "capacity": 2.3,
+            "unit": "m",
+            "utilization": 1.3043478260869565,
+            "passed": false,
+            "margin_percent": -30.434782608695656,
+            "source": "NEMO: smallest of the stress, sag and frequency limits",
+            "explanation": "The longest spacing that keeps this pipe within the stress and sag limits and its natural frequency above every excitation is 2.3 m. A longer spacing can still be acceptable when the frequency sits in a gap between excitations; the vibration check above decides that.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "span",
+            "details": {},
+            "working": [
+              {
+                "label": "Longest spacing",
+                "symbol": "S_{max}",
+                "formula": "smallest of the stress, sag and frequency limits",
+                "substituted": "stress 12.10 m, sag 4.70 m, frequency 2.35 m",
+                "value": 2.3,
+                "unit": "m",
+                "result": "2.300 m",
+                "note": "The frequency limit keeps f_n 20% above the highest excitation (37.50 Hz)."
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_mpa": 235.0,
+          "allow_tension_mpa": 140.7185628742515,
+          "allow_bending_mpa": 140.7185628742515,
+          "allow_shear_mpa": 84.43113772455091,
+          "allow_weld_mpa": 144.6,
+          "deflection_mm": 0.015640856964106636,
+          "governing_station_mm": 25.00166666666667,
+          "governing_stress_mpa": 26.896994301182556,
+          "root_inertia_mm4": 447511.7647058824,
+          "ubolt_tension_n": 326.0702332083345
+        },
+        "pipe": {
+          "label": "NPS 4 (DN 100) STD, 114.3 \u00d7 6.02 mm",
+          "od_mm": 114.3,
+          "wall_mm": 6.02,
+          "material": "Carbon steel pipe (ASTM A106 Grade B)"
+        },
+        "ubolt": {
+          "label": "M12 U-bolt, Steel property class 4.6, hot-dip galvanised",
+          "thread": "M12",
+          "diameter_mm": 12
+        },
+        "span": {
+          "natural_hz": 27.5688048323118,
+          "excitations": [
+            {
+              "name": "Propeller shaft rotation",
+              "hz": 2.0
+            },
+            {
+              "name": "Propeller blade rate",
+              "hz": 8.0
+            },
+            {
+              "name": "Blade rate, second harmonic",
+              "hz": 16.0
+            },
+            {
+              "name": "Engine rotation",
+              "hz": 12.5
+            },
+            {
+              "name": "Engine firing",
+              "hz": 37.5
+            }
+          ],
+          "nearest": {
+            "name": "Engine firing",
+            "hz": 37.5
+          },
+          "separation": 0.26483187113835205,
+          "pipe_stress_mpa": 8.84002117520464,
+          "pipe_allow_mpa": 143.7125748502994,
+          "sag_mm": 0.4145370302636079,
+          "spans_m": {
+            "stress": 12.0960058263021,
+            "sag": 4.701272489127292,
+            "frequency": 2.348139894993984
+          },
+          "recommended_m": 2.3,
+          "steps": [
+            {
+              "label": "Pipe bending stiffness",
+              "symbol": "EI",
+              "formula": "EI = E \u03c0/64 (D^4 \u2212 d^4)",
+              "substituted": "EI = 203\u2009000 MPa \u00d7 3\u2009010\u2009519 mm\u2074",
+              "value": 611135.4581072,
+              "unit": "N\u00b7m\u00b2",
+              "result": "611\u2009135 N\u00b7m\u00b2",
+              "note": ""
+            },
+            {
+              "label": "Natural frequency of one span",
+              "symbol": "f_n",
+              "formula": "f_n = (\u03c0/2) \u221a(EI / (m S^4))",
+              "substituted": "f_n = (\u03c0/2) \u00d7 \u221a(611\u2009135 / (24.49 \u00d7 3.00\u2074))",
+              "value": 27.5688048323118,
+              "unit": "Hz",
+              "result": "27.57 Hz",
+              "note": "Simply supported span: the lowest, safest estimate."
+            },
+            {
+              "label": "Nearest excitation",
+              "symbol": "f_e",
+              "formula": "Engine firing",
+              "substituted": "f_e = 37.50 Hz",
+              "value": 37.5,
+              "unit": "Hz",
+              "result": "37.50 Hz",
+              "note": ""
+            },
+            {
+              "label": "Separation",
+              "symbol": "\u0394",
+              "formula": "\u0394 = |f_n \u2212 f_e| / f_e",
+              "substituted": "\u0394 = |27.57 \u2212 37.50| / 37.50",
+              "value": 26.483187113835204,
+              "unit": "%",
+              "result": "26.48 %",
+              "note": "Must be at least 20%."
+            },
+            {
+              "label": "Pipe bending between supports",
+              "symbol": "\u03c3_p",
+              "formula": "\u03c3_p = q_d S^2 / (10 Z)",
+              "substituted": "\u03c3_p = 0.5174 N/mm \u00d7 3\u2009000\u00b2 / (10 \u00d7 52\u2009678)",
+              "value": 8.84002117520464,
+              "unit": "MPa",
+              "result": "8.840 MPa",
+              "note": "q_d is the pipe weight with the vertical and horizontal accelerations combined; S\u00b2/10 for a continuous pipe."
+            },
+            {
+              "label": "Sag under its own weight",
+              "symbol": "\u03b4_p",
+              "formula": "\u03b4_p = 5 q S^4 / (384 E I)",
+              "substituted": "\u03b4_p = 5 \u00d7 0.2402 \u00d7 3\u2009000\u2074 / (384 \u00d7 203\u2009000 \u00d7 3\u2009010\u2009519)",
+              "value": 0.4145370302636079,
+              "unit": "mm",
+              "result": "0.4145 mm",
+              "note": ""
+            },
+            {
+              "label": "Longest spacing",
+              "symbol": "S_{max}",
+              "formula": "smallest of the stress, sag and frequency limits",
+              "substituted": "stress 12.10 m, sag 4.70 m, frequency 2.35 m",
+              "value": 2.3,
+              "unit": "m",
+              "result": "2.300 m",
+              "note": "The frequency limit keeps f_n 20% above the highest excitation (37.50 Hz)."
+            }
+          ]
+        }
+      },
+      "cad_volume_mm3": 126852.74351968922,
+      "fea": {
+        "head_von_mises_mpa": 34.648097766746325,
+        "factor_of_safety_on_yield": 6.782479130082066,
+        "yield_strength_mpa": 235.0,
+        "convergence_change": 0.005416473839665407,
+        "converged": true,
+        "region": "away from the bulkhead face (x \u2265 9 mm)",
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 7.199999999999999,
+            "local_size_mm": 4.319999999999999,
+            "elements": 4033,
+            "dofs": 25266,
+            "head_von_mises_mpa": 34.914593743149155,
+            "max_von_mises_mpa": 36.18615329927195,
+            "max_displacement_mm": 0.05366406104599715,
+            "applied_force_n": [
+              720.6066571165819,
+              540.4549928374363,
+              -1801.5166427914544
+            ],
+            "reaction_force_n": [
+              -720.6066571159952,
+              -540.4549928369495,
+              1801.5166427922136
+            ],
+            "reaction_balance_error": 5.34184433347865e-13,
+            "solve_seconds": 2.908968999998251
+          },
+          {
+            "level": 2,
+            "global_size_mm": 5.039999999999999,
+            "local_size_mm": 3.0239999999999996,
+            "elements": 7698,
+            "dofs": 47280,
+            "head_von_mises_mpa": 34.835768281894076,
+            "max_von_mises_mpa": 41.5394265088953,
+            "max_displacement_mm": 0.053103486783787436,
+            "applied_force_n": [
+              720.6066571165817,
+              540.4549928374363,
+              -1801.5166427914544
+            ],
+            "reaction_force_n": [
+              -720.6066571170684,
+              -540.4549928377269,
+              1801.5166427924464
+            ],
+            "reaction_balance_error": 5.672629380710076e-13,
+            "solve_seconds": 5.867340799999511
+          },
+          {
+            "level": 3,
+            "global_size_mm": 3.5999999999999996,
+            "local_size_mm": 2.1599999999999997,
+            "elements": 16536,
+            "dofs": 97380,
+            "head_von_mises_mpa": 34.648097766746325,
+            "max_von_mises_mpa": 47.5855153615273,
+            "max_displacement_mm": 0.053378844504036765,
+            "applied_force_n": [
+              720.6066571165817,
+              540.4549928374363,
+              -1801.5166427914544
+            ],
+            "reaction_force_n": [
+              -720.606657116491,
+              -540.4549928375036,
+              1801.5166427920342
+            ],
+            "reaction_balance_error": 2.932761930961353e-13,
+            "solve_seconds": 15.986762500000623
+          }
+        ],
+        "hand_stress_mpa": 37.531596724821966,
+        "hand_label": "seat plate between the knees",
+        "load_strip_mm": 28.575
+      },
+      "files": {
+        "step": "designs\\lightest\\bracket.step",
+        "stl": "designs\\lightest\\bracket.stl",
+        "dxf": "designs\\lightest\\bracket-cutting.dxf",
+        "stress_surface": "designs/lightest/stress-surface.json"
+      }
+    }
+  ],
+  "files": {
+    "engineering_log": "engineering-log.json",
+    "designs_evaluated": "designs-evaluated.csv"
+  },
+  "seconds": 29.827832599999965
+}

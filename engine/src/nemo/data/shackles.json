@@ -1,0 +1,27 @@
+{
+  "note": "Bolt-type anchor shackles. jaw_width_mm is the inside width at the pin (catalogue dimension A); pin_diameter_mm is catalogue dimension B. WLL in metric tonnes. Minimum ultimate strength is 6 x WLL.",
+  "source": "The Crosby Group, G-2130 / S-2130 Bolt Type Anchor Shackles, General Catalog page 79 (2019)",
+  "series": "Crosby G-2130",
+  "shackles": [
+    {"size_in": "3/16", "wll_t": 0.33, "jaw_width_mm": 9.65, "pin_diameter_mm": 6.35},
+    {"size_in": "1/4", "wll_t": 0.5, "jaw_width_mm": 11.9, "pin_diameter_mm": 7.85},
+    {"size_in": "5/16", "wll_t": 0.75, "jaw_width_mm": 13.5, "pin_diameter_mm": 9.65},
+    {"size_in": "3/8", "wll_t": 1.0, "jaw_width_mm": 16.8, "pin_diameter_mm": 11.2},
+    {"size_in": "7/16", "wll_t": 1.5, "jaw_width_mm": 19.1, "pin_diameter_mm": 12.7},
+    {"size_in": "1/2", "wll_t": 2.0, "jaw_width_mm": 20.6, "pin_diameter_mm": 16.0},
+    {"size_in": "5/8", "wll_t": 3.25, "jaw_width_mm": 26.9, "pin_diameter_mm": 19.1},
+    {"size_in": "3/4", "wll_t": 4.75, "jaw_width_mm": 31.8, "pin_diameter_mm": 22.4},
+    {"size_in": "7/8", "wll_t": 6.5, "jaw_width_mm": 36.6, "pin_diameter_mm": 25.4},
+    {"size_in": "1", "wll_t": 8.5, "jaw_width_mm": 42.9, "pin_diameter_mm": 28.7},
+    {"size_in": "1-1/8", "wll_t": 9.5, "jaw_width_mm": 46.0, "pin_diameter_mm": 31.8},
+    {"size_in": "1-1/4", "wll_t": 12.0, "jaw_width_mm": 51.5, "pin_diameter_mm": 35.1},
+    {"size_in": "1-3/8", "wll_t": 13.5, "jaw_width_mm": 57.0, "pin_diameter_mm": 38.1},
+    {"size_in": "1-1/2", "wll_t": 17.0, "jaw_width_mm": 60.5, "pin_diameter_mm": 41.4},
+    {"size_in": "1-3/4", "wll_t": 25.0, "jaw_width_mm": 73.0, "pin_diameter_mm": 51.0},
+    {"size_in": "2", "wll_t": 35.0, "jaw_width_mm": 82.5, "pin_diameter_mm": 57.0},
+    {"size_in": "2-1/2", "wll_t": 55.0, "jaw_width_mm": 105.0, "pin_diameter_mm": 70.0},
+    {"size_in": "3", "wll_t": 85.0, "jaw_width_mm": 127.0, "pin_diameter_mm": 82.5},
+    {"size_in": "3-1/2", "wll_t": 120.0, "jaw_width_mm": 133.0, "pin_diameter_mm": 95.5},
+    {"size_in": "4", "wll_t": 150.0, "jaw_width_mm": 140.0, "pin_diameter_mm": 108.0}
+  ]
+}

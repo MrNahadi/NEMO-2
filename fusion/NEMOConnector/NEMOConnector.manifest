@@ -1,0 +1,13 @@
+{
+  "autodeskProduct": "Fusion360",
+  "type": "addin",
+  "id": "NEMOConnector",
+  "author": "NEMO",
+  "description": {
+    "": "Connects Fusion to NEMO: opens NEMO designs as parametric models, checks edited dimensions in NEMO, and shows the stress cross-check sheet."
+  },
+  "version": "1.0.0",
+  "runOnStartup": true,
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}

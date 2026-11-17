@@ -1,0 +1,2232 @@
+{
+  "nemo_results_version": 2,
+  "part": "stabilizer",
+  "created_at": "2026-11-17T08:22:01+00:00",
+  "job": {
+    "speed_kn": 18.0,
+    "span_m": 1.4,
+    "chord_m": 1.2,
+    "thickness_ratio": 0.2,
+    "max_angle_deg": 22.0,
+    "stock_position": 0.35,
+    "depth_m": 3.0,
+    "draught_m": 5.0,
+    "bearing_gap_mm": 200.0,
+    "material_id": "AH36",
+    "stock_material_id": "42CRMO4_QT",
+    "plate_thicknesses_mm": [
+      8.0,
+      10.0,
+      12.0,
+      15.0,
+      20.0,
+      25.0
+    ],
+    "front_spar": 0.15,
+    "rear_spar": 0.65,
+    "deflection_limit_mm": 10.0,
+    "rule_set_id": "iacs-ur-s10",
+    "part": "stabilizer"
+  },
+  "loads": {
+    "speed_ms": 9.259992,
+    "lift_coefficient": 1.0901978115188686,
+    "lift_slope_per_rad": 2.707612918505479,
+    "nemo_lift_n": 80487.73021618668,
+    "ur_s10_force_n": 66740.88960000001,
+    "design_force_n": 80487.73021618668,
+    "lever_m": 0.12,
+    "torque_nm": 9658.5276259424,
+    "root_moment_nm": 56341.41115133068,
+    "stock_moment_nm": 72438.957194568,
+    "section_angle_deg": 8.474985053563763,
+    "cp_min": -2.910313075744681,
+    "cavitation_number": 2.953208969693507,
+    "area_m2": 1.68,
+    "effective_aspect_ratio": 2.3333333333333335,
+    "span_arm_m": 0.7,
+    "sling_force_n": 80487.73021618668,
+    "sling_force_t": 8.207464344723904
+  },
+  "load_steps": [
+    {
+      "label": "Ship speed",
+      "symbol": "V",
+      "formula": "V = v_{kn} \u00d7 0.5144",
+      "substituted": "V = 18.0 kn \u00d7 0.5144",
+      "value": 9.259992,
+      "unit": "m/s",
+      "result": "9.260 m/s",
+      "note": ""
+    },
+    {
+      "label": "Effective aspect ratio",
+      "symbol": "A_e",
+      "formula": "A_e = 2 b / c (hull as a mirror)",
+      "substituted": "A_e = 2 \u00d7 1.40 / 1.20",
+      "value": 2.3333333333333335,
+      "unit": "",
+      "result": "2.333",
+      "note": ""
+    },
+    {
+      "label": "Lift slope",
+      "symbol": "dC_L/d\u03b1",
+      "formula": "0.9 \u00b7 2\u03c0 A_e / (\u221a(A_e^2 + 4) + 1.8)",
+      "substituted": "0.9 \u00d7 2\u03c0 \u00d7 2.333 / (\u221a(2.333\u00b2 + 4) + 1.8)",
+      "value": 2.707612918505479,
+      "unit": "per rad",
+      "result": "2.708 per rad",
+      "note": "Whicker and Fehlner (1958), low-aspect-ratio control surfaces, no sweep."
+    },
+    {
+      "label": "Lift coefficient at the largest angle",
+      "symbol": "C_L",
+      "formula": "C_L = (dC_L/d\u03b1) \u03b1 + (C_{Dc} / A_e) \u03b1^2",
+      "substituted": "C_L = 2.708 \u00d7 0.3840 + (0.8 / 2.333) \u00d7 0.3840\u00b2",
+      "value": 1.0901978115188686,
+      "unit": "",
+      "result": "1.090",
+      "note": "The second term is cross-flow lift, which matters at low aspect ratio."
+    },
+    {
+      "label": "Lift, NEMO's foil model",
+      "symbol": "L",
+      "formula": "L = \u00bd \u03c1 V^2 A C_L",
+      "substituted": "L = 0.5 \u00d7 1025 \u00d7 9.260\u00b2 \u00d7 1.680 \u00d7 1.090",
+      "value": 80.48773021618668,
+      "unit": "kN",
+      "result": "80.49 kN",
+      "note": ""
+    },
+    {
+      "label": "Rudder force, IACS UR S10",
+      "symbol": "C_R",
+      "formula": "C_R = K_1 K_2 K_3 132 A V^2",
+      "substituted": "C_R = 1.056 \u00d7 1.10 \u00d7 0.8 \u00d7 132 \u00d7 1.680 \u00d7 18.0\u00b2",
+      "value": 66.7408896,
+      "unit": "kN",
+      "result": "66.74 kN",
+      "note": "K_2 = 1.10 for NACA sections, K_3 = 0.8 outside the propeller jet."
+    },
+    {
+      "label": "Design force",
+      "symbol": "F",
+      "formula": "F = max(L, C_R)",
+      "substituted": "F = max(80\u2009488, 66\u2009741) N",
+      "value": 80.48773021618668,
+      "unit": "kN",
+      "result": "80.49 kN",
+      "note": ""
+    },
+    {
+      "label": "Twisting moment on the stock",
+      "symbol": "Q",
+      "formula": "Q = F c |0.33 \u2212 x_s/c|, at least 0.1 F c",
+      "substituted": "Q = 80\u2009488 \u00d7 0.120 m",
+      "value": 9.658527625942401,
+      "unit": "kN\u00b7m",
+      "result": "9.659 kN\u00b7m",
+      "note": ""
+    },
+    {
+      "label": "Bending at the fin root",
+      "symbol": "M_r",
+      "formula": "M_r = F \u00d7 0.5 b",
+      "substituted": "M_r = 80\u2009488 \u00d7 0.700 m",
+      "value": 56.341411151330675,
+      "unit": "kN\u00b7m",
+      "result": "56.34 kN\u00b7m",
+      "note": ""
+    },
+    {
+      "label": "Bending at the outer bearing",
+      "symbol": "M_s",
+      "formula": "M_s = F (0.5 b + l_g)",
+      "substituted": "M_s = 80\u2009488 \u00d7 (0.700 + 0.200) m",
+      "value": 72.438957194568,
+      "unit": "kN\u00b7m",
+      "result": "72.44 kN\u00b7m",
+      "note": ""
+    }
+  ],
+  "rule_set": {
+    "id": "iacs-ur-s10",
+    "name": "IACS UR S10, Rudders, sole pieces and rudder horns (Rev.8, 2025), applied to a stabilizer fin",
+    "design_factor": 2.1363636363636362
+  },
+  "material": {
+    "id": "AH36",
+    "name": "Shipbuilding steel AH36 (higher strength)",
+    "source": "IACS UR W11, higher strength hull structural steel, grade AH36",
+    "tensile_strength_mpa": 490.0,
+    "elastic_modulus_gpa": 206.0,
+    "density_kg_m3": 7850.0
+  },
+  "stock_material": {
+    "id": "42CRMO4_QT",
+    "name": "Forged steel 42CrMo4, quenched and tempered (stocks)",
+    "source": "EN 10083-3, 42CrMo4 (1.7225) +QT. Tensile strength is the minimum for the largest size band; check the mill certificate.",
+    "tensile_strength_mpa": 750.0,
+    "elastic_modulus_gpa": 210.0,
+    "density_kg_m3": 7850.0
+  },
+  "search": {
+    "combinations": 108,
+    "evaluations": 3780,
+    "skipped": 0
+  },
+  "designs": [
+    {
+      "key": "lightest",
+      "label": "Lightest",
+      "target_utilization": 1.0,
+      "check_report": {
+        "passed": true,
+        "governing": "stock_combined",
+        "mass_kg": 457.45129812815543,
+        "design": {
+          "span_mm": 1400.0,
+          "chord_mm": 1200.0,
+          "thickness_ratio": 0.2,
+          "stock_position": 0.35,
+          "front_spar": 0.15,
+          "rear_spar": 0.65,
+          "skin_mm": 8.0,
+          "web_mm": 8.0,
+          "rib_spacing_mm": 350.0,
+          "stock_diameter_mm": 160.0,
+          "bearing_gap_mm": 200.0
+        },
+        "material": "AH36",
+        "loads": {
+          "speed_ms": 9.259992,
+          "lift_coefficient": 1.0901978115188686,
+          "lift_slope_per_rad": 2.707612918505479,
+          "nemo_lift_n": 80487.73021618668,
+          "ur_s10_force_n": 66740.88960000001,
+          "design_force_n": 80487.73021618668,
+          "lever_m": 0.12,
+          "torque_nm": 9658.5276259424,
+          "root_moment_nm": 56341.41115133068,
+          "stock_moment_nm": 72438.957194568,
+          "section_angle_deg": 8.474985053563763,
+          "cp_min": -2.910313075744681,
+          "cavitation_number": 2.953208969693507,
+          "area_m2": 1.68,
+          "effective_aspect_ratio": 2.3333333333333335,
+          "span_arm_m": 0.7,
+          "sling_force_n": 80487.73021618668,
+          "sling_force_t": 8.207464344723904
+        },
+        "rule_set": {
+          "id": "iacs-ur-s10",
+          "name": "IACS UR S10, Rudders, sole pieces and rudder horns (Rev.8, 2025), applied to a stabilizer fin",
+          "design_factor": 2.1363636363636362
+        },
+        "checks": [
+          {
+            "id": "stock_torsion",
+            "title": "Stock twisting",
+            "demand": 12.025998753004453,
+            "capacity": 110.69229742177005,
+            "unit": "MPa",
+            "utilization": 0.10864350124726274,
+            "passed": true,
+            "margin_percent": 89.13564987527373,
+            "source": "IACS UR S10.4.1: torsional stress in the stock",
+            "explanation": "The lift acts behind or ahead of the stock and twists it.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Twisting moment",
+                "symbol": "Q",
+                "formula": "Q = F \u00d7 lever",
+                "substituted": "Q = 80\u2009488 N \u00d7 0.120 m",
+                "value": 9.658527625942401,
+                "unit": "kN\u00b7m",
+                "result": "9.659 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Torsional stress",
+                "symbol": "\u03c4_t",
+                "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
+                "substituted": "\u03c4_t = 5.1 \u00d7 9\u2009659 / 160\u00b3 \u00d7 10\u00b3",
+                "value": 12.025998753004453,
+                "unit": "MPa",
+                "result": "12.03 MPa",
+                "note": ""
+              },
+              {
+                "label": "Material factor",
+                "symbol": "k",
+                "formula": "k = (235 / R_{eH})^{0.75}",
+                "substituted": "R_{eH} = min(550, 0.7 \u00d7 750, 450)",
+                "value": 0.6143155538718299,
+                "unit": "",
+                "result": "0.6143",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c4_{all}",
+                "formula": "\u03c4_{all} = 68 / k",
+                "substituted": "68 / 0.6143",
+                "value": 110.69229742177005,
+                "unit": "MPa",
+                "result": "110.7 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "stock_combined",
+            "title": "Stock bending and twisting at the outer bearing",
+            "demand": 181.58859900791225,
+            "capacity": 192.08369258483629,
+            "unit": "MPa",
+            "utilization": 0.9453618709860613,
+            "passed": true,
+            "margin_percent": 5.463812901393872,
+            "source": "IACS UR S10.4.2: equivalent stress in the stock",
+            "explanation": "Where the stock leaves the hull bearing it carries the whole bending moment from the fin as well as the twist.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Bending moment at the bearing",
+                "symbol": "M",
+                "formula": "M = F (0.5 b + l_g)",
+                "substituted": "M = 80\u2009488 N \u00d7 0.900 m",
+                "value": 72.438957194568,
+                "unit": "kN\u00b7m",
+                "result": "72.44 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
+                "substituted": "\u03c3_b = 10.2 \u00d7 72\u2009439 / 160\u00b3 \u00d7 10\u00b3",
+                "value": 180.3899812950668,
+                "unit": "MPa",
+                "result": "180.4 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
+                "substituted": "\u03c3_e = \u221a(180.4\u00b2 + 3 \u00d7 12.03\u00b2)",
+                "value": 181.58859900791225,
+                "unit": "MPa",
+                "result": "181.6 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 118 / k",
+                "substituted": "118 / 0.6143",
+                "value": 192.08369258483629,
+                "unit": "MPa",
+                "result": "192.1 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "stock_fit",
+            "title": "Stock fits inside the foil",
+            "demand": 160.0,
+            "capacity": 214.08218732209156,
+            "unit": "mm",
+            "utilization": 0.7473765192770397,
+            "passed": true,
+            "margin_percent": 25.262348072296025,
+            "source": "NEMO practice",
+            "explanation": "The stock and its housing must fit inside the foil at the stock position, with room for the skin.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Foil thickness at the stock",
+                "symbol": "t_s",
+                "formula": "t_s = 2 y_t(x_s)",
+                "substituted": "x_s = 35% of the chord",
+                "value": 237.86909702454616,
+                "unit": "mm",
+                "result": "237.9 mm",
+                "note": ""
+              },
+              {
+                "label": "Largest stock",
+                "symbol": "0.9 t_s",
+                "formula": "0.9 t_s",
+                "substituted": "0.9 \u00d7 237.9",
+                "value": 214.08218732209156,
+                "unit": "mm",
+                "result": "214.1 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_bending",
+            "title": "Fin body bending at the root",
+            "demand": 55.69279051765012,
+            "capacity": 146.0704537957944,
+            "unit": "MPa",
+            "utilization": 0.3812734818740845,
+            "passed": true,
+            "margin_percent": 61.87265181259155,
+            "source": "IACS UR S10.5.1: bending stress in the rudder blade",
+            "explanation": "The fin is a short wing fixed at the hull. Its skin and spars act as a box beam carrying the lift to the root.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Root moment",
+                "symbol": "M_r",
+                "formula": "M_r = F \u00d7 0.5 b",
+                "substituted": "M_r = 80\u2009488 N \u00d7 700 mm",
+                "value": 56.34141115133068,
+                "unit": "kN\u00b7m",
+                "result": "56.34 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Box second moment",
+                "symbol": "I",
+                "formula": "I = 2 \u222b t y^2 ds + t_w (h_f^3 + h_r^3) / 12",
+                "substituted": "skin 8 mm between 15% and 65% chord, webs 8 mm",
+                "value": 125458439.10747817,
+                "unit": "mm\u2074",
+                "result": "125\u2009458\u2009439 mm\u2074",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = M_r y_{max} / I",
+                "substituted": "\u03c3_b = 56\u2009341\u2009411 \u00d7 124.0 / 125\u2009458\u2009439",
+                "value": 55.69279051765012,
+                "unit": "MPa",
+                "result": "55.69 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 110 / k",
+                "substituted": "110 / 0.7531",
+                "value": 146.0704537957944,
+                "unit": "MPa",
+                "result": "146.1 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_shear",
+            "title": "Spar web shear at the root",
+            "demand": 31.210080194143643,
+            "capacity": 66.39566081627018,
+            "unit": "MPa",
+            "utilization": 0.47006204638143534,
+            "passed": true,
+            "margin_percent": 52.99379536185646,
+            "source": "IACS UR S10.5.1: shear stress in the rudder blade",
+            "explanation": "The spar webs carry the lift as shear, and the closed box carries the twist as a shear flow around it.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Shear from lift",
+                "symbol": "\u03c4_F",
+                "formula": "\u03c4_F = F / (t_w (h_f + h_r))",
+                "substituted": "\u03c4_F = 80\u2009488 / (8 \u00d7 378.2)",
+                "value": 26.601954080128195,
+                "unit": "MPa",
+                "result": "26.60 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear flow from twist",
+                "symbol": "q_t",
+                "formula": "q_t = Q / (2 A_{box})",
+                "substituted": "q_t = 9\u2009658\u2009528 / (2 \u00d7 130\u2009999)",
+                "value": 36.86500891212357,
+                "unit": "N/mm",
+                "result": "36.87 N/mm",
+                "note": "Bredt's formula for a closed thin-walled section."
+              },
+              {
+                "label": "Web shear",
+                "symbol": "\u03c4_w",
+                "formula": "\u03c4_w = \u03c4_F + q_t / t_w",
+                "substituted": "\u03c4_w = 26.60 + 36.87 / 8",
+                "value": 31.210080194143643,
+                "unit": "MPa",
+                "result": "31.21 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c4_{all}",
+                "formula": "\u03c4_{all} = 50 / k",
+                "substituted": "50 / 0.7531",
+                "value": 66.39566081627018,
+                "unit": "MPa",
+                "result": "66.40 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_equivalent",
+            "title": "Fin skin combined stress",
+            "demand": 56.261811155444256,
+            "capacity": 159.34958595904843,
+            "unit": "MPa",
+            "utilization": 0.3530715867056165,
+            "passed": true,
+            "margin_percent": 64.69284132943835,
+            "source": "IACS UR S10.5.1: equivalent stress in the rudder blade",
+            "explanation": "The skin is bent by the lift and sheared by the twist at the same time.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Skin shear from twist",
+                "symbol": "\u03c4_s",
+                "formula": "\u03c4_s = q_t / t",
+                "substituted": "\u03c4_s = 36.87 / 8",
+                "value": 4.608126114015446,
+                "unit": "MPa",
+                "result": "4.608 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_s^2)",
+                "substituted": "\u03c3_e = \u221a(55.69\u00b2 + 3 \u00d7 4.608\u00b2)",
+                "value": 56.261811155444256,
+                "unit": "MPa",
+                "result": "56.26 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 120 / k",
+                "substituted": "120 / 0.7531",
+                "value": 159.34958595904843,
+                "unit": "MPa",
+                "result": "159.3 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "skin_thickness",
+            "title": "Skin plate thickness",
+            "demand": 7.540423673479692,
+            "capacity": 8.0,
+            "unit": "mm",
+            "utilization": 0.9425529591849615,
+            "passed": true,
+            "margin_percent": 5.744704081503849,
+            "source": "IACS UR S10.5.2: rudder plating",
+            "explanation": "The rules set a least skin thickness from the panel size between ribs and spars, the draught and the fin force.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Panel",
+                "symbol": "s \u00d7 b",
+                "formula": "s = smaller, b = larger of rib pitch and spar spacing",
+                "substituted": "350 mm \u00d7 600 mm",
+                "value": 350.0,
+                "unit": "mm",
+                "result": "350.0 mm",
+                "note": ""
+              },
+              {
+                "label": "Least thickness",
+                "symbol": "t_{min}",
+                "formula": "t = 5.5 s \u03b2 \u221a((T + C_R 10^{-4}/A) k) + 2.5",
+                "substituted": "s = 0.350 m, T = 5.0 m, C_R = 80\u2009488 N, A = 1.680 m\u00b2, k = 0.7531",
+                "value": 7.540423673479692,
+                "unit": "mm",
+                "result": "7.540 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "web_thickness",
+            "title": "Spar and rib web thickness",
+            "demand": 8.0,
+            "capacity": 8.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "IACS UR S10.5.2: web plates at least 70% of the side plating and 8 mm",
+            "explanation": "Webs inside the fin must not be too thin compared with the skin.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Least web",
+                "symbol": "t_{w,min}",
+                "formula": "max(0.7 t_{min}, 8 mm)",
+                "substituted": "max(0.7 \u00d7 7.540, 8)",
+                "value": 8.0,
+                "unit": "mm",
+                "result": "8.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "skin_buckling",
+            "title": "Skin panel buckling",
+            "demand": 55.69279051765012,
+            "capacity": 116.48944803492725,
+            "unit": "MPa",
+            "utilization": 0.47809300719625386,
+            "passed": true,
+            "margin_percent": 52.19069928037461,
+            "source": "NEMO practice: plate buckling (Timoshenko) with Johnson-Ostenfeld correction, factor 1.5",
+            "explanation": "On the side being squeezed by the bending, a skin panel between ribs and spars can buckle like a thin sheet.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Buckling coefficient",
+                "symbol": "k_b",
+                "formula": "k_b = min over m of (m b/a + a/(m b))^2",
+                "substituted": "a = 350 mm (rib pitch), b = 600 mm (spar spacing)",
+                "value": 5.279053287981859,
+                "unit": "",
+                "result": "5.279",
+                "note": ""
+              },
+              {
+                "label": "Elastic buckling stress",
+                "symbol": "\u03c3_E",
+                "formula": "\u03c3_E = k_b \u03c0^2 E / (12 (1 \u2212 \u03bd^2)) (t/b)^2",
+                "substituted": "t = 8 mm",
+                "value": 174.73417205239087,
+                "unit": "MPa",
+                "result": "174.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "With plasticity",
+                "symbol": "\u03c3_{cr}",
+                "formula": "\u03c3_{cr} = \u03c3_E, or F_y (1 \u2212 F_y/(4 \u03c3_E)) above F_y/2",
+                "substituted": "F_y = 355 MPa",
+                "value": 174.73417205239087,
+                "unit": "MPa",
+                "result": "174.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{cr}/1.5",
+                "formula": "\u03c3_{cr} / 1.5",
+                "substituted": "174.7 / 1.5",
+                "value": 116.48944803492725,
+                "unit": "MPa",
+                "result": "116.5 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "tip_deflection",
+            "title": "Fin tip deflection",
+            "demand": 0.8901751244922316,
+            "capacity": 10.0,
+            "unit": "mm",
+            "utilization": 0.08901751244922315,
+            "passed": true,
+            "margin_percent": 91.09824875507768,
+            "source": "Design limit set for this job",
+            "explanation": "A fin that bends too much changes its angle and loads the stock bearings unevenly.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "stiffness",
+            "details": {},
+            "working": [
+              {
+                "label": "Tip deflection",
+                "symbol": "\u03b4",
+                "formula": "\u03b4 = F a^2 (3 b \u2212 a) / (6 E I), a = b/2",
+                "substituted": "\u03b4 = 80\u2009488 \u00d7 700\u00b2 \u00d7 (3 \u00d7 1\u2009400 \u2212 700) / (6 \u00d7 206\u2009000 \u00d7 125\u2009458\u2009439)",
+                "value": 0.8901751244922316,
+                "unit": "mm",
+                "result": "0.8902 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "cavitation",
+            "title": "Cavitation at the largest fin angle",
+            "demand": 2.910313075744681,
+            "capacity": 2.953208969693507,
+            "unit": "ratio",
+            "utilization": 0.9854748192935099,
+            "passed": true,
+            "margin_percent": 1.4525180706490115,
+            "source": "Panel method pressure against the cavitation number",
+            "explanation": "If the lowest pressure on the foil falls below the vapour pressure of the water, bubbles form and collapse on the skin. It erodes the fin and adds noise. Reduce the largest angle or the speed at which it is used.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Section angle for the same lift",
+                "symbol": "\u03b1_{2D}",
+                "formula": "\u03b1_{2D} = C_L / (dC_l/d\u03b1)_{2D}",
+                "substituted": "C_L = 1.090",
+                "value": 8.474985053563763,
+                "unit": "\u00b0",
+                "result": "8.475 \u00b0",
+                "note": "The 2D lift slope comes from NEMO's panel method of the NACA section."
+              },
+              {
+                "label": "Lowest pressure coefficient",
+                "symbol": "\u2212C_{p,min}",
+                "formula": "panel method at \u03b1_{2D}",
+                "substituted": "20% thick NACA 00 section",
+                "value": 2.910313075744681,
+                "unit": "",
+                "result": "2.910",
+                "note": ""
+              },
+              {
+                "label": "Cavitation number",
+                "symbol": "\u03c3",
+                "formula": "\u03c3 = (p_a + \u03c1 g h \u2212 p_v) / (\u00bd \u03c1 V^2)",
+                "substituted": "h = 3.0 m, V = 9.260 m/s",
+                "value": 2.953208969693507,
+                "unit": "",
+                "result": "2.953",
+                "note": ""
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_plate_mpa": 355.0,
+          "yield_stock_mpa": 550.0,
+          "k_plate": 0.753061260107943,
+          "k_stock": 0.6143155538718299,
+          "box_inertia_mm4": 125458439.10747817,
+          "root_stress_mpa": 55.69279051765012,
+          "skin_min_mm": 7.540423673479692,
+          "tip_deflection_mm": 0.8901751244922316,
+          "stock_equivalent_mpa": 181.58859900791225
+        },
+        "masses_kg": {
+          "skin": 220.5760061001034,
+          "spars": 33.25169844333589,
+          "ribs": 61.57334016000002,
+          "stock": 142.05025342471612,
+          "total": 457.45129812815543
+        },
+        "stock_material": {
+          "id": "42CRMO4_QT",
+          "name": "Forged steel 42CrMo4, quenched and tempered (stocks)"
+        },
+        "ribs": 5,
+        "rib_pitch_mm": 350.0
+      },
+      "cad_volume_mm3": 56240369.62840378,
+      "fea": {
+        "head_von_mises_mpa": 165.2627186874092,
+        "factor_of_safety_on_yield": 3.328034322370751,
+        "yield_strength_mpa": 550.0,
+        "convergence_change": 0.001167551386604735,
+        "converged": true,
+        "region": "stock from 80 mm outboard of the bearing to the loaded length",
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 35.55555555555556,
+            "local_size_mm": 35.55555555555556,
+            "elements": 2232,
+            "dofs": 12354,
+            "head_von_mises_mpa": 168.7214975754735,
+            "max_von_mises_mpa": 189.05940780192998,
+            "max_displacement_mm": 3.902701044756821,
+            "applied_force_n": [
+              976.1848071274593,
+              80487.73021618668,
+              0.0
+            ],
+            "reaction_force_n": [
+              -976.1848071249133,
+              -80487.73021561808,
+              2.429842425044626e-07
+            ],
+            "reaction_balance_error": 7.681960478525146e-12,
+            "solve_seconds": 1.2834772999995039
+          },
+          {
+            "level": 2,
+            "global_size_mm": 24.88888888888889,
+            "local_size_mm": 24.88888888888889,
+            "elements": 6160,
+            "dofs": 31584,
+            "head_von_mises_mpa": 165.45567140376676,
+            "max_von_mises_mpa": 185.26830429563464,
+            "max_displacement_mm": 3.8170320848009065,
+            "applied_force_n": [
+              198.2872648411319,
+              80487.73021618668,
+              0.0
+            ],
+            "reaction_force_n": [
+              -198.28726484673098,
+              -80487.73021599163,
+              1.807347871363163e-08
+            ],
+            "reaction_balance_error": 2.434766438898042e-12,
+            "solve_seconds": 3.864079799999672
+          },
+          {
+            "level": 3,
+            "global_size_mm": 17.77777777777778,
+            "local_size_mm": 17.77777777777778,
+            "elements": 15758,
+            "dofs": 75831,
+            "head_von_mises_mpa": 165.2627186874092,
+            "max_von_mises_mpa": 190.15167318706955,
+            "max_displacement_mm": 3.7735740330626215,
+            "applied_force_n": [
+              -24.77152144347964,
+              80487.73021618668,
+              0.0
+            ],
+            "reaction_force_n": [
+              24.771521294373997,
+              -80487.73021696821,
+              -2.650267560966313e-08
+            ],
+            "reaction_balance_error": 9.89048964198333e-12,
+            "solve_seconds": 11.053776700000526
+          }
+        ],
+        "hand_stress_mpa": 165.66998500379137,
+        "hand_label": "stock, beam theory with bending and twist",
+        "hand_section_mm": 80.0,
+        "hand_bending_mpa": 164.3553162910609,
+        "hand_torsion_mpa": 12.025998753004453,
+        "model": "stock"
+      },
+      "files": {
+        "step": "designs\\lightest\\fin.step",
+        "stl": "designs\\lightest\\fin.stl",
+        "dxf": "designs\\lightest\\fin-rib-cutting.dxf",
+        "stress_surface": "designs/lightest/stress-surface.json"
+      }
+    },
+    {
+      "key": "balanced",
+      "label": "Balanced (at least 15% spare)",
+      "target_utilization": 0.85,
+      "check_report": {
+        "passed": true,
+        "governing": "stock_combined",
+        "mass_kg": 475.7624636086852,
+        "design": {
+          "span_mm": 1400.0,
+          "chord_mm": 1200.0,
+          "thickness_ratio": 0.2,
+          "stock_position": 0.35,
+          "front_spar": 0.15,
+          "rear_spar": 0.65,
+          "skin_mm": 8.0,
+          "web_mm": 8.0,
+          "rib_spacing_mm": 350.0,
+          "stock_diameter_mm": 170.0,
+          "bearing_gap_mm": 200.0
+        },
+        "material": "AH36",
+        "loads": {
+          "speed_ms": 9.259992,
+          "lift_coefficient": 1.0901978115188686,
+          "lift_slope_per_rad": 2.707612918505479,
+          "nemo_lift_n": 80487.73021618668,
+          "ur_s10_force_n": 66740.88960000001,
+          "design_force_n": 80487.73021618668,
+          "lever_m": 0.12,
+          "torque_nm": 9658.5276259424,
+          "root_moment_nm": 56341.41115133068,
+          "stock_moment_nm": 72438.957194568,
+          "section_angle_deg": 8.474985053563763,
+          "cp_min": -2.910313075744681,
+          "cavitation_number": 2.953208969693507,
+          "area_m2": 1.68,
+          "effective_aspect_ratio": 2.3333333333333335,
+          "span_arm_m": 0.7,
+          "sling_force_n": 80487.73021618668,
+          "sling_force_t": 8.207464344723904
+        },
+        "rule_set": {
+          "id": "iacs-ur-s10",
+          "name": "IACS UR S10, Rudders, sole pieces and rudder horns (Rev.8, 2025), applied to a stabilizer fin",
+          "design_factor": 2.1363636363636362
+        },
+        "checks": [
+          {
+            "id": "stock_torsion",
+            "title": "Stock twisting",
+            "demand": 10.026153244922906,
+            "capacity": 110.69229742177005,
+            "unit": "MPa",
+            "utilization": 0.09057679240968618,
+            "passed": true,
+            "margin_percent": 90.94232075903138,
+            "source": "IACS UR S10.4.1: torsional stress in the stock",
+            "explanation": "The lift acts behind or ahead of the stock and twists it.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Twisting moment",
+                "symbol": "Q",
+                "formula": "Q = F \u00d7 lever",
+                "substituted": "Q = 80\u2009488 N \u00d7 0.120 m",
+                "value": 9.658527625942401,
+                "unit": "kN\u00b7m",
+                "result": "9.659 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Torsional stress",
+                "symbol": "\u03c4_t",
+                "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
+                "substituted": "\u03c4_t = 5.1 \u00d7 9\u2009659 / 170\u00b3 \u00d7 10\u00b3",
+                "value": 10.026153244922906,
+                "unit": "MPa",
+                "result": "10.03 MPa",
+                "note": ""
+              },
+              {
+                "label": "Material factor",
+                "symbol": "k",
+                "formula": "k = (235 / R_{eH})^{0.75}",
+                "substituted": "R_{eH} = min(500, 0.7 \u00d7 750, 450)",
+                "value": 0.6143155538718299,
+                "unit": "",
+                "result": "0.6143",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c4_{all}",
+                "formula": "\u03c4_{all} = 68 / k",
+                "substituted": "68 / 0.6143",
+                "value": 110.69229742177005,
+                "unit": "MPa",
+                "result": "110.7 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "stock_combined",
+            "title": "Stock bending and twisting at the outer bearing",
+            "demand": 151.39159404364108,
+            "capacity": 192.08369258483629,
+            "unit": "MPa",
+            "utilization": 0.7881543300547338,
+            "passed": true,
+            "margin_percent": 21.18456699452662,
+            "source": "IACS UR S10.4.2: equivalent stress in the stock",
+            "explanation": "Where the stock leaves the hull bearing it carries the whole bending moment from the fin as well as the twist.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Bending moment at the bearing",
+                "symbol": "M",
+                "formula": "M = F (0.5 b + l_g)",
+                "substituted": "M = 80\u2009488 N \u00d7 0.900 m",
+                "value": 72.438957194568,
+                "unit": "kN\u00b7m",
+                "result": "72.44 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
+                "substituted": "\u03c3_b = 10.2 \u00d7 72\u2009439 / 170\u00b3 \u00d7 10\u00b3",
+                "value": 150.3922986738436,
+                "unit": "MPa",
+                "result": "150.4 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
+                "substituted": "\u03c3_e = \u221a(150.4\u00b2 + 3 \u00d7 10.03\u00b2)",
+                "value": 151.39159404364108,
+                "unit": "MPa",
+                "result": "151.4 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 118 / k",
+                "substituted": "118 / 0.6143",
+                "value": 192.08369258483629,
+                "unit": "MPa",
+                "result": "192.1 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "stock_fit",
+            "title": "Stock fits inside the foil",
+            "demand": 170.0,
+            "capacity": 214.08218732209156,
+            "unit": "mm",
+            "utilization": 0.7940875517318547,
+            "passed": true,
+            "margin_percent": 20.591244826814524,
+            "source": "NEMO practice",
+            "explanation": "The stock and its housing must fit inside the foil at the stock position, with room for the skin.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Foil thickness at the stock",
+                "symbol": "t_s",
+                "formula": "t_s = 2 y_t(x_s)",
+                "substituted": "x_s = 35% of the chord",
+                "value": 237.86909702454616,
+                "unit": "mm",
+                "result": "237.9 mm",
+                "note": ""
+              },
+              {
+                "label": "Largest stock",
+                "symbol": "0.9 t_s",
+                "formula": "0.9 t_s",
+                "substituted": "0.9 \u00d7 237.9",
+                "value": 214.08218732209156,
+                "unit": "mm",
+                "result": "214.1 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_bending",
+            "title": "Fin body bending at the root",
+            "demand": 55.69279051765012,
+            "capacity": 146.0704537957944,
+            "unit": "MPa",
+            "utilization": 0.3812734818740845,
+            "passed": true,
+            "margin_percent": 61.87265181259155,
+            "source": "IACS UR S10.5.1: bending stress in the rudder blade",
+            "explanation": "The fin is a short wing fixed at the hull. Its skin and spars act as a box beam carrying the lift to the root.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Root moment",
+                "symbol": "M_r",
+                "formula": "M_r = F \u00d7 0.5 b",
+                "substituted": "M_r = 80\u2009488 N \u00d7 700 mm",
+                "value": 56.34141115133068,
+                "unit": "kN\u00b7m",
+                "result": "56.34 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Box second moment",
+                "symbol": "I",
+                "formula": "I = 2 \u222b t y^2 ds + t_w (h_f^3 + h_r^3) / 12",
+                "substituted": "skin 8 mm between 15% and 65% chord, webs 8 mm",
+                "value": 125458439.10747817,
+                "unit": "mm\u2074",
+                "result": "125\u2009458\u2009439 mm\u2074",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = M_r y_{max} / I",
+                "substituted": "\u03c3_b = 56\u2009341\u2009411 \u00d7 124.0 / 125\u2009458\u2009439",
+                "value": 55.69279051765012,
+                "unit": "MPa",
+                "result": "55.69 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 110 / k",
+                "substituted": "110 / 0.7531",
+                "value": 146.0704537957944,
+                "unit": "MPa",
+                "result": "146.1 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_shear",
+            "title": "Spar web shear at the root",
+            "demand": 31.210080194143643,
+            "capacity": 66.39566081627018,
+            "unit": "MPa",
+            "utilization": 0.47006204638143534,
+            "passed": true,
+            "margin_percent": 52.99379536185646,
+            "source": "IACS UR S10.5.1: shear stress in the rudder blade",
+            "explanation": "The spar webs carry the lift as shear, and the closed box carries the twist as a shear flow around it.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Shear from lift",
+                "symbol": "\u03c4_F",
+                "formula": "\u03c4_F = F / (t_w (h_f + h_r))",
+                "substituted": "\u03c4_F = 80\u2009488 / (8 \u00d7 378.2)",
+                "value": 26.601954080128195,
+                "unit": "MPa",
+                "result": "26.60 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear flow from twist",
+                "symbol": "q_t",
+                "formula": "q_t = Q / (2 A_{box})",
+                "substituted": "q_t = 9\u2009658\u2009528 / (2 \u00d7 130\u2009999)",
+                "value": 36.86500891212357,
+                "unit": "N/mm",
+                "result": "36.87 N/mm",
+                "note": "Bredt's formula for a closed thin-walled section."
+              },
+              {
+                "label": "Web shear",
+                "symbol": "\u03c4_w",
+                "formula": "\u03c4_w = \u03c4_F + q_t / t_w",
+                "substituted": "\u03c4_w = 26.60 + 36.87 / 8",
+                "value": 31.210080194143643,
+                "unit": "MPa",
+                "result": "31.21 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c4_{all}",
+                "formula": "\u03c4_{all} = 50 / k",
+                "substituted": "50 / 0.7531",
+                "value": 66.39566081627018,
+                "unit": "MPa",
+                "result": "66.40 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_equivalent",
+            "title": "Fin skin combined stress",
+            "demand": 56.261811155444256,
+            "capacity": 159.34958595904843,
+            "unit": "MPa",
+            "utilization": 0.3530715867056165,
+            "passed": true,
+            "margin_percent": 64.69284132943835,
+            "source": "IACS UR S10.5.1: equivalent stress in the rudder blade",
+            "explanation": "The skin is bent by the lift and sheared by the twist at the same time.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Skin shear from twist",
+                "symbol": "\u03c4_s",
+                "formula": "\u03c4_s = q_t / t",
+                "substituted": "\u03c4_s = 36.87 / 8",
+                "value": 4.608126114015446,
+                "unit": "MPa",
+                "result": "4.608 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_s^2)",
+                "substituted": "\u03c3_e = \u221a(55.69\u00b2 + 3 \u00d7 4.608\u00b2)",
+                "value": 56.261811155444256,
+                "unit": "MPa",
+                "result": "56.26 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 120 / k",
+                "substituted": "120 / 0.7531",
+                "value": 159.34958595904843,
+                "unit": "MPa",
+                "result": "159.3 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "skin_thickness",
+            "title": "Skin plate thickness",
+            "demand": 7.540423673479692,
+            "capacity": 8.0,
+            "unit": "mm",
+            "utilization": 0.9425529591849615,
+            "passed": true,
+            "margin_percent": 5.744704081503849,
+            "source": "IACS UR S10.5.2: rudder plating",
+            "explanation": "The rules set a least skin thickness from the panel size between ribs and spars, the draught and the fin force.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Panel",
+                "symbol": "s \u00d7 b",
+                "formula": "s = smaller, b = larger of rib pitch and spar spacing",
+                "substituted": "350 mm \u00d7 600 mm",
+                "value": 350.0,
+                "unit": "mm",
+                "result": "350.0 mm",
+                "note": ""
+              },
+              {
+                "label": "Least thickness",
+                "symbol": "t_{min}",
+                "formula": "t = 5.5 s \u03b2 \u221a((T + C_R 10^{-4}/A) k) + 2.5",
+                "substituted": "s = 0.350 m, T = 5.0 m, C_R = 80\u2009488 N, A = 1.680 m\u00b2, k = 0.7531",
+                "value": 7.540423673479692,
+                "unit": "mm",
+                "result": "7.540 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "web_thickness",
+            "title": "Spar and rib web thickness",
+            "demand": 8.0,
+            "capacity": 8.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "IACS UR S10.5.2: web plates at least 70% of the side plating and 8 mm",
+            "explanation": "Webs inside the fin must not be too thin compared with the skin.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Least web",
+                "symbol": "t_{w,min}",
+                "formula": "max(0.7 t_{min}, 8 mm)",
+                "substituted": "max(0.7 \u00d7 7.540, 8)",
+                "value": 8.0,
+                "unit": "mm",
+                "result": "8.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "skin_buckling",
+            "title": "Skin panel buckling",
+            "demand": 55.69279051765012,
+            "capacity": 116.48944803492725,
+            "unit": "MPa",
+            "utilization": 0.47809300719625386,
+            "passed": true,
+            "margin_percent": 52.19069928037461,
+            "source": "NEMO practice: plate buckling (Timoshenko) with Johnson-Ostenfeld correction, factor 1.5",
+            "explanation": "On the side being squeezed by the bending, a skin panel between ribs and spars can buckle like a thin sheet.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Buckling coefficient",
+                "symbol": "k_b",
+                "formula": "k_b = min over m of (m b/a + a/(m b))^2",
+                "substituted": "a = 350 mm (rib pitch), b = 600 mm (spar spacing)",
+                "value": 5.279053287981859,
+                "unit": "",
+                "result": "5.279",
+                "note": ""
+              },
+              {
+                "label": "Elastic buckling stress",
+                "symbol": "\u03c3_E",
+                "formula": "\u03c3_E = k_b \u03c0^2 E / (12 (1 \u2212 \u03bd^2)) (t/b)^2",
+                "substituted": "t = 8 mm",
+                "value": 174.73417205239087,
+                "unit": "MPa",
+                "result": "174.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "With plasticity",
+                "symbol": "\u03c3_{cr}",
+                "formula": "\u03c3_{cr} = \u03c3_E, or F_y (1 \u2212 F_y/(4 \u03c3_E)) above F_y/2",
+                "substituted": "F_y = 355 MPa",
+                "value": 174.73417205239087,
+                "unit": "MPa",
+                "result": "174.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{cr}/1.5",
+                "formula": "\u03c3_{cr} / 1.5",
+                "substituted": "174.7 / 1.5",
+                "value": 116.48944803492725,
+                "unit": "MPa",
+                "result": "116.5 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "tip_deflection",
+            "title": "Fin tip deflection",
+            "demand": 0.8901751244922316,
+            "capacity": 10.0,
+            "unit": "mm",
+            "utilization": 0.08901751244922315,
+            "passed": true,
+            "margin_percent": 91.09824875507768,
+            "source": "Design limit set for this job",
+            "explanation": "A fin that bends too much changes its angle and loads the stock bearings unevenly.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "stiffness",
+            "details": {},
+            "working": [
+              {
+                "label": "Tip deflection",
+                "symbol": "\u03b4",
+                "formula": "\u03b4 = F a^2 (3 b \u2212 a) / (6 E I), a = b/2",
+                "substituted": "\u03b4 = 80\u2009488 \u00d7 700\u00b2 \u00d7 (3 \u00d7 1\u2009400 \u2212 700) / (6 \u00d7 206\u2009000 \u00d7 125\u2009458\u2009439)",
+                "value": 0.8901751244922316,
+                "unit": "mm",
+                "result": "0.8902 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "cavitation",
+            "title": "Cavitation at the largest fin angle",
+            "demand": 2.910313075744681,
+            "capacity": 2.953208969693507,
+            "unit": "ratio",
+            "utilization": 0.9854748192935099,
+            "passed": true,
+            "margin_percent": 1.4525180706490115,
+            "source": "Panel method pressure against the cavitation number",
+            "explanation": "If the lowest pressure on the foil falls below the vapour pressure of the water, bubbles form and collapse on the skin. It erodes the fin and adds noise. Reduce the largest angle or the speed at which it is used.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Section angle for the same lift",
+                "symbol": "\u03b1_{2D}",
+                "formula": "\u03b1_{2D} = C_L / (dC_l/d\u03b1)_{2D}",
+                "substituted": "C_L = 1.090",
+                "value": 8.474985053563763,
+                "unit": "\u00b0",
+                "result": "8.475 \u00b0",
+                "note": "The 2D lift slope comes from NEMO's panel method of the NACA section."
+              },
+              {
+                "label": "Lowest pressure coefficient",
+                "symbol": "\u2212C_{p,min}",
+                "formula": "panel method at \u03b1_{2D}",
+                "substituted": "20% thick NACA 00 section",
+                "value": 2.910313075744681,
+                "unit": "",
+                "result": "2.910",
+                "note": ""
+              },
+              {
+                "label": "Cavitation number",
+                "symbol": "\u03c3",
+                "formula": "\u03c3 = (p_a + \u03c1 g h \u2212 p_v) / (\u00bd \u03c1 V^2)",
+                "substituted": "h = 3.0 m, V = 9.260 m/s",
+                "value": 2.953208969693507,
+                "unit": "",
+                "result": "2.953",
+                "note": ""
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_plate_mpa": 355.0,
+          "yield_stock_mpa": 500.0,
+          "k_plate": 0.753061260107943,
+          "k_stock": 0.6143155538718299,
+          "box_inertia_mm4": 125458439.10747817,
+          "root_stress_mpa": 55.69279051765012,
+          "skin_min_mm": 7.540423673479692,
+          "tip_deflection_mm": 0.8901751244922316,
+          "stock_equivalent_mpa": 151.39159404364108
+        },
+        "masses_kg": {
+          "skin": 220.5760061001034,
+          "spars": 33.25169844333589,
+          "ribs": 61.57334016000002,
+          "stock": 160.3614189052459,
+          "total": 475.7624636086852
+        },
+        "stock_material": {
+          "id": "42CRMO4_QT",
+          "name": "Forged steel 42CrMo4, quenched and tempered (stocks)"
+        },
+        "ribs": 5,
+        "rib_pitch_mm": 350.0
+      },
+      "cad_volume_mm3": 58521165.89491041,
+      "fea": {
+        "head_von_mises_mpa": 136.85956226787914,
+        "factor_of_safety_on_yield": 3.653380090616801,
+        "yield_strength_mpa": 500.0,
+        "convergence_change": 0.0038695234578383433,
+        "converged": true,
+        "region": "stock from 85 mm outboard of the bearing to the loaded length",
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 37.77777777777778,
+            "local_size_mm": 37.77777777777778,
+            "elements": 2131,
+            "dofs": 11715,
+            "head_von_mises_mpa": 140.44803549834253,
+            "max_von_mises_mpa": 153.75367055514732,
+            "max_displacement_mm": 3.057168619499709,
+            "applied_force_n": [
+              -61.250363383737934,
+              80487.7302161867,
+              0.0
+            ],
+            "reaction_force_n": [
+              61.250363450546956,
+              -80487.73021637043,
+              6.889513315400109e-08
+            ],
+            "reaction_balance_error": 2.5753768703687366e-12,
+            "solve_seconds": 1.1974020000016026
+          },
+          {
+            "level": 2,
+            "global_size_mm": 26.444444444444443,
+            "local_size_mm": 26.444444444444443,
+            "elements": 5644,
+            "dofs": 28935,
+            "head_von_mises_mpa": 137.3891435545042,
+            "max_von_mises_mpa": 153.05019809156937,
+            "max_displacement_mm": 3.0038040498008862,
+            "applied_force_n": [
+              -63.41603069380116,
+              80487.73021618667,
+              0.0
+            ],
+            "reaction_force_n": [
+              63.416030676919036,
+              -80487.73021577162,
+              -7.03730620443821e-08
+            ],
+            "reaction_balance_error": 5.234483411916635e-12,
+            "solve_seconds": 3.4498633000002883
+          },
+          {
+            "level": 3,
+            "global_size_mm": 18.88888888888889,
+            "local_size_mm": 18.88888888888889,
+            "elements": 15030,
+            "dofs": 72174,
+            "head_von_mises_mpa": 136.85956226787914,
+            "max_von_mises_mpa": 159.07285819614307,
+            "max_displacement_mm": 2.9708615219472616,
+            "applied_force_n": [
+              150.7068895482436,
+              80487.73021618668,
+              0.0
+            ],
+            "reaction_force_n": [
+              -150.70688952558157,
+              -80487.73021645893,
+              -5.1983079174533486e-08
+            ],
+            "reaction_balance_error": 3.45511710268997e-12,
+            "solve_seconds": 10.075990499999534
+          }
+        ],
+        "hand_stress_mpa": 137.2912997920541,
+        "hand_label": "stock, beam theory with bending and twist",
+        "hand_section_mm": 85.0,
+        "hand_bending_mpa": 136.1885815768695,
+        "hand_torsion_mpa": 10.026153244922906,
+        "model": "stock"
+      },
+      "files": {
+        "step": "designs\\balanced\\fin.step",
+        "stl": "designs\\balanced\\fin.stl",
+        "dxf": "designs\\balanced\\fin-rib-cutting.dxf",
+        "stress_surface": "designs/balanced/stress-surface.json"
+      }
+    },
+    {
+      "key": "robust",
+      "label": "Extra margin (at least 30% spare)",
+      "target_utilization": 0.7,
+      "check_report": {
+        "passed": true,
+        "governing": "stock_combined",
+        "mass_kg": 495.1833966940956,
+        "design": {
+          "span_mm": 1400.0,
+          "chord_mm": 1200.0,
+          "thickness_ratio": 0.2,
+          "stock_position": 0.35,
+          "front_spar": 0.15,
+          "rear_spar": 0.65,
+          "skin_mm": 8.0,
+          "web_mm": 8.0,
+          "rib_spacing_mm": 350.0,
+          "stock_diameter_mm": 180.0,
+          "bearing_gap_mm": 200.0
+        },
+        "material": "AH36",
+        "loads": {
+          "speed_ms": 9.259992,
+          "lift_coefficient": 1.0901978115188686,
+          "lift_slope_per_rad": 2.707612918505479,
+          "nemo_lift_n": 80487.73021618668,
+          "ur_s10_force_n": 66740.88960000001,
+          "design_force_n": 80487.73021618668,
+          "lever_m": 0.12,
+          "torque_nm": 9658.5276259424,
+          "root_moment_nm": 56341.41115133068,
+          "stock_moment_nm": 72438.957194568,
+          "section_angle_deg": 8.474985053563763,
+          "cp_min": -2.910313075744681,
+          "cavitation_number": 2.953208969693507,
+          "area_m2": 1.68,
+          "effective_aspect_ratio": 2.3333333333333335,
+          "span_arm_m": 0.7,
+          "sling_force_n": 80487.73021618668,
+          "sling_force_t": 8.207464344723904
+        },
+        "rule_set": {
+          "id": "iacs-ur-s10",
+          "name": "IACS UR S10, Rudders, sole pieces and rudder horns (Rev.8, 2025), applied to a stabilizer fin",
+          "design_factor": 2.1363636363636362
+        },
+        "checks": [
+          {
+            "id": "stock_torsion",
+            "title": "Stock twisting",
+            "demand": 8.446243294291193,
+            "capacity": 110.69229742177005,
+            "unit": "MPa",
+            "utilization": 0.07630380334512829,
+            "passed": true,
+            "margin_percent": 92.36961966548716,
+            "source": "IACS UR S10.4.1: torsional stress in the stock",
+            "explanation": "The lift acts behind or ahead of the stock and twists it.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Twisting moment",
+                "symbol": "Q",
+                "formula": "Q = F \u00d7 lever",
+                "substituted": "Q = 80\u2009488 N \u00d7 0.120 m",
+                "value": 9.658527625942401,
+                "unit": "kN\u00b7m",
+                "result": "9.659 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Torsional stress",
+                "symbol": "\u03c4_t",
+                "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
+                "substituted": "\u03c4_t = 5.1 \u00d7 9\u2009659 / 180\u00b3 \u00d7 10\u00b3",
+                "value": 8.446243294291193,
+                "unit": "MPa",
+                "result": "8.446 MPa",
+                "note": ""
+              },
+              {
+                "label": "Material factor",
+                "symbol": "k",
+                "formula": "k = (235 / R_{eH})^{0.75}",
+                "substituted": "R_{eH} = min(500, 0.7 \u00d7 750, 450)",
+                "value": 0.6143155538718299,
+                "unit": "",
+                "result": "0.6143",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c4_{all}",
+                "formula": "\u03c4_{all} = 68 / k",
+                "substituted": "68 / 0.6143",
+                "value": 110.69229742177005,
+                "unit": "MPa",
+                "result": "110.7 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "stock_combined",
+            "title": "Stock bending and twisting at the outer bearing",
+            "demand": 127.53547694382861,
+            "capacity": 192.08369258483629,
+            "unit": "MPa",
+            "utilization": 0.6639578572631869,
+            "passed": true,
+            "margin_percent": 33.60421427368131,
+            "source": "IACS UR S10.4.2: equivalent stress in the stock",
+            "explanation": "Where the stock leaves the hull bearing it carries the whole bending moment from the fin as well as the twist.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Bending moment at the bearing",
+                "symbol": "M",
+                "formula": "M = F (0.5 b + l_g)",
+                "substituted": "M = 80\u2009488 N \u00d7 0.900 m",
+                "value": 72.438957194568,
+                "unit": "kN\u00b7m",
+                "result": "72.44 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
+                "substituted": "\u03c3_b = 10.2 \u00d7 72\u2009439 / 180\u00b3 \u00d7 10\u00b3",
+                "value": 126.6936494143679,
+                "unit": "MPa",
+                "result": "126.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
+                "substituted": "\u03c3_e = \u221a(126.7\u00b2 + 3 \u00d7 8.446\u00b2)",
+                "value": 127.53547694382861,
+                "unit": "MPa",
+                "result": "127.5 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 118 / k",
+                "substituted": "118 / 0.6143",
+                "value": 192.08369258483629,
+                "unit": "MPa",
+                "result": "192.1 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "stock_fit",
+            "title": "Stock fits inside the foil",
+            "demand": 180.0,
+            "capacity": 214.08218732209156,
+            "unit": "mm",
+            "utilization": 0.8407985841866698,
+            "passed": true,
+            "margin_percent": 15.920141581333025,
+            "source": "NEMO practice",
+            "explanation": "The stock and its housing must fit inside the foil at the stock position, with room for the skin.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Foil thickness at the stock",
+                "symbol": "t_s",
+                "formula": "t_s = 2 y_t(x_s)",
+                "substituted": "x_s = 35% of the chord",
+                "value": 237.86909702454616,
+                "unit": "mm",
+                "result": "237.9 mm",
+                "note": ""
+              },
+              {
+                "label": "Largest stock",
+                "symbol": "0.9 t_s",
+                "formula": "0.9 t_s",
+                "substituted": "0.9 \u00d7 237.9",
+                "value": 214.08218732209156,
+                "unit": "mm",
+                "result": "214.1 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_bending",
+            "title": "Fin body bending at the root",
+            "demand": 55.69279051765012,
+            "capacity": 146.0704537957944,
+            "unit": "MPa",
+            "utilization": 0.3812734818740845,
+            "passed": true,
+            "margin_percent": 61.87265181259155,
+            "source": "IACS UR S10.5.1: bending stress in the rudder blade",
+            "explanation": "The fin is a short wing fixed at the hull. Its skin and spars act as a box beam carrying the lift to the root.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Root moment",
+                "symbol": "M_r",
+                "formula": "M_r = F \u00d7 0.5 b",
+                "substituted": "M_r = 80\u2009488 N \u00d7 700 mm",
+                "value": 56.34141115133068,
+                "unit": "kN\u00b7m",
+                "result": "56.34 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Box second moment",
+                "symbol": "I",
+                "formula": "I = 2 \u222b t y^2 ds + t_w (h_f^3 + h_r^3) / 12",
+                "substituted": "skin 8 mm between 15% and 65% chord, webs 8 mm",
+                "value": 125458439.10747817,
+                "unit": "mm\u2074",
+                "result": "125\u2009458\u2009439 mm\u2074",
+                "note": ""
+              },
+              {
+                "label": "Bending stress",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = M_r y_{max} / I",
+                "substituted": "\u03c3_b = 56\u2009341\u2009411 \u00d7 124.0 / 125\u2009458\u2009439",
+                "value": 55.69279051765012,
+                "unit": "MPa",
+                "result": "55.69 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 110 / k",
+                "substituted": "110 / 0.7531",
+                "value": 146.0704537957944,
+                "unit": "MPa",
+                "result": "146.1 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_shear",
+            "title": "Spar web shear at the root",
+            "demand": 31.210080194143643,
+            "capacity": 66.39566081627018,
+            "unit": "MPa",
+            "utilization": 0.47006204638143534,
+            "passed": true,
+            "margin_percent": 52.99379536185646,
+            "source": "IACS UR S10.5.1: shear stress in the rudder blade",
+            "explanation": "The spar webs carry the lift as shear, and the closed box carries the twist as a shear flow around it.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Shear from lift",
+                "symbol": "\u03c4_F",
+                "formula": "\u03c4_F = F / (t_w (h_f + h_r))",
+                "substituted": "\u03c4_F = 80\u2009488 / (8 \u00d7 378.2)",
+                "value": 26.601954080128195,
+                "unit": "MPa",
+                "result": "26.60 MPa",
+                "note": ""
+              },
+              {
+                "label": "Shear flow from twist",
+                "symbol": "q_t",
+                "formula": "q_t = Q / (2 A_{box})",
+                "substituted": "q_t = 9\u2009658\u2009528 / (2 \u00d7 130\u2009999)",
+                "value": 36.86500891212357,
+                "unit": "N/mm",
+                "result": "36.87 N/mm",
+                "note": "Bredt's formula for a closed thin-walled section."
+              },
+              {
+                "label": "Web shear",
+                "symbol": "\u03c4_w",
+                "formula": "\u03c4_w = \u03c4_F + q_t / t_w",
+                "substituted": "\u03c4_w = 26.60 + 36.87 / 8",
+                "value": 31.210080194143643,
+                "unit": "MPa",
+                "result": "31.21 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c4_{all}",
+                "formula": "\u03c4_{all} = 50 / k",
+                "substituted": "50 / 0.7531",
+                "value": 66.39566081627018,
+                "unit": "MPa",
+                "result": "66.40 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "fin_equivalent",
+            "title": "Fin skin combined stress",
+            "demand": 56.261811155444256,
+            "capacity": 159.34958595904843,
+            "unit": "MPa",
+            "utilization": 0.3530715867056165,
+            "passed": true,
+            "margin_percent": 64.69284132943835,
+            "source": "IACS UR S10.5.1: equivalent stress in the rudder blade",
+            "explanation": "The skin is bent by the lift and sheared by the twist at the same time.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Skin shear from twist",
+                "symbol": "\u03c4_s",
+                "formula": "\u03c4_s = q_t / t",
+                "substituted": "\u03c4_s = 36.87 / 8",
+                "value": 4.608126114015446,
+                "unit": "MPa",
+                "result": "4.608 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_s^2)",
+                "substituted": "\u03c3_e = \u221a(55.69\u00b2 + 3 \u00d7 4.608\u00b2)",
+                "value": 56.261811155444256,
+                "unit": "MPa",
+                "result": "56.26 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{all}",
+                "formula": "\u03c3_{all} = 120 / k",
+                "substituted": "120 / 0.7531",
+                "value": 159.34958595904843,
+                "unit": "MPa",
+                "result": "159.3 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "skin_thickness",
+            "title": "Skin plate thickness",
+            "demand": 7.540423673479692,
+            "capacity": 8.0,
+            "unit": "mm",
+            "utilization": 0.9425529591849615,
+            "passed": true,
+            "margin_percent": 5.744704081503849,
+            "source": "IACS UR S10.5.2: rudder plating",
+            "explanation": "The rules set a least skin thickness from the panel size between ribs and spars, the draught and the fin force.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Panel",
+                "symbol": "s \u00d7 b",
+                "formula": "s = smaller, b = larger of rib pitch and spar spacing",
+                "substituted": "350 mm \u00d7 600 mm",
+                "value": 350.0,
+                "unit": "mm",
+                "result": "350.0 mm",
+                "note": ""
+              },
+              {
+                "label": "Least thickness",
+                "symbol": "t_{min}",
+                "formula": "t = 5.5 s \u03b2 \u221a((T + C_R 10^{-4}/A) k) + 2.5",
+                "substituted": "s = 0.350 m, T = 5.0 m, C_R = 80\u2009488 N, A = 1.680 m\u00b2, k = 0.7531",
+                "value": 7.540423673479692,
+                "unit": "mm",
+                "result": "7.540 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "web_thickness",
+            "title": "Spar and rib web thickness",
+            "demand": 8.0,
+            "capacity": 8.0,
+            "unit": "mm",
+            "utilization": 1.0,
+            "passed": true,
+            "margin_percent": 0.0,
+            "source": "IACS UR S10.5.2: web plates at least 70% of the side plating and 8 mm",
+            "explanation": "Webs inside the fin must not be too thin compared with the skin.",
+            "basis": "rule",
+            "severity": "required",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Least web",
+                "symbol": "t_{w,min}",
+                "formula": "max(0.7 t_{min}, 8 mm)",
+                "substituted": "max(0.7 \u00d7 7.540, 8)",
+                "value": 8.0,
+                "unit": "mm",
+                "result": "8.000 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "skin_buckling",
+            "title": "Skin panel buckling",
+            "demand": 55.69279051765012,
+            "capacity": 116.48944803492725,
+            "unit": "MPa",
+            "utilization": 0.47809300719625386,
+            "passed": true,
+            "margin_percent": 52.19069928037461,
+            "source": "NEMO practice: plate buckling (Timoshenko) with Johnson-Ostenfeld correction, factor 1.5",
+            "explanation": "On the side being squeezed by the bending, a skin panel between ribs and spars can buckle like a thin sheet.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "strength",
+            "details": {},
+            "working": [
+              {
+                "label": "Buckling coefficient",
+                "symbol": "k_b",
+                "formula": "k_b = min over m of (m b/a + a/(m b))^2",
+                "substituted": "a = 350 mm (rib pitch), b = 600 mm (spar spacing)",
+                "value": 5.279053287981859,
+                "unit": "",
+                "result": "5.279",
+                "note": ""
+              },
+              {
+                "label": "Elastic buckling stress",
+                "symbol": "\u03c3_E",
+                "formula": "\u03c3_E = k_b \u03c0^2 E / (12 (1 \u2212 \u03bd^2)) (t/b)^2",
+                "substituted": "t = 8 mm",
+                "value": 174.73417205239087,
+                "unit": "MPa",
+                "result": "174.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "With plasticity",
+                "symbol": "\u03c3_{cr}",
+                "formula": "\u03c3_{cr} = \u03c3_E, or F_y (1 \u2212 F_y/(4 \u03c3_E)) above F_y/2",
+                "substituted": "F_y = 355 MPa",
+                "value": 174.73417205239087,
+                "unit": "MPa",
+                "result": "174.7 MPa",
+                "note": ""
+              },
+              {
+                "label": "Allowed",
+                "symbol": "\u03c3_{cr}/1.5",
+                "formula": "\u03c3_{cr} / 1.5",
+                "substituted": "174.7 / 1.5",
+                "value": 116.48944803492725,
+                "unit": "MPa",
+                "result": "116.5 MPa",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "tip_deflection",
+            "title": "Fin tip deflection",
+            "demand": 0.8901751244922316,
+            "capacity": 10.0,
+            "unit": "mm",
+            "utilization": 0.08901751244922315,
+            "passed": true,
+            "margin_percent": 91.09824875507768,
+            "source": "Design limit set for this job",
+            "explanation": "A fin that bends too much changes its angle and loads the stock bearings unevenly.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "stiffness",
+            "details": {},
+            "working": [
+              {
+                "label": "Tip deflection",
+                "symbol": "\u03b4",
+                "formula": "\u03b4 = F a^2 (3 b \u2212 a) / (6 E I), a = b/2",
+                "substituted": "\u03b4 = 80\u2009488 \u00d7 700\u00b2 \u00d7 (3 \u00d7 1\u2009400 \u2212 700) / (6 \u00d7 206\u2009000 \u00d7 125\u2009458\u2009439)",
+                "value": 0.8901751244922316,
+                "unit": "mm",
+                "result": "0.8902 mm",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "id": "cavitation",
+            "title": "Cavitation at the largest fin angle",
+            "demand": 2.910313075744681,
+            "capacity": 2.953208969693507,
+            "unit": "ratio",
+            "utilization": 0.9854748192935099,
+            "passed": true,
+            "margin_percent": 1.4525180706490115,
+            "source": "Panel method pressure against the cavitation number",
+            "explanation": "If the lowest pressure on the foil falls below the vapour pressure of the water, bubbles form and collapse on the skin. It erodes the fin and adds noise. Reduce the largest angle or the speed at which it is used.",
+            "basis": "practice",
+            "severity": "advice",
+            "category": "fit",
+            "details": {},
+            "working": [
+              {
+                "label": "Section angle for the same lift",
+                "symbol": "\u03b1_{2D}",
+                "formula": "\u03b1_{2D} = C_L / (dC_l/d\u03b1)_{2D}",
+                "substituted": "C_L = 1.090",
+                "value": 8.474985053563763,
+                "unit": "\u00b0",
+                "result": "8.475 \u00b0",
+                "note": "The 2D lift slope comes from NEMO's panel method of the NACA section."
+              },
+              {
+                "label": "Lowest pressure coefficient",
+                "symbol": "\u2212C_{p,min}",
+                "formula": "panel method at \u03b1_{2D}",
+                "substituted": "20% thick NACA 00 section",
+                "value": 2.910313075744681,
+                "unit": "",
+                "result": "2.910",
+                "note": ""
+              },
+              {
+                "label": "Cavitation number",
+                "symbol": "\u03c3",
+                "formula": "\u03c3 = (p_a + \u03c1 g h \u2212 p_v) / (\u00bd \u03c1 V^2)",
+                "substituted": "h = 3.0 m, V = 9.260 m/s",
+                "value": 2.953208969693507,
+                "unit": "",
+                "result": "2.953",
+                "note": ""
+              }
+            ]
+          }
+        ],
+        "values": {
+          "yield_plate_mpa": 355.0,
+          "yield_stock_mpa": 500.0,
+          "k_plate": 0.753061260107943,
+          "k_stock": 0.6143155538718299,
+          "box_inertia_mm4": 125458439.10747817,
+          "root_stress_mpa": 55.69279051765012,
+          "skin_min_mm": 7.540423673479692,
+          "tip_deflection_mm": 0.8901751244922316,
+          "stock_equivalent_mpa": 127.53547694382861
+        },
+        "masses_kg": {
+          "skin": 220.5760061001034,
+          "spars": 33.25169844333589,
+          "ribs": 61.57334016000002,
+          "stock": 179.7823519906563,
+          "total": 495.1833966940956
+        },
+        "stock_material": {
+          "id": "42CRMO4_QT",
+          "name": "Forged steel 42CrMo4, quenched and tempered (stocks)"
+        },
+        "ribs": 5,
+        "rib_pitch_mm": 350.0
+      },
+      "cad_volume_mm3": 60940192.23817439,
+      "fea": {
+        "head_von_mises_mpa": 114.23185249578087,
+        "factor_of_safety_on_yield": 4.377062868856718,
+        "yield_strength_mpa": 500.0,
+        "convergence_change": 0.0069835395612705305,
+        "converged": true,
+        "region": "stock from 90 mm outboard of the bearing to the loaded length",
+        "levels": [
+          {
+            "level": 1,
+            "global_size_mm": 40.0,
+            "local_size_mm": 40.0,
+            "elements": 1991,
+            "dofs": 10989,
+            "head_von_mises_mpa": 116.00607013185837,
+            "max_von_mises_mpa": 132.62419426536115,
+            "max_displacement_mm": 2.436292866975789,
+            "applied_force_n": [
+              125.92473040570971,
+              80487.73021618668,
+              0.0
+            ],
+            "reaction_force_n": [
+              -125.9247304153746,
+              -80487.7302157833,
+              3.999593900516629e-08
+            ],
+            "reaction_balance_error": 5.037684497889455e-12,
+            "solve_seconds": 1.1393515999989177
+          },
+          {
+            "level": 2,
+            "global_size_mm": 28.0,
+            "local_size_mm": 28.0,
+            "elements": 5391,
+            "dofs": 27612,
+            "head_von_mises_mpa": 115.02959515684238,
+            "max_von_mises_mpa": 129.0263870855261,
+            "max_displacement_mm": 2.3973566031681406,
+            "applied_force_n": [
+              226.7356449108783,
+              80487.7302161867,
+              0.0
+            ],
+            "reaction_force_n": [
+              -226.73564477656782,
+              -80487.73021602808,
+              7.275957614183426e-09
+            ],
+            "reaction_balance_error": 2.583853494270265e-12,
+            "solve_seconds": 3.2264983000004577
+          },
+          {
+            "level": 3,
+            "global_size_mm": 20.0,
+            "local_size_mm": 20.0,
+            "elements": 14153,
+            "dofs": 68112,
+            "head_von_mises_mpa": 114.23185249578087,
+            "max_von_mises_mpa": 134.94229386575225,
+            "max_displacement_mm": 2.369128581318476,
+            "applied_force_n": [
+              -398.99726397706877,
+              80487.7302161867,
+              0.0
+            ],
+            "reaction_force_n": [
+              398.9972639302068,
+              -80487.73021584602,
+              -1.0733856470324099e-07
+            ],
+            "reaction_balance_error": 4.475729474568303e-12,
+            "solve_seconds": 9.835001600000396
+          }
+        ],
+        "hand_stress_mpa": 114.95892539043238,
+        "hand_label": "stock, beam theory with bending and twist",
+        "hand_section_mm": 90.0,
+        "hand_bending_mpa": 114.02428447293113,
+        "hand_torsion_mpa": 8.446243294291193,
+        "model": "stock"
+      },
+      "files": {
+        "step": "designs\\robust\\fin.step",
+        "stl": "designs\\robust\\fin.stl",
+        "dxf": "designs\\robust\\fin-rib-cutting.dxf",
+        "stress_surface": "designs/robust/stress-surface.json"
+      }
+    }
+  ],
+  "files": {
+    "engineering_log": "engineering-log.json",
+    "designs_evaluated": "designs-evaluated.csv"
+  },
+  "seconds": 79.90633900000103
+}

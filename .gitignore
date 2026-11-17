@@ -1,0 +1,32 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+# app/dist is kept: it lets "Install NEMO" work on laptops without Node.js.
+
+# NEMO project folders created by users and test runs
+projects/
+engine/tests/_output/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+
+# LaTeX build files (main.pdf is kept)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.log
+*.out
+*.toc
+*.synctex.gz

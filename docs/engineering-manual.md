@@ -144,6 +144,12 @@ cannot create or solve studies), using the values on the cross-check sheet. The
 results are entered on the sheet inside Fusion or in report section 7. NEMO
 counts the two as agreeing when the total reaction is within 2% of the applied
 load and the peak von Mises stress near the hole is within 15% of NEMO's value.
+A reaction less than half or more than 1.5 times the applied load is refused and
+not recorded, because a fixed support always carries the full load and such a
+value can only have been read from the wrong result. The connector gives the
+Fusion model a copy of Fusion's Steel carrying NEMO's modulus, Poisson's ratio,
+density, yield and ultimate strength (Fusion's generic Steel has a 207 MPa
+yield), reads them back, and records whether they match.
 Displacement is reported but not used, because it depends on how the support and
 the weld are modelled.
 

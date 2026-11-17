@@ -20,6 +20,12 @@ made or used.
 
 ## Start here
 
+**New to NEMO and downloading it from this page?** Follow
+[Installing NEMO from GitHub](docs/install-from-github.md). It needs no
+programming and no other software installed first.
+
+If you already have the NEMO folder on your computer:
+
 1. Double-click **Install NEMO.bat** (first time only, needs internet).
 2. Double-click the **NEMO** shortcut on your desktop.
 
@@ -29,6 +35,7 @@ Full instructions: [Getting started](docs/getting-started.md).
 
 | Guide | For |
 | --- | --- |
+| [Installing NEMO from GitHub](docs/install-from-github.md) | Downloading and installing NEMO on a new Windows computer |
 | [Getting started](docs/getting-started.md) | Installing and your first design |
 | [User guide](docs/user-guide.md) | Every screen explained, with worked examples |
 | [Pipe support brackets](docs/pipe-support-brackets.md) | The bracket's questions, checks and the pipe vibration check |

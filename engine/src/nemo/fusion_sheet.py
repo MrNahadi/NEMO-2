@@ -13,6 +13,8 @@ from datetime import datetime
 from html import escape
 from pathlib import Path
 
+from .parts.padeye.fusion import fusion_material
+
 
 def _kn(n: float) -> str:
     return f"{n / 1000:,.2f} kN"
@@ -29,23 +31,50 @@ def render_sheet(run_dir: Path, design_key: str, *, project_id: str, project_nam
     level = (fea.get("levels") or [{}])[-1]
     applied = level.get("applied_force_n") or [loads["horizontal_n"], loads["side_n"], loads["vertical_n"]]
     total = math.sqrt(sum(v * v for v in applied))
-    yield_mpa = report["values"]["yield_main_mpa"]
     previous_path = run_dir / "designs" / design_key / "fusion-crosscheck.json"
     previous = json.loads(previous_path.read_text(encoding="utf-8")) if previous_path.exists() else None
+    model_path = run_dir / "designs" / design_key / "fusion-model.json"
+    model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else None
+    wanted = fusion_material(results, entry)
+    design = report["design"]
+    hole_mesh_mm = round(max(0.5, min(design["hole_diameter_mm"] / 15.0, design["main_thickness_mm"] / 4.0)), 1)
+    nemo_peak = fea.get("head_von_mises_mpa") or 0.0
+
+    values_text = (f"E {wanted['elastic_modulus_gpa']:g} GPa, Poisson {wanted['poisson_ratio']:.2f}, "
+                   f"density {wanted['density_kg_m3']:g} kg/m³, yield {wanted['yield_strength_mpa']:g} MPa, "
+                   f"ultimate {wanted['tensile_strength_mpa']:g} MPa")
+    if model and model.get("material_matches"):
+        material_step = ("Material", f"Set by the connector: {model.get('fusion_material')} ({values_text})",
+                         "Fusion read these values back to NEMO. Check them in Materials > Material Properties "
+                         "before you solve.")
+    else:
+        material_step = ("Material", f"Make a material called {wanted['fusion_name']}: {values_text}",
+                         f"Fusion's library has no {material['name'].split(' ')[0]}, and its generic \"Steel\" has a "
+                         "yield of only 207 MPa, which makes Fusion's safety factor wrong. In Setup > Materials > "
+                         "Manage Physical Materials, hover over Steel and click the pencil-and-arrow icon to copy it "
+                         "to Favorites. Enter these values on the Physical tab, click Apply, rename the copy, then "
+                         "choose it in Study Materials.")
 
     steps = [
         ("Study", "New Simulation Study, Static Stress", None),
-        ("Material", f"{material['name']}: E {material['elastic_modulus_gpa']:g} GPa, Poisson 0.30, "
-                     f"density {material['density_kg_m3']:g} kg/m³, yield {yield_mpa:g} MPa",
-         "Check the numbers, not only the name."),
+        material_step,
         ("Constraint", "Fixed, on the flat base face (all directions)", "NEMO tags it nemo / fixed_support."),
-        ("Load", f"Bearing Load on the hole face, total {_kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}° "
-                 "from the base, in the plane of the plate", "NEMO tags it nemo / pin_bearing. Enter the total, not force per face."),
+        ("Load", f"Bearing Load on the hole face, total {_kn(total)}: {_kn(loads['sling_force_n'])} at "
+                 f"{lift['sling_angle_deg']:g}° from the base in the plane of the plate, plus the sideways allowance",
+         "NEMO tags the hole face nemo / pin_bearing. Enter the total, not force per face."),
         ("Components", f"X {_kn(applied[0])}, Y {_kn(applied[2])} (up), Z {_kn(applied[1])} (through the plate)",
-         "Fusion's Y axis points up in this model."),
-        ("Mesh", "Local mesh control on the hole; at least 3 elements through the thickness", None),
-        ("After solving", f"Reaction should be {_kn(total)}, within 2%. Peak stress near the hole within 15% of "
-                          f"{fea.get('head_von_mises_mpa', 0):.1f} MPa.", None),
+         "Enter all three. Fusion's Y axis points up in this model. Z is the sideways pull; leaving it at 0 "
+         "under-loads the model."),
+        ("Mesh", f"Local mesh control on the hole face, about {hole_mesh_mm:g} mm; at least 3 elements through "
+                 "the thickness",
+         "The default mesh is too coarse to give a reliable stress at the edge of the hole."),
+        ("Reaction", f"Show the Reaction Force result and read its total. It should be {_kn(total)}, within 2%.",
+         "A fixed support always carries the whole load. A much smaller number means one direction or one face "
+         "was read."),
+        ("Peak stress", f"Probe the von Mises stress around the hole and the head. NEMO found {nemo_peak:.1f} MPa; "
+                        "within 15% agrees.",
+         "Do not use the Max on the legend. It usually sits at a corner of the fixed base, where the stress has no "
+         "true value and keeps rising as the mesh is refined. NEMO leaves those corners out for the same reason."),
     ]
     rows = "".join(
         f"<li><span class='k'>{escape(k)}</span><span class='v'>{escape(v)}</span>"
@@ -87,8 +116,8 @@ table {{ width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }
 <h2>Enter the Fusion results</h2>
 {prev_html}
 <form id="f">
-<label>Reaction force, total (N)<input name="reaction_n" inputmode="decimal" placeholder="{total:.0f}"></label>
-<label>Peak von Mises stress near the hole (MPa)<input name="peak_stress_mpa" inputmode="decimal"></label>
+<label>Reaction force, total from the Reaction Force result (N)<input name="reaction_n" inputmode="decimal" placeholder="{total:.0f}"></label>
+<label>Peak von Mises stress around the hole, not the legend Max (MPa)<input name="peak_stress_mpa" inputmode="decimal"></label>
 <label>Largest displacement (mm)<input name="max_displacement_mm" inputmode="decimal"></label>
 <label>Checked by<input name="checked_by" autocomplete="name"></label>
 <button type="submit">Send to NEMO</button>

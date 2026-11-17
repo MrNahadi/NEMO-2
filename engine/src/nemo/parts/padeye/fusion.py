@@ -41,7 +41,6 @@ def build_request(run_dir: Path, design_key: str, *, project_id: str, project_na
     results, entry = load_entry(run_dir, design_key)
     report = entry["check_report"]
     design = report["design"]
-    material = results["material"]
     return {
         "project_id": project_id,
         "project_name": project_name,
@@ -52,7 +51,7 @@ def build_request(run_dir: Path, design_key: str, *, project_id: str, project_na
             {"name": name, "field": field, "label": label, "value_mm": float(design[field])}
             for name, field, label in PARAMETERS
         ],
-        "material": {"id": material["id"], "name": material["name"], "density_kg_m3": material["density_kg_m3"]},
+        "material": fusion_material(results, entry),
         "nemo_volume_mm3": entry["cad_volume_mm3"],
         "nemo_mass_kg": report["mass_kg"],
         "sling_angle_deg": results["job"]["lift"]["sling_angle_deg"],
@@ -60,18 +59,58 @@ def build_request(run_dir: Path, design_key: str, *, project_id: str, project_na
     }
 
 
+def fusion_material(results: dict, entry: dict) -> dict:
+    """The material the connector creates in the Fusion design.
+
+    Fusion's library has no EN or IACS grades, and its generic "Steel" has a
+    207 MPa yield. The connector therefore copies a library material into the
+    design and sets these values on the copy, so Fusion's safety factor uses
+    the same strength as NEMO. The yield is the lower of the main plate and
+    cheek plate yields, because Fusion models the padeye as one body.
+    """
+    material = results["material"]
+    values = entry["check_report"]["values"]
+    yield_mpa = min(float(values["yield_main_mpa"]), float(values.get("yield_head_mpa", values["yield_main_mpa"])))
+    short = material["name"].split(" ")[0]
+    return {
+        "id": material["id"],
+        "name": material["name"],
+        "fusion_name": f"{short} (NEMO, yield {yield_mpa:g} MPa)",
+        "density_kg_m3": float(material["density_kg_m3"]),
+        "elastic_modulus_gpa": float(material["elastic_modulus_gpa"]),
+        "poisson_ratio": float(get_material(material["id"]).poisson_ratio),
+        "yield_strength_mpa": yield_mpa,
+        "tensile_strength_mpa": float(material["tensile_strength_mpa"]),
+    }
+
+
+def material_matches(record: dict, wanted: dict) -> bool:
+    """True when Fusion reported back the yield, tensile strength and modulus NEMO asked for (within 1%)."""
+    pairs = (("fusion_yield_mpa", wanted["yield_strength_mpa"]),
+             ("fusion_tensile_mpa", wanted["tensile_strength_mpa"]),
+             ("fusion_modulus_gpa", wanted["elastic_modulus_gpa"]))
+    for key, target in pairs:
+        got = record.get(key)
+        if got is None or abs(float(got) - target) > 0.01 * target:
+            return False
+    return True
+
+
 def record_model(run_dir: Path, design_key: str, result: dict) -> dict:
     """Store what Fusion reported about the model it built, with the comparison against NEMO."""
-    _, entry = load_entry(run_dir, design_key)
+    results, entry = load_entry(run_dir, design_key)
     nemo_volume = entry["cad_volume_mm3"]
     volume = float(result.get("volume_mm3") or 0.0)
+    wanted = fusion_material(results, entry)
     record = {
         **result,
         "nemo_volume_mm3": nemo_volume,
         "nemo_mass_kg": entry["check_report"]["mass_kg"],
         "volume_difference": (volume - nemo_volume) / nemo_volume if nemo_volume and volume else None,
+        "nemo_material": wanted,
         "recorded_at": _now(),
     }
+    record["material_matches"] = material_matches(record, wanted)
     folder = run_dir / "designs" / design_key
     (folder / "fusion-model.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
     (folder / "calculation-report.pdf").unlink(missing_ok=True)  # rebuilt with the Fusion model noted
@@ -118,6 +157,15 @@ def check_edited(run_dir: Path, design_key: str, values_mm: dict[str, float]) ->
     return summary
 
 
+class CrossCheckError(ValueError):
+    """A typed-in Fusion result that cannot be right, so it is not recorded."""
+
+
+# A reaction this far from the applied load means the number was copied from the wrong place (one component,
+# one face, a different study), not that the two analyses disagree: a fixed support always carries the full load.
+REACTION_SANITY_LIMIT = 0.5
+
+
 def record_crosscheck(run_dir: Path, design_key: str, *, reaction_n: float | None, peak_stress_mpa: float | None,
                       max_displacement_mm: float | None, checked_by: str, notes: str = "") -> dict:
     """Store the Fusion Static Stress results typed in by the engineer, compared with NEMO's own FEA."""
@@ -126,6 +174,17 @@ def record_crosscheck(run_dir: Path, design_key: str, *, reaction_n: float | Non
     finest = (fea.get("levels") or [{}])[-1]
     applied = finest.get("applied_force_n")
     nemo_reaction = math.sqrt(sum(v * v for v in applied)) if applied else None
+
+    for label, value in (("reaction force", reaction_n), ("peak stress", peak_stress_mpa),
+                         ("displacement", max_displacement_mm)):
+        if value is not None and (not math.isfinite(value) or value < 0):
+            raise CrossCheckError(f"The {label} must be a positive number.")
+    if reaction_n is not None and nemo_reaction and abs(reaction_n - nemo_reaction) > REACTION_SANITY_LIMIT * nemo_reaction:
+        raise CrossCheckError(
+            f"The reaction force you entered ({reaction_n:,.0f} N) is far from the load applied in the study "
+            f"({nemo_reaction:,.0f} N). A fixed support always carries the whole load, so this number was probably "
+            "copied from one direction or one face only. In Fusion, show the Reaction Force result and enter its "
+            "total. Nothing was recorded.")
 
     def diff(fusion: float | None, nemo: float | None) -> float | None:
         if fusion is None or not nemo:

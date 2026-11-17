@@ -297,9 +297,12 @@ def create_app(projects_root: Path | None = None) -> FastAPI:
         project, run_dir = run_dir_or_404(body.project_id, body.run, body.design)
         if body.peak_stress_mpa is None and body.reaction_n is None:
             raise HTTPException(422, "Enter at least the peak stress or the reaction force from Fusion.")
-        record = padeye_fusion.record_crosscheck(
-            run_dir, body.design, reaction_n=body.reaction_n, peak_stress_mpa=body.peak_stress_mpa,
-            max_displacement_mm=body.max_displacement_mm, checked_by=body.checked_by, notes=body.notes)
+        try:
+            record = padeye_fusion.record_crosscheck(
+                run_dir, body.design, reaction_n=body.reaction_n, peak_stress_mpa=body.peak_stress_mpa,
+                max_displacement_mm=body.max_displacement_mm, checked_by=body.checked_by, notes=body.notes)
+        except padeye_fusion.CrossCheckError as exc:
+            raise HTTPException(422, str(exc)) from exc
         fusion.note("crosscheck", f"{project.name}: Fusion cross-check recorded", project_id=project.id)
         return record
 

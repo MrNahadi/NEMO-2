@@ -74,12 +74,36 @@ def test_open_design_round_trip(setup):
     assert client.get("/api/fusion/poll?session=s1").json()["job"] is None  # handed out once only
 
     volume = sent["payload"]["nemo_volume_mm3"] * 1.0004
+    material = sent["payload"]["material"]
+    assert material["yield_strength_mpa"] > 207 and material["tensile_strength_mpa"] > material["yield_strength_mpa"]
+    assert material["elastic_modulus_gpa"] == 210 and "(NEMO" in material["fusion_name"]
     done = client.post(f"/api/fusion/jobs/{job['id']}/result",
-                       json={"ok": True, "result": {"volume_mm3": volume, "fusion_mass_kg": 0.3, "parametric": True}}).json()
+                       json={"ok": True, "result": {"volume_mm3": volume, "fusion_mass_kg": 0.3, "parametric": True,
+                                                    "fusion_material": material["fusion_name"],
+                                                    "fusion_yield_mpa": material["yield_strength_mpa"],
+                                                    "fusion_tensile_mpa": material["tensile_strength_mpa"],
+                                                    "fusion_modulus_gpa": material["elastic_modulus_gpa"]}}).json()
     assert done["state"] == "done"
     assert done["result"]["volume_difference"] == pytest.approx(0.0004, rel=1e-6)
+    assert done["result"]["material_matches"] is True
     records = client.get(f"/api/projects/{project['id']}/runs/{run}/fusion?design={design}").json()
     assert records["model"]["parametric"] is True
+    sheet = client.get(f"/fusion/sheet?project={project['id']}&run={run}&design={design}").text
+    assert "Set by the connector" in sheet
+
+
+def test_material_left_at_fusion_steel_is_flagged(setup):
+    client, project, run, design = setup
+    connect(client, "s9")
+    job = client.post("/api/fusion/open", json={"project_id": project["id"], "run": run, "design": design}).json()
+    client.get("/api/fusion/poll?session=s9")
+    done = client.post(f"/api/fusion/jobs/{job['id']}/result",
+                       json={"ok": True, "result": {"volume_mm3": 1000.0, "fusion_material": "Steel",
+                                                    "fusion_yield_mpa": 207.0, "fusion_tensile_mpa": 345.0,
+                                                    "fusion_modulus_gpa": 210.0}}).json()
+    assert done["result"]["material_matches"] is False
+    sheet = client.get(f"/fusion/sheet?project={project['id']}&run={run}&design={design}").text
+    assert "207 MPa" in sheet and "Manage Physical Materials" in sheet and "legend" in sheet
 
 
 def test_a_new_fusion_session_drops_old_requests(setup):
@@ -134,3 +158,10 @@ def test_cross_check_is_recorded_and_goes_into_the_report(setup):
     assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
     assert client.post("/api/fusion/crosscheck", json={"project_id": project["id"], "run": run,
                                                        "design": design}).status_code == 422
+
+    wrong = client.post("/api/fusion/crosscheck", json={
+        "project_id": project["id"], "run": run, "design": design, "reaction_n": reaction * 0.05,
+        "peak_stress_mpa": fea["head_von_mises_mpa"], "checked_by": "A. Engineer"})
+    assert wrong.status_code == 422 and "Reaction Force" in wrong.json()["detail"]
+    kept = client.get(f"/api/projects/{project['id']}/runs/{run}/fusion?design={design}").json()["crosscheck"]
+    assert kept["agrees"] is True  # the rejected entry did not replace the earlier record

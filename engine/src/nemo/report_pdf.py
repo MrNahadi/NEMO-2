@@ -846,13 +846,13 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
     story.append(Spacer(1, 2 * mm))
     story.append(_table([["Step", "Setting", "Value"],
                          ["1", "Study type", "Static Stress"],
-                         ["2", "Material", f"{material['name']}: E {n(material['elastic_modulus_gpa'], 0)} GPa, ν 0.30, density {n(material['density_kg_m3'], 0)} kg/m³, yield {n(values['yield_main_mpa'], 0)} MPa"],
+                         ["2", "Material", f"{material['name']}: E {n(material['elastic_modulus_gpa'], 0)} GPa, ν 0.30, density {n(material['density_kg_m3'], 0)} kg/m³, yield {n(min(values['yield_main_mpa'], values.get('yield_head_mpa', values['yield_main_mpa'])), 0)} MPa, ultimate {n(material['tensile_strength_mpa'], 0)} MPa. Fusion's library has no {escape(material['name'].split(' ')[0])} and its generic Steel has a 207 MPa yield: the NEMO connector sets these values, or make a copy of Steel with them"],
                          ["3", "Fixed constraint", "Flat base face, all directions"],
                          ["4", "Bearing load on hole", f"Total {kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}° from the base, in the plane of the plate"],
-                         ["5", "Force components", f"X {kn(ap[0])}, Y {kn(ap[1])}, Z {kn(ap[2])}"],
+                         ["5", "Force components", f"X {kn(ap[0])}, Y {kn(ap[1])}, Z {kn(ap[2])} (STEP axes, Z up). In the model built by the NEMO connector Y is up: X {kn(ap[0])}, Y {kn(ap[2])}, Z {kn(ap[1])}"],
                          ["6", "Expected reaction", f"X {kn(-ap[0])}, Y {kn(-ap[1])}, Z {kn(-ap[2])}"],
                          ["7", "Mesh", "Local refinement on the hole, at least 3 elements through the thickness"],
-                         ["8", "Compare", f"Reaction equals the applied load within 2%; peak stress near the hole within 15% of {n(fea['head_von_mises_mpa'], 1) if fea else '-'} MPa"]],
+                         ["8", "Compare", f"Total of the Reaction Force result equals the applied load within 2%; von Mises stress probed around the hole (not the legend maximum, which sits at the corners of the fixed base) within 15% of {n(fea['head_von_mises_mpa'], 1) if fea else '-'} MPa"]],
                         [12 * mm, 40 * mm, CONTENT_W - 52 * mm]))
     story.append(Spacer(1, 6 * mm))
     folder = run_dir / "designs" / design_key
@@ -901,6 +901,14 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
             f"{'parametric' if fm.get('parametric') else 'fixed geometry'}, volume "
             f"{n(fm['volume_mm3'], 0)} mm³ against NEMO's {n(fm['nemo_volume_mm3'], 0)} mm³ ({vol_text}).",
             s["caption"]))
+        if fm.get("fusion_material"):
+            if fm.get("material_matches"):
+                mat_text = (f"Fusion material {escape(fm['fusion_material'])}: yield {n(fm['fusion_yield_mpa'], 0)} MPa, "
+                            "read back from Fusion and matching NEMO.")
+            else:
+                mat_text = (f"Fusion material {escape(fm['fusion_material'])} does not carry NEMO's strength values. "
+                            "Set them by hand before solving, as in step 2 above.")
+            story.append(Paragraph(mat_text, s["caption"]))
 
     # ------------------------------------------------------- 8 Limitations
     story.append(Spacer(1, 8 * mm))

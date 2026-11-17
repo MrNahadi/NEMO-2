@@ -17,6 +17,10 @@ use NEMO. Fusion is optional; see [Using NEMO with Fusion](using-nemo-with-fusio
 
 ## 1. Put the NEMO folder somewhere permanent
 
+Downloading NEMO from GitHub? Follow
+[Installing NEMO from GitHub](install-from-github.md) instead, then come back
+to [step 4](#4-your-first-padeye-in-10-minutes).
+
 1. Copy the `NEMO2` folder to a place you will keep it, for example
    `Documents\NEMO2` or your Desktop.
 2. Do not move it after installing. If you do, run the installer again.

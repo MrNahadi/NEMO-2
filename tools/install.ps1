@@ -44,7 +44,13 @@ if (-not (Test-Path (Join-Path $venv "Scripts\python.exe"))) {
 $python = Join-Path $venv "Scripts\python.exe"
 
 Step "Installing the NEMO engine (about 300 MB the first time)"
-& $uv pip install --python $python -e (Join-Path $root "engine")
+$constraints = Join-Path $root "engine\constraints.txt"
+if (Test-Path $constraints) {
+    # The exact versions NEMO was tested with, so a later install does not pick up untested releases.
+    & $uv pip install --python $python -e (Join-Path $root "engine") -c $constraints
+} else {
+    & $uv pip install --python $python -e (Join-Path $root "engine")
+}
 if ($LASTEXITCODE -ne 0) { Fail "The NEMO engine could not be installed." }
 
 Step "Checking the app files"

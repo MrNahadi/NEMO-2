@@ -363,6 +363,9 @@ export interface FusionModel {
   fusion_mass_kg: number;
   nemo_mass_kg: number;
   fusion_material: string | null;
+  fusion_yield_mpa?: number | null;
+  material_matches?: boolean;
+  material_warnings?: string[];
   parametric: boolean;
   warnings?: string[];
   fusion_version: string;

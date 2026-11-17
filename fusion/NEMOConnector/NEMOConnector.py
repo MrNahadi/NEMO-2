@@ -24,7 +24,7 @@ import uuid
 import adsk.core
 import adsk.fusion
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
 EVENT_ID = "nemo_connector_job"
 PANEL_ID = "NEMOConnectorPanel"
@@ -238,7 +238,10 @@ def _build_padeye(payload):
         cheek_input.participantBodies = [body]
         extrudes.add(cheek_input).name = "NEMO cheek plates"
 
-    material_name = attempt("material", lambda: _assign_material(body, payload["material"]))
+    material_warnings = []
+    material_info = attempt("material", lambda: _assign_material(design, body, payload["material"], material_warnings)) or {}
+    if material_warnings:
+        _log("Material: " + "; ".join(material_warnings))
     _tag_faces(body, Dh)
     design.attributes.add(ATTR_GROUP, "link", json.dumps({
         "project_id": payload["project_id"], "run": payload["run"], "design_key": payload["design_key"],
@@ -257,7 +260,9 @@ def _build_padeye(payload):
         "volume_mm3": volume_mm3,
         "fusion_mass_kg": props.mass,
         "mass_at_nemo_density_kg": volume_mm3 * 1e-9 * payload["material"]["density_kg_m3"],
-        "fusion_material": material_name,
+        "fusion_material": material_info.get("fusion_material"),
+        **{k: v for k, v in material_info.items() if k != "fusion_material"},
+        "material_warnings": material_warnings,
         "parametric": not warnings,
         "warnings": warnings,
         "fusion_version": APP.version,
@@ -277,7 +282,7 @@ def _profile_with_hole(sketch):
     return best
 
 
-def _assign_material(body, material):
+def _library_material(material):
     family = material["id"].upper()
     wanted = ["Aluminum 5083", "Aluminum"] if family.startswith("AL") else (["Stainless Steel", "Steel"] if "316" in family else ["Steel"])
     libraries = APP.materialLibraries
@@ -285,9 +290,96 @@ def _assign_material(body, material):
         for li in range(libraries.count):
             found = libraries.item(li).materials.itemByName(name)
             if found:
-                body.material = found
-                return found.name
+                return found
     return None
+
+
+# (NEMO value, its unit and its size in SI units, words that identify the Fusion property, words it must not contain)
+_PROPERTIES = (
+    ("yield_strength_mpa", "MPa", 1e6, "kg / (m s^2)", ("yield",), ()),
+    ("tensile_strength_mpa", "MPa", 1e6, "kg / (m s^2)", ("tensile",), ("yield",)),
+    ("elastic_modulus_gpa", "GPa", 1e9, "kg / (m s^2)", ("young",), ()),
+    ("poisson_ratio", "", 1.0, "", ("poisson",), ()),
+    ("density_kg_m3", "kg / m^3", 1.0, "kg / m^3", ("density",), ()),
+)
+_READBACK = {"yield_strength_mpa": "fusion_yield_mpa", "tensile_strength_mpa": "fusion_tensile_mpa",
+             "elastic_modulus_gpa": "fusion_modulus_gpa", "poisson_ratio": "fusion_poisson_ratio",
+             "density_kg_m3": "fusion_density_kg_m3"}
+
+
+def _find_property(properties, words, avoid):
+    for i in range(properties.count):
+        prop = properties.item(i)
+        text = ("%s %s" % (getattr(prop, "name", ""), getattr(prop, "id", ""))).lower()
+        if all(w in text for w in words) and not any(a in text for a in avoid) and hasattr(prop, "value"):
+            return prop
+    return None
+
+
+def _to_fusion(units_manager, value, nemo_units, prop_units, si_scale, si_units):
+    """A NEMO value in the Fusion property's own units. Tries the plain unit name, then SI base units."""
+    if not prop_units or not nemo_units:
+        return value
+    try:
+        return units_manager.convert(value, nemo_units, prop_units)
+    except Exception:
+        return units_manager.convert(value * si_scale, si_units, prop_units)
+
+
+def _from_fusion(units_manager, value, nemo_units, prop_units, si_scale, si_units):
+    """A Fusion property value back in NEMO's units, for the read-back check."""
+    if not prop_units or not nemo_units:
+        return value
+    try:
+        return units_manager.convert(value, prop_units, nemo_units)
+    except Exception:
+        return units_manager.convert(value, prop_units, si_units) / si_scale
+
+
+def _assign_material(design, body, material, warnings):
+    """Give the body a copy of a library material carrying NEMO's own values.
+
+    Fusion's library has no EN or IACS grades (no S355, no AH36), and its
+    generic "Steel" has a 207 MPa yield, so Fusion's safety factor would be
+    wrong. The copy lives only in this design. Every value is read back after
+    it is set, and NEMO compares the read-back values with its own.
+    """
+    info = {"fusion_material": None}
+    base = _library_material(material)
+    if base is None:
+        warnings.append("no suitable Fusion library material was found to copy")
+        return info
+    name = material.get("fusion_name") or material["name"]
+    try:
+        copy = design.materials.itemByName(name) or design.materials.addByCopy(base, name)
+    except Exception as exc:
+        body.material = base
+        info["fusion_material"] = base.name
+        warnings.append("could not copy %s into the design (%s); set the material by hand" % (base.name, exc))
+        return info
+
+    units = design.unitsManager
+    for key, nemo_units, si_scale, si_units, words, avoid in _PROPERTIES:
+        if key not in material:
+            continue
+        prop = _find_property(copy.materialProperties, words, avoid)
+        if prop is None:
+            warnings.append("Fusion material has no %s property" % key.split("_")[0])
+            continue
+        prop_units = getattr(prop, "units", "") or ""
+        try:
+            if getattr(prop, "isReadOnly", False):
+                raise ValueError("it is read-only")
+            prop.value = _to_fusion(units, float(material[key]), nemo_units, prop_units, si_scale, si_units)
+        except Exception as exc:
+            warnings.append("could not set %s (%s)" % (prop.name, exc))
+        try:
+            info[_READBACK[key]] = _from_fusion(units, float(prop.value), nemo_units, prop_units, si_scale, si_units)
+        except Exception as exc:
+            warnings.append("could not read back %s (%s)" % (prop.name, exc))
+    body.material = copy
+    info["fusion_material"] = copy.name
+    return info
 
 
 def _tag_faces(body, hole_diameter_mm):

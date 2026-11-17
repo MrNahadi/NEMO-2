@@ -40,13 +40,24 @@ For programmers working on NEMO. Users never need this page.
 ```powershell
 cd engine
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]" -c constraints.txt
 .\.venv\Scripts\python.exe -m pytest -q
 
 cd ..\app
 npm ci
 npm run build
 ```
+
+Node.js is only needed here, to rebuild the app. Users do not need it: the built
+app in `app/dist` is committed, and the installer serves it as it is. Rebuild and
+commit `app/dist` after every change in `app/src`.
+
+`engine/constraints.txt` holds the exact package versions the tests pass with.
+The installer installs with it, so every user gets the tested versions. To move
+to newer versions, upgrade them in `engine\.venv`, run the full test suite, then
+regenerate the file with
+`uv pip freeze --python engine\.venv\Scripts\python.exe` (drop the `nemo-engine`
+line and keep the header).
 
 Run the engine and the app with live reload in two terminals:
 

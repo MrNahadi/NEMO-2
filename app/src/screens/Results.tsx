@@ -211,7 +211,14 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
               {Math.round(records.model.volume_mm3).toLocaleString()} mm³ against {Math.round(records.model.nemo_volume_mm3).toLocaleString()} mm³ ({pct(records.model.volume_difference, 2)})
             </dd>
             <dt>Fusion material</dt>
-            <dd>{records.model.fusion_material ?? "Not assigned"}</dd>
+            <dd>
+              {records.model.fusion_material ?? "Not assigned"}
+              {records.model.material_matches
+                ? `: yield ${Math.round(records.model.fusion_yield_mpa ?? 0)} MPa, matches NEMO`
+                : records.model.fusion_material
+                  ? ". Its strength does not match NEMO's. Set the material values by hand before solving (see the cross-check sheet)."
+                  : ""}
+            </dd>
           </dl>
         </div>
       )}

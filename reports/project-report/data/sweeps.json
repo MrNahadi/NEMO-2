@@ -297,9 +297,9 @@
       "nps": "8",
       "od_mm": 219.1,
       "down_kn": 5.563224738825523,
-      "mass_kg": 2.130854019734579,
-      "governing": "Welds to the bulkhead",
-      "use": 0.5578946040959338,
+      "mass_kg": 2.2026815197345795,
+      "governing": "Seat plate between the knees",
+      "use": 0.5490889665389258,
       "natural_hz": 49.67783423278696,
       "recommended_m": 3.1,
       "spans_m": {

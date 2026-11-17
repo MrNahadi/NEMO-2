@@ -14,7 +14,7 @@ import math
 from dataclasses import dataclass, field, replace
 from typing import Callable
 
-from ...data import Material, Shackle, get_material, plate_stock, shackles
+from ...data import Material, Shackle, get_material, plate_stock, shackle_side_load_factor, shackles
 from ...loads import LiftScenario, PadeyeLoads, padeye_loads
 from ...optimize import nelder_mead
 from ...rules import ASMEBTH1, get_rule_set
@@ -85,6 +85,7 @@ class PadeyeJob:
                 "dynamic_factor": s.dynamic_factor,
                 "points_carrying": s.points_carrying,
                 "side_load_fraction": s.side_load_fraction,
+                "out_of_plane_angle_deg": s.out_of_plane_angle_deg,
             },
             "material_id": self.material_id,
             "plate_thicknesses_mm": list(self.plate_thicknesses_mm),
@@ -108,6 +109,7 @@ class PadeyeJob:
                 dynamic_factor=float(lift.get("dynamic_factor", 1.0)),
                 points_carrying=None if lift.get("points_carrying") is None else int(lift["points_carrying"]),
                 side_load_fraction=float(lift.get("side_load_fraction", 0.05)),
+                out_of_plane_angle_deg=float(lift.get("out_of_plane_angle_deg", 0.0)),
             ),
             material_id=str(data.get("material_id", defaults.material_id)),
             plate_thicknesses_mm=tuple(float(t) for t in data.get("plate_thicknesses_mm", defaults.plate_thicknesses_mm)),
@@ -214,11 +216,13 @@ def shortlist_padeyes(
     """
     ctx = _context(job)
     ctx.emit = emit
-    candidates = _shackle_candidates(ctx.loads.sling_force_t)
+    candidates = _shackle_candidates(ctx.loads.sling_force_t, ctx.loads.side_angle_deg)
     ctx.send("shackles", {
         "sling_force_t": ctx.loads.sling_force_t,
+        "side_angle_deg": ctx.loads.side_angle_deg,
         "candidates": [_shackle_dict(s) for s in candidates],
-        "rule": "Smallest catalogued shackle whose working load limit covers the sling force, plus the next two sizes.",
+        "rule": "Smallest catalogued shackle whose working load limit, reduced for side loading where the sling pulls "
+                "at an angle to the padeye, covers the sling force, plus the next two sizes.",
     })
     found: list[SizedPadeye] = []
     for i, (key, label, cap) in enumerate(TARGETS):
@@ -266,7 +270,7 @@ def _context(job: PadeyeJob) -> _Context:
 
 def _search(ctx: _Context, cap: float, quick: bool) -> PadeyeCheckReport:
     job, loads, material = ctx.job, ctx.loads, ctx.material
-    candidates = _shackle_candidates(loads.sling_force_t)
+    candidates = _shackle_candidates(loads.sling_force_t, loads.side_angle_deg)
     thicknesses = sorted(t for t in set(job.plate_thicknesses_mm) if t <= material.max_thickness_mm)
     if not thicknesses:
         raise NoFeasibleDesign(f"None of the ticked plate thicknesses is covered by the {material.name} data.")
@@ -435,10 +439,16 @@ def _shackle_dict(s: Shackle) -> dict:
             "jaw_width_mm": s.jaw_width_mm, "hole_mm": _hole_for(s)}
 
 
-def _shackle_candidates(sling_t: float) -> list[Shackle]:
-    adequate = [s for s in shackles() if s.wll_t >= sling_t]
+def _shackle_candidates(sling_t: float, side_angle_deg: float = 0.0) -> list[Shackle]:
+    adequate = [s for s in shackles() if s.wll_t * shackle_side_load_factor(s, side_angle_deg) >= sling_t]
     if not adequate:
         largest = shackles()[-1]
+        if round(side_angle_deg) > 0:
+            raise NoFeasibleDesign(
+                f"The sling pulls {side_angle_deg:.0f} degrees out of the plane of the padeye. Shackles lose rating "
+                f"when loaded sideways, and none in the table covers the {sling_t:.1f} t sling force at that angle. "
+                "Turn the padeye to line up with its sling, or use more lifting points."
+            )
         raise NoFeasibleDesign(
             f"The sling force on each padeye is {sling_t:.1f} t, more than the largest shackle in the "
             f"table ({largest.wll_t:g} t). Use more lifting points or a different lifting arrangement."

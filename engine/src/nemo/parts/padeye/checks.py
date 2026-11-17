@@ -15,7 +15,7 @@ import math
 from dataclasses import dataclass, field
 
 from ...checks import CheckResult
-from ...data import Material, Shackle
+from ...data import Material, Shackle, shackle_side_load_factor
 from ...loads import PadeyeLoads
 from ...rules import ASMEBTH1
 from .geometry import PadeyeDesign
@@ -356,11 +356,15 @@ def check_padeye(
             id="shackle_rating",
             title="Shackle is rated for the load",
             demand=loads.sling_force_t,
-            capacity=shackle.wll_t,
+            capacity=shackle.wll_t * shackle_side_load_factor(shackle, loads.side_angle_deg),
             unit="t",
-            source=f"{shackle.series} working load limit",
+            source=f"{shackle.series} working load limit"
+                   + (", reduced for side loading (Crosby angular loading table)" if round(loads.side_angle_deg) > 0 else ""),
             basis="practice",
-            explanation="The sling force on this padeye must not exceed the shackle's working load limit.",
+            explanation="The sling force on this padeye must not exceed the shackle's working load limit. A shackle "
+                        "pulled at an angle to its in-line axis is rated lower, by the maker's side-loading table.",
+            details={"side_angle_deg": loads.side_angle_deg,
+                     "side_load_factor": shackle_side_load_factor(shackle, loads.side_angle_deg)},
         ),
         CheckResult(
             id="shackle_fit",

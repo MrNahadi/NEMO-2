@@ -1,4 +1,4 @@
-# Exact versions NEMO was tested with (all 154 engine tests pass on Windows, Python 3.12).
+# Exact versions NEMO was tested with (all 174 engine tests pass on Windows, Python 3.12).
 # The installer uses this as a constraints file, so every new install gets the same versions.
 # To update: upgrade in engine\.venv, run the tests, then regenerate with
 #   uv pip freeze --python engine\.venv\Scripts\python.exe > engine\constraints.txt (and remove the nemo-engine line).

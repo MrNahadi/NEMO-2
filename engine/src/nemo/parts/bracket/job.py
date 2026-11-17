@@ -90,6 +90,8 @@ class BracketJob:
     deflection_limit_mm: float = 1.0
     electrode_strength_mpa: float = DEFAULT_ELECTRODE_STRENGTH_MPA
     rule_set_id: str = "aisc-360-asd"
+    # Advanced: include the bracket's own flexibility in the vibration check (no extra inputs needed).
+    include_bracket_flexibility: bool = True
 
     # ------------------------------------------------------------ lookups
     @property

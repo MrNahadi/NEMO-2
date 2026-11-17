@@ -23,7 +23,7 @@ def load_steps(scenario: LiftScenario, loads: PadeyeLoads) -> list[Step]:
     g = STANDARD_GRAVITY
     n = scenario.carrying_points
     theta = scenario.sling_angle_deg
-    return [
+    common = [
         Step("Weight of the load", "W", "W = m · g",
              f"W = {num(scenario.lifted_mass_kg, 0)} kg × {g} m/s²",
              scenario.lifted_mass_kg * g / 1000, "kN"),
@@ -35,6 +35,31 @@ def load_steps(scenario: LiftScenario, loads: PadeyeLoads) -> list[Step]:
              f"F = {kn(loads.vertical_n)} / sin {num(theta, 1)}°",
              loads.sling_force_n / 1000, "kN",
              note=f"Equal to {num(loads.sling_force_t, 2)} t, compared with the shackle rating."),
+    ]
+    beta = scenario.out_of_plane_angle_deg
+    if beta <= 0.0:
+        return [*common, *_in_line_steps(scenario, loads, theta)]
+    return [
+        *common,
+        Step("In-plane horizontal part of the sling force", "H", "H = F · cos θ · cos β",
+             f"H = {kn(loads.sling_force_n)} × cos {num(theta, 1)}° × cos {num(beta, 1)}°",
+             loads.horizontal_n / 1000, "kN",
+             note="β is the angle between the sling and the padeye plate, seen from above."),
+        Step("Sideways part from the oblique sling", "Q_s", "Q_s = F · cos θ · sin β",
+             f"Q_s = {kn(loads.sling_force_n)} × cos {num(theta, 1)}° × sin {num(beta, 1)}°",
+             loads.side_from_angle_n / 1000, "kN"),
+        Step("Side-load angle on the shackle", "γ", "γ = asin(cos θ · sin β)",
+             f"γ = asin(cos {num(theta, 1)}° × sin {num(beta, 1)}°)", loads.side_angle_deg, "°",
+             note="The angle between the sling and the plane of the padeye. The shackle's rating is reduced for it."),
+        Step("Sideways force used", "Q", "Q = max(Q_s, k · F)",
+             f"Q = max({kn(loads.side_from_angle_n)}, {num(scenario.side_load_fraction * 100, 1)}% × {kn(loads.sling_force_n)})",
+             loads.side_n / 1000, "kN",
+             note="The allowance k still applies when the real sideways part is smaller."),
+    ]
+
+
+def _in_line_steps(scenario: LiftScenario, loads: PadeyeLoads, theta: float) -> list[Step]:
+    return [
         Step("Horizontal part of the sling force", "H", "H = F · cos θ",
              f"H = {kn(loads.sling_force_n)} × cos {num(theta, 1)}°",
              loads.horizontal_n / 1000, "kN"),
@@ -172,10 +197,19 @@ def explain(report: PadeyeCheckReport) -> PadeyeCheckReport:
         Step("Resultant on the throat", "f_w", "f_w = √(f_n^2 + f_s^2)", f"f_w = √({num(weld.details['normal_mpa'])}² + {num(weld.details['shear_mpa'])}²)", weld.demand, "MPa"),
         _weld_allow(rs, report),
     ]
+    side_factor = report.check("shackle_rating").details.get("side_load_factor", 1.0)
     steps["shackle_rating"] = [
         Step("Sling force in tonnes", "F/g", "F / g", f"{kn(f)} / 9.807", loads.sling_force_t, "t"),
         Step("Shackle working load limit", "WLL", "WLL", s.label, s.wll_t, "t"),
     ]
+    if round(loads.side_angle_deg) > 0:
+        steps["shackle_rating"] += [
+            Step("Side-loading reduction", "r", "r from the maker's table at γ",
+                 f"γ = {num(loads.side_angle_deg, 1)}° from in-line", side_factor, "",
+                 note="Crosby: 100% up to 10°, 85% to 20°, 75% to 30°, 70% to 45°, 60% to 55°, 55% to 70°, 50% to 90°. "
+                      "Shackles over 3 in: 100% to 5°, 85% to 10°, analysis beyond."),
+            Step("Rating at this angle", "r · WLL", "r · WLL", f"{num(side_factor, 2)} × {num(s.wll_t, 2)} t", side_factor * s.wll_t, "t"),
+        ]
     steps["shackle_fit"] = [
         Step("Space needed in the jaw", "t + c", "t + 2 mm", f"{num(t, 0)} + {SHACKLE_JAW_CLEARANCE_MM:g}", t + SHACKLE_JAW_CLEARANCE_MM, "mm"),
         Step("Shackle jaw width", "J", "J", s.label, s.jaw_width_mm, "mm"),

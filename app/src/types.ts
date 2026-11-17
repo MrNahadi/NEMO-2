@@ -5,6 +5,8 @@ export interface Lift {
   dynamic_factor: number;
   points_carrying: number | null;
   side_load_fraction: number;
+  /** Advanced: angle between the sling and the padeye plate, seen from above. 0 = lined up (the usual case). */
+  out_of_plane_angle_deg?: number;
 }
 
 export interface PadeyeJob {
@@ -48,6 +50,8 @@ export interface BracketJob {
   deflection_limit_mm: number;
   electrode_strength_mpa: number;
   rule_set_id: string;
+  /** Advanced: include the bracket's own flexibility in the vibration check. */
+  include_bracket_flexibility?: boolean;
 }
 
 export interface FinJob {
@@ -68,6 +72,14 @@ export interface FinJob {
   rear_spar: number;
   deflection_limit_mm: number;
   rule_set_id: string;
+  /** Advanced: UR S10 astern condition (on by default, needs no input). */
+  include_astern?: boolean;
+  /** Advanced: astern speed in knots; 0 = UR S10 minimum of half the ahead speed. */
+  astern_speed_kn?: number;
+  /** Advanced: size the two stock bearings (off by default). */
+  check_bearings?: boolean;
+  bearing_spacing_mm?: number;
+  bearing_material?: "lignum" | "white_metal" | "synthetic" | "bronze";
 }
 
 export type Job = PadeyeJob | BracketJob | FinJob;

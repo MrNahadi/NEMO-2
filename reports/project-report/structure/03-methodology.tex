@@ -145,8 +145,8 @@ registering them.
 \end{tabularx}
 \end{table}
 
-The engine has 52 Python files and 7,775 lines of code. The application has
-31 TypeScript files and 4,609 lines. The Fusion add-in has 365 lines. The main
+The engine has 52 Python files and 9,522 lines of code. The application has
+32 TypeScript files and 5,004 lines. The Fusion add-in has 520 lines. The main
 libraries and their versions are listed in Table~\ref{tab:software}.
 
 \begin{table}[H]
@@ -193,7 +193,9 @@ following files.
 \end{lstlisting}
 
 The bracket writes \code{bracket.step} and \code{bracket-cutting.dxf}, and the
-fin writes \code{fin.step} and \code{fin-rib-cutting.dxf}, in the same layout.
+fin writes \code{fin.step}, \code{fin-stock.step} and \code{fin-rib-cutting.dxf}, in the same layout.
+\code{fin-stock.step} is the stock alone, as the stress check models it, for an
+independent check in Fusion.
 
 \section{Reference data}
 \label{sec:reference-data}
@@ -338,8 +340,41 @@ Here $g = 9.80665$~m/s$^2$, DAF is the dynamic factor (default 1.0), $n_c$ is
 the number of points carrying the load (default all of them), $V$ and $H$ are
 the vertical and in-plane horizontal parts of the sling force $F$, and $Q$ is a
 sideways allowance out of the plane of the padeye, with $k = 0.05$ by default.
-The sling angle is limited to between 15$^\circ$ and 90$^\circ$. The plate is
-assumed to lie in the plane of its sling.
+The sling angle is limited to between 15$^\circ$ and 90$^\circ$. In a simple
+lift the plate lies in the plane of its sling.
+
+\subsection{Oblique slings}
+\label{sec:oblique-sling}
+
+A padeye fixed to a deck or a structure does not always face its sling. An
+oblique sling needs two angles to describe it: the sling angle $\theta$ from
+the horizontal, and a second angle $\beta$ between the sling and the plate of
+the padeye seen from above. $\beta$ is an advanced setting with a default of
+0$^\circ$, the usual case, in which Equation~\eqref{eq:padeye-loads} applies
+unchanged. For $\beta > 0$ the sling force is split into
+\begin{equation}
+H = F\cos\theta\cos\beta, \qquad
+Q = F\max(\cos\theta\sin\beta,\; k), \qquad
+\gamma = \sin^{-1}(\cos\theta\sin\beta)
+\label{eq:oblique}
+\end{equation}
+where $Q$ is the larger of the real sideways part and the allowance $kF$, and
+$\gamma$ is the angle between the sling and the plane of the plate. The base,
+shear and weld checks use these $H$ and $Q$. The head checks keep the full
+sling force $F$, which is conservative because only $F\cos\gamma$ acts in the
+plane of the plate. The finite element model applies the in-plane part
+$\sqrt{H^2 + V^2}$ through the hole and $Q$ across it.
+
+The shackle can swing about its pin in the plane of the padeye, but it cannot
+swing out of that plane, so $\gamma$ is the side-load angle of the shackle.
+Crosby rates screw-pin and bolt-type shackles loaded at an angle to their
+in-line axis at a share $r(\gamma)$ of the working load limit
+\cite{crosbySideLoad}: 100\% up to 10$^\circ$, 85\% to 20$^\circ$, 75\% to
+30$^\circ$, 70\% to 45$^\circ$, 60\% to 55$^\circ$, 55\% to 70$^\circ$ and 50\%
+to 90$^\circ$. Shackles larger than 3~in keep the full rating only to
+5$^\circ$, 85\% to 10$^\circ$, and need a separate analysis beyond that, which
+\NEMO{} treats as not allowed. The shackle is chosen, and the shackle rating is
+checked, against $r(\gamma)\,\text{WLL}$.
 
 \subsection{Checks to ASME BTH-1}
 
@@ -414,7 +449,7 @@ Some needs of a padeye are not covered by BTH-1. They are checked as
 \midrule
 Hole clearance & $D_h \geq D_p + 1$~mm & Required\\
 Shackle fit & $t + 2$~mm $\leq$ jaw width & Required\\
-Shackle rating & $F/g \leq$ working load limit \cite{crosby2019} & Required\\
+Shackle rating & $F/g \leq r(\gamma)\,$WLL, the working load limit reduced for side loading (Section~\ref{sec:oblique-sling}) \cite{crosby2019,crosbySideLoad} & Required\\
 Jaw fill & $t \geq 0.6 \times$ jaw width, so the shackle cannot tilt on the pin & Advice\\
 Pin fit & $D_p/D_h \geq 0.90$, after the BTH-1 commentary on clearance & Advice\\
 Minimum fillet size & AWS D1.1 minimum for the thicker part joined \cite{awsD11} & Advice\\
@@ -494,6 +529,7 @@ Seat between the knees & A strip of width $\min(L, b - t_k)$ spanning $l = b - t
 U-bolt & $T = F_u/2 + F_x(D/2)/s$ per leg and $V = F_x/2$, with $(f_t/F_t)^2 + (f_v/F_v)^2 \leq 1$ (J3.6, J3.7)\\
 Deflection & $\delta = \int F_z(e-x)^2/(EI(x))\,dx + \int F_z/(GA_v(x))\,dx$ by Simpson's rule, against a limit set for the job (1~mm by default)\\
 Knee free edge (advice) & $l_e \leq 50t_k\sqrt{235/F_y}$, after ship-structure bracket rules\\
+Pipe on its brackets (advanced, on by default) & Dunkerley's combined frequency of the span and the bracket at least the margin from every excitation (Section~\ref{sec:bracket-flexibility})\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -540,6 +576,30 @@ $f_n \geq (1 + \text{margin})$ times the highest excitation.
 Span checks have their own category. The sizing search ignores them, because
 the size of the bracket cannot change them, but a failing required span check
 still fails the design and is shown first in the results.
+
+\subsection{Bracket flexibility}
+\label{sec:bracket-flexibility}
+
+Equation~\eqref{eq:span-frequency} treats the supports as rigid. A real
+bracket bends a little under the pipe, and the pipe then vibrates on springs,
+at a lower frequency. This is an advanced setting that is on by default,
+because it needs no further input. The bracket's stiffness under the pipe and
+the pipe mass it carries give it its own frequency, and Dunkerley's method
+\cite{blevins1979} combines the two:
+\begin{equation}
+k = \frac{F_z}{\delta}, \qquad
+f_b = \frac{1}{2\pi}\sqrt{\frac{k\,g}{W}}, \qquad
+\frac{1}{f^2} = \frac{1}{f_n^2} + \frac{1}{f_b^2}
+\label{eq:dunkerley}
+\end{equation}
+with $\delta$ the deflection of the bracket at the pipe under $F_z$
+(Table~\ref{tab:bracket-checks}) and $W$ the static weight on one bracket.
+Dunkerley's estimate errs low, which is on the safe side when the span is
+meant to stay above the excitations. The combined frequency $f$ must keep the
+same margin from every excitation. Unlike the span checks, this one depends on
+the bracket, so it is placed in the stiffness category and the sizing search
+stiffens the bracket if it fails. When the span already fails on rigid
+supports, no bracket can fix it, and the check moves to the span category.
 
 \section{Stabilizer fin model}
 \label{sec:fin-model}
@@ -608,6 +668,48 @@ fin root is $M_r = 0.5Fb$ and at the outer bearing
 $M_s = F(0.5b + l_g)$, with $l_g$ the gap between the fin root and the
 bearing.
 
+\subsection{Astern condition}
+\label{sec:astern}
+
+UR S10 requires the rudder force and torque for the astern condition as well
+as ahead \cite{iacsS10}. \NEMO{} includes it by default; it needs no input
+because the rule sets the least astern speed. With $V_a$ the astern speed, not
+less than $0.5V$, $K_2 = 0.80$ for a NACA section astern (UR S10 Table~1), and
+the centre of pressure moved aft to 0.66 of the chord (S10.2.1.2),
+\begin{equation}
+C_{Ra} = K_1 K_2 K_3\,132\,A V_a^2, \qquad
+Q_a = C_{Ra}\,c\,|0.66 - x_s/c|, \qquad
+M_{sa} = C_{Ra}(0.5b + l_g)
+\label{eq:astern}
+\end{equation}
+The astern force is much smaller than the ahead force, but its lever about
+the stock is larger, so for a stock placed well forward the astern twist can
+exceed the ahead twist. The stock checks are made for both conditions and
+report the worse one. The user can enter a higher astern speed, or switch the
+condition off for a fin that is always centred and locked astern.
+
+\subsection{Stock bearings}
+\label{sec:bearings}
+
+The stock passes through two bearings in the hull: an outer bearing at
+$l_g$ from the fin root and an inner bearing $l$ further in. Sizing them is an
+advanced setting, off by default, because $l$ and the bearing material are
+often not known at the first design stage. With $a = 0.5b + l_g$ the lever from
+the outer bearing to the fin force, the bearing reactions are
+\begin{equation}
+P_1 = F\,\frac{a + l}{l}, \qquad P_2 = F\,\frac{a}{l}
+\label{eq:bearings}
+\end{equation}
+UR S10.8.2 requires a projected bearing area of at least $P/q_a$, with the
+allowable surface pressure $q_a$ from its Table~3: 2.5~N/mm$^2$ for lignum
+vitae, 4.5 for white metal, 5.5 for synthetic material harder than 60 Shore~D,
+and 7.0 for steel or bronze. The bearing diameter $d_b$ is the stock plus two
+liners of the least thickness in S10.8.1, 8~mm (22~mm for lignum). The least
+bearing length is then $L = P/(q_a d_b)$, and S10.8.3 limits it to
+$1.2\,d_b$. If the length would exceed that, the stock is made larger, which
+widens the bearing. The working also gives the least bearing clearance on the
+diameter from S10.8.4.
+
 \subsection{Panel method for pressure and cavitation}
 
 The lift formula gives the force but not the pressure on the foil, and
@@ -646,8 +748,9 @@ S10 are given as multiples of $1/k$.
 \toprule
 \textbf{Check} & \textbf{Method}\\
 \midrule
-Stock torsion & $\tau_t = 5.1Q/D^3 \times 10^3 \leq 68/k$ (S10.4.1)\\
-Stock combined & $\sigma_b = 10.2M_s/D^3 \times 10^3$, $\sigma_e = \sqrt{\sigma_b^2 + 3\tau_t^2} \leq 118/k$ (S10.4.2)\\
+Stock torsion & $\tau_t = 5.1Q/D^3 \times 10^3 \leq 68/k$ (S10.4.1), ahead and astern\\
+Stock combined & $\sigma_b = 10.2M_s/D^3 \times 10^3$, $\sigma_e = \sqrt{\sigma_b^2 + 3\tau_t^2} \leq 118/k$ (S10.4.2), ahead and astern\\
+Stock bearings (advanced) & $L = P/(q_a d_b) \leq 1.2\,d_b$ for the outer and inner bearing (S10.8.2, 8.3)\\
 Stock fit & The stock diameter is less than the foil thickness at the stock position (practice)\\
 Fin body bending & $\sigma_b = M_r y/I \leq 110/k$ (S10.5.1)\\
 Spar web shear & $F/(t_w\sum h) + q_t/t_w \leq 50/k$, with Bredt shear flow $q_t = Q/(2A_\text{box})$ (S10.5.1)\\
@@ -768,7 +871,8 @@ log. In the bracket case study this pruning skipped 60 of 63 combinations.
 
 The fin search is exhaustive because its variables are few and its checks
 are cheap. For each target, the stock diameter is the smallest 5~mm step that
-passes both stock checks. Every pair of skin and web thickness from the stock
+passes both stock checks, ahead and astern, and, when the bearing check is on,
+leaves room for bearings no longer than $1.2\,d_b$. Every pair of skin and web thickness from the stock
 list, with webs of at least 8~mm, is then combined with every rib spacing from
 150~mm to 1000~mm in 25~mm steps, and the lightest passing fin is kept.
 
@@ -946,12 +1050,12 @@ Support reactions & In every finite element benchmark, the reaction equals the a
 \end{tabularx}
 \end{table}
 
-\textbf{Automated tests.} The engine has 153 tests in 13 files, run with
+\textbf{Automated tests.} The engine has 174 tests in 14 files, run with
 pytest after every change. They cover the hand calculation, the behaviour of
 the checks when one input changes, CAD volumes for 50 random designs, STEP
 export and re-import, the finite element benchmarks, sizing, the working
-steps, the run pipeline, the server routes for all three parts and the Fusion
-job queue.
+steps, the run pipeline, the server routes for all three parts, the Fusion
+job queue, and each advanced setting against a hand calculation.
 
 \section{Traceability}
 \label{sec:traceability}
@@ -1007,6 +1111,11 @@ The workflow has six screens, in order.
     \item \textbf{Assumptions} sets the design basis, with defaults: the rule
     set and, for a padeye, the design category, service class, dynamic factor
     and jaw fill. The bracket and fin have their own versions of this screen.
+    Considerations that a simple job does not need sit in a collapsed
+    \emph{Advanced settings} section on these screens, with defaults that
+    leave a simple job unchanged: the oblique sling angle and load sharing for
+    a padeye, the bracket's flexibility in the vibration check, and the fin's
+    astern condition and stock bearings.
     \item \textbf{Finding designs} is the live run screen
     (Figure~\ref{fig:app-running}). Each engineering step shows its numbers as
     they are produced, and selecting a step shows its working.
@@ -1069,7 +1178,14 @@ The dimensions are user parameters named \code{nemo\_t}, \code{nemo\_R},
 \code{nemo\_Rc}, bound to the sketch dimensions and extrusions, so the design
 can be edited in Fusion's parameter table. The add-in assigns the material,
 names the hole and base faces, and reports Fusion's volume back to \NEMO{} for
-comparison with its own. A \emph{Check in NEMO} command sends the edited
+comparison with its own. Fusion's material library holds American AISI and
+ASTM grades but none of the EN or IACS grades \NEMO{} uses, and its generic
+\emph{Steel} has a yield strength of 207~MPa. From version 1.1.0 the add-in
+therefore copies \emph{Steel} into the design, names the copy after the
+\NEMO{} grade, sets its modulus, Poisson's ratio, density, yield and ultimate
+strength to \NEMO{}'s values, and reads them back. \NEMO{} records whether they
+match, and the cross-check sheet gives the steps to make the material by hand
+if they do not. A \emph{Check in NEMO} command sends the edited
 parameters back, and \NEMO{} re-runs every check on the edited design and
 shows the results inside Fusion.
 
@@ -1078,10 +1194,21 @@ so a Fusion stress cross-check is set up by hand using a sheet that \NEMO{}
 generates with the loads, supports and material. The engineer enters Fusion's
 total reaction and peak stress, and \NEMO{} counts the two analyses as agreeing
 when the reaction is within 2\% of the applied load and the peak stress near
-the hole is within 15\% of \NEMO{}'s. The record is added to section~7 of the
-PDF. The server side of the connector, including the job queue and job
-expiry, is covered by the automated tests. The add-in itself has not yet been
-run in a live Fusion session.
+the hole is within 15\% of \NEMO{}'s. A reaction less than half or more than
+1.5 times the applied load is refused and not recorded: a fixed support always
+carries the whole load, so such a value can only have been read from the wrong
+result. The sheet also gives the three load components, a mesh size for the
+hole, and says to probe the stress around the hole, not to take the legend
+maximum, which sits at the corners of the fixed base. The record is added to
+section~7 of the PDF. The server side of the connector, including the job
+queue, job expiry and the material record, is covered by the automated tests.
+Section~\ref{sec:fusion-session} reports the first session in Fusion.
+
+The connector builds padeyes only. For brackets and fins, section~8 of their
+calculation packages lists the same values for a cross-check by hand from the
+STEP file, including the material values, the load face to split off and the
+fin's twisting moment. For the fin it uses \code{fin-stock.step}, because
+\NEMO{}'s stress check models the stock alone.
 
 \section{Case studies}
 \label{sec:case-studies}
@@ -1089,7 +1216,12 @@ run in a live Fusion session.
 One case per part was chosen to be typical of work in a small yard or an
 engine room refit. Table~\ref{tab:cases} gives the inputs. All three were run
 with the default plate stock of the material and the default settings
-otherwise. The results are in Chapter~\ref{chap:results}.
+otherwise. For the advanced settings this means a padeye lined up with its
+sling ($\beta = 0^\circ$), the bracket's flexibility included, the fin's
+astern condition included at the rule's least astern speed of 9~knots, and the
+fin's bearing check off. Section~\ref{sec:advanced-results} then uses the
+advanced settings on the same cases. The results are in
+Chapter~\ref{chap:results}.
 
 \begin{table}[H]
 \centering

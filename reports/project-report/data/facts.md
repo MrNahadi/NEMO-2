@@ -2,11 +2,11 @@
 
 ## Case: padeye (Engine room lift)
 
-Run time 138.2 s. Search: {'combinations': 36, 'evaluations': 19389, 'skipped': 0}.
+Run time 144.8 s. Search: {'combinations': 36, 'evaluations': 19389, 'skipped': 0}.
 
-Job: {"part": "padeye", "lift": {"lifted_mass_kg": 5000.0, "lift_points": 2, "sling_angle_deg": 60.0, "dynamic_factor": 1.0, "points_carrying": null, "side_load_fraction": 0.05}, "material_id": "S355", "plate_thicknesses_mm": [6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0], "allow_cheek_plates": true, "rule_set_id": "asme-bth-1", "design_category": "B", "service_class": 0, "fill_shackle_jaw": true, "electrode_strength_mpa": 482.0}
+Job: {"part": "padeye", "lift": {"lifted_mass_kg": 5000.0, "lift_points": 2, "sling_angle_deg": 60.0, "dynamic_factor": 1.0, "points_carrying": null, "side_load_fraction": 0.05, "out_of_plane_angle_deg": 0.0}, "material_id": "S355", "plate_thicknesses_mm": [6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0], "allow_cheek_plates": true, "rule_set_id": "asme-bth-1", "design_category": "B", "service_class": 0, "fill_shackle_jaw": true, "electrode_strength_mpa": 482.0}
 
-Loads: {"sling_force_n": 28309.36, "sling_force_t": 2.887, "vertical_n": 24516.625, "horizontal_n": 14154.68, "side_n": 1415.468, "sling_angle_deg": 60.0, "static_sling_force_n": 28309.36}
+Loads: {"sling_force_n": 28309.36, "sling_force_t": 2.887, "vertical_n": 24516.625, "horizontal_n": 14154.68, "side_n": 1415.468, "sling_angle_deg": 60.0, "static_sling_force_n": 28309.36, "out_of_plane_angle_deg": 0.0, "side_angle_deg": 0.0, "side_from_angle_n": 0.0}
 
 Load steps:
 - Weight of the load: W = m · g ; W = 5 000 kg × 9.80665 m/s² = 49.03 kN
@@ -38,9 +38,9 @@ shackle: {"label": "3.25 t (5/8 in) Crosby G-2130", "wll_t": 3.25, "jaw_width_mm
 | Padeye fills the shackle jaw (shackle_fill) | fit | advice | 16.14 | 18 | mm | 89.7 | NEMO practice (rigging guidance) |
 
 FEA: peak 228.09 MPa, yield 355, FoS 1.56, convergence change 0.201%, converged True, region head (hole region), hand None ()
-- level 1: size 6.00/1.61 mm, 6487 elements, 34986 dofs, peak 227.56 MPa, max 227.6 MPa, disp 0.1647 mm, balance 1.0e-12, solve 4.2 s, applied [14155.4, 1415.5, 24516.2]
-- level 2: size 4.20/1.13 mm, 17200 elements, 86325 dofs, peak 227.63 MPa, max 227.6 MPa, disp 0.1662 mm, balance 4.1e-13, solve 12.9 s, applied [14155.5, 1415.5, 24516.2]
-- level 3: size 3.00/0.81 mm, 44271 elements, 209763 dofs, peak 228.09 MPa, max 228.1 MPa, disp 0.1671 mm, balance 2.1e-13, solve 26.9 s, applied [14154.7, 1415.5, 24516.6]
+- level 1: size 6.00/1.61 mm, 6487 elements, 34986 dofs, peak 227.56 MPa, max 227.6 MPa, disp 0.1647 mm, balance 1.1e-12, solve 3.0 s, applied [14155.4, 1415.5, 24516.2]
+- level 2: size 4.20/1.13 mm, 17200 elements, 86325 dofs, peak 227.63 MPa, max 227.6 MPa, disp 0.1662 mm, balance 2.3e-13, solve 10.6 s, applied [14155.5, 1415.5, 24516.2]
+- level 3: size 3.00/0.81 mm, 44271 elements, 209763 dofs, peak 228.09 MPa, max 228.1 MPa, disp 0.1671 mm, balance 2.9e-13, solve 31.3 s, applied [14154.7, 1415.5, 24516.6]
 CAD volume 38854.4 mm3
 
 ### Design balanced (Balanced (at least 15% spare)), mass 0.432 kg, passed True, governing base_weld
@@ -66,9 +66,9 @@ shackle: {"label": "4.75 t (3/4 in) Crosby G-2130", "wll_t": 4.75, "jaw_width_mm
 | Padeye fills the shackle jaw (shackle_fill) | fit | advice | 19.08 | 20 | mm | 95.4 | NEMO practice (rigging guidance) |
 
 FEA: peak 189.55 MPa, yield 355, FoS 1.87, convergence change 0.089%, converged True, region head (hole region), hand None ()
-- level 1: size 8.00/1.85 mm, 5530 elements, 30201 dofs, peak 188.71 MPa, max 188.7 MPa, disp 0.1087 mm, balance 4.7e-13, solve 3.3 s, applied [14155.1, 1415.5, 24516.4]
-- level 2: size 5.60/1.29 mm, 13982 elements, 71370 dofs, peak 189.71 MPa, max 189.7 MPa, disp 0.1091 mm, balance 5.2e-13, solve 9.8 s, applied [14154.6, 1415.5, 24516.7]
-- level 3: size 4.00/0.92 mm, 35940 elements, 172938 dofs, peak 189.55 MPa, max 189.5 MPa, disp 0.1097 mm, balance 3.6e-13, solve 19.1 s, applied [14154.7, 1415.5, 24516.6]
+- level 1: size 8.00/1.85 mm, 5530 elements, 30201 dofs, peak 188.71 MPa, max 188.7 MPa, disp 0.1087 mm, balance 4.5e-13, solve 3.8 s, applied [14155.1, 1415.5, 24516.4]
+- level 2: size 5.60/1.29 mm, 13982 elements, 71370 dofs, peak 189.71 MPa, max 189.7 MPa, disp 0.1091 mm, balance 4.1e-13, solve 11.4 s, applied [14154.6, 1415.5, 24516.7]
+- level 3: size 4.00/0.92 mm, 35940 elements, 172938 dofs, peak 189.55 MPa, max 189.5 MPa, disp 0.1097 mm, balance 4.0e-13, solve 23.2 s, applied [14154.7, 1415.5, 24516.6]
 CAD volume 55028.5 mm3
 
 ### Design robust (Extra margin (at least 30% spare)), mass 0.447 kg, passed True, governing base_weld
@@ -94,18 +94,18 @@ shackle: {"label": "4.75 t (3/4 in) Crosby G-2130", "wll_t": 4.75, "jaw_width_mm
 | Padeye fills the shackle jaw (shackle_fill) | fit | advice | 19.08 | 20 | mm | 95.4 | NEMO practice (rigging guidance) |
 
 FEA: peak 200.43 MPa, yield 355, FoS 1.77, convergence change 0.020%, converged True, region head (hole region), hand None ()
-- level 1: size 8.00/1.85 mm, 5011 elements, 27867 dofs, peak 198.11 MPa, max 198.1 MPa, disp 0.1045 mm, balance 4.2e-13, solve 3.2 s, applied [14154.7, 1415.5, 24516.6]
-- level 2: size 5.60/1.29 mm, 12648 elements, 65556 dofs, peak 200.39 MPa, max 200.4 MPa, disp 0.1056 mm, balance 6.0e-13, solve 8.9 s, applied [14154.4, 1415.5, 24516.8]
-- level 3: size 4.00/0.92 mm, 32096 elements, 155709 dofs, peak 200.43 MPa, max 200.4 MPa, disp 0.1060 mm, balance 5.9e-13, solve 22.8 s, applied [14154.8, 1415.5, 24516.6]
+- level 1: size 8.00/1.85 mm, 5011 elements, 27867 dofs, peak 198.11 MPa, max 198.1 MPa, disp 0.1045 mm, balance 4.0e-13, solve 3.5 s, applied [14154.7, 1415.5, 24516.6]
+- level 2: size 5.60/1.29 mm, 12648 elements, 65556 dofs, peak 200.39 MPa, max 200.4 MPa, disp 0.1056 mm, balance 6.5e-13, solve 11.2 s, applied [14154.4, 1415.5, 24516.8]
+- level 3: size 4.00/0.92 mm, 32096 elements, 155709 dofs, peak 200.43 MPa, max 200.4 MPa, disp 0.1060 mm, balance 2.8e-13, solve 17.0 s, applied [14154.8, 1415.5, 24516.6]
 CAD volume 56976.6 mm3
 
 CAD vs formula: lightest 0.0000%, balanced 0.0000%, robust 0.0000%
 
 ## Case: pipe-bracket (Engine room seawater line)
 
-Run time 29.8 s. Search: {'combinations': 63, 'evaluations': 300, 'skipped': 60}.
+Run time 27.6 s. Search: {'combinations': 63, 'evaluations': 300, 'skipped': 60}.
 
-Job: {"pipe_nps": "4", "schedule": "STD", "pipe_material_id": "CS", "fluid_id": "sea_water", "insulation_id": "none", "insulation_thickness_mm": 0.0, "span_m": 3.0, "continuity_factor": 1.25, "pipe_direction": "fore_aft", "accel_vertical_g": 1.0, "accel_transverse_g": 0.8, "accel_longitudinal_g": 0.5, "friction": 0.3, "gap_mm": 50.0, "material_id": "GRADE_A", "plate_thicknesses_mm": [6.0, 8.0, 10.0, 12.0, 15.0, 20.0], "ubolt_grade_id": "4.6", "propeller_rpm": 120.0, "propeller_blades": 4, "engine_rpm": 750.0, "engine_cylinders": 6, "engine_stroke": 4, "frequency_margin": 0.2, "deflection_limit_mm": 1.0, "electrode_strength_mpa": 482.0, "rule_set_id": "aisc-360-asd", "part": "pipe-bracket"}
+Job: {"pipe_nps": "4", "schedule": "STD", "pipe_material_id": "CS", "fluid_id": "sea_water", "insulation_id": "none", "insulation_thickness_mm": 0.0, "span_m": 3.0, "continuity_factor": 1.25, "pipe_direction": "fore_aft", "accel_vertical_g": 1.0, "accel_transverse_g": 0.8, "accel_longitudinal_g": 0.5, "friction": 0.3, "gap_mm": 50.0, "material_id": "GRADE_A", "plate_thicknesses_mm": [6.0, 8.0, 10.0, 12.0, 15.0, 20.0], "ubolt_grade_id": "4.6", "propeller_rpm": 120.0, "propeller_blades": 4, "engine_rpm": 750.0, "engine_cylinders": 6, "engine_stroke": 4, "frequency_margin": 0.2, "deflection_limit_mm": 1.0, "electrode_strength_mpa": 482.0, "rule_set_id": "aisc-360-asd", "include_bracket_flexibility": true, "part": "pipe-bracket"}
 
 Loads: {"mass_per_m": {"pipe": 16.075491783643436, "contents": 8.418317931076734, "insulation": 0.0, "total": 24.49380971472017}, "weight_per_m_n": 240.202, "static_n": 900.758, "down_n": 1801.517, "up_n": 0.0, "across_n": 720.607, "along_n": 540.455, "accel": {"vertical_g": 1.0, "across_g": 0.8, "direction": "fore_aft"}, "sling_force_n": 1801.517, "sling_force_t": 0.184}
 
@@ -140,22 +140,23 @@ span: {"natural_hz": 27.5688048323118, "excitations": [{"name": "Propeller shaft
 | Pipe bending between supports (pipe_stress) | span | required | 8.84 | 143.713 | MPa | 6.2 | AISC 360-16 (ASD): flexure, applied to the pipe as a continuous beam |
 | Pipe sag between supports (pipe_sag) | span | advice | 0.415 | 2.5 | mm | 16.6 | MSS SP-58 / SP-69 style span guidance (2.5 mm sag) |
 | Support spacing within NEMO's recommended maximum (span_limit) | span | advice | 3 | 2.3 | m | 130.4 | NEMO: smallest of the stress, sag and frequency limits |
+| Pipe on its brackets clear of vibration (support_vibration) | stiffness | required | 0.2 | 0.273 | ratio | 73.1 | NEMO practice: Dunkerley's combination of the pipe span and bracket frequencies, at least 20% from every excitation |
 
 FEA: peak 34.65 MPa, yield 235, FoS 6.78, convergence change 0.542%, converged True, region away from the bulkhead face (x ≥ 9 mm), hand 37.531596724821966 (seat plate between the knees)
-- level 1: size 7.20/4.32 mm, 4033 elements, 25266 dofs, peak 34.91 MPa, max 36.2 MPa, disp 0.0537 mm, balance 5.3e-13, solve 2.9 s, applied [720.6, 540.5, -1801.5]
-- level 2: size 5.04/3.02 mm, 7698 elements, 47280 dofs, peak 34.84 MPa, max 41.5 MPa, disp 0.0531 mm, balance 5.7e-13, solve 5.9 s, applied [720.6, 540.5, -1801.5]
-- level 3: size 3.60/2.16 mm, 16536 elements, 97380 dofs, peak 34.65 MPa, max 47.6 MPa, disp 0.0534 mm, balance 2.9e-13, solve 16.0 s, applied [720.6, 540.5, -1801.5]
+- level 1: size 7.20/4.32 mm, 4033 elements, 25266 dofs, peak 34.91 MPa, max 36.2 MPa, disp 0.0537 mm, balance 5.3e-13, solve 2.0 s, applied [720.6, 540.5, -1801.5]
+- level 2: size 5.04/3.02 mm, 7698 elements, 47280 dofs, peak 34.84 MPa, max 41.5 MPa, disp 0.0531 mm, balance 5.7e-13, solve 5.3 s, applied [720.6, 540.5, -1801.5]
+- level 3: size 3.60/2.16 mm, 16536 elements, 97380 dofs, peak 34.65 MPa, max 47.6 MPa, disp 0.0534 mm, balance 2.9e-13, solve 16.5 s, applied [720.6, 540.5, -1801.5]
 CAD volume 126852.7 mm3
 
 CAD vs formula: lightest 0.0000%
 
 ## Case: stabilizer (Patrol boat stabilizer)
 
-Run time 79.9 s. Search: {'combinations': 108, 'evaluations': 3780, 'skipped': 0}.
+Run time 85.0 s. Search: {'combinations': 108, 'evaluations': 3780, 'skipped': 0}.
 
-Job: {"speed_kn": 18.0, "span_m": 1.4, "chord_m": 1.2, "thickness_ratio": 0.2, "max_angle_deg": 22.0, "stock_position": 0.35, "depth_m": 3.0, "draught_m": 5.0, "bearing_gap_mm": 200.0, "material_id": "AH36", "stock_material_id": "42CRMO4_QT", "plate_thicknesses_mm": [8.0, 10.0, 12.0, 15.0, 20.0, 25.0], "front_spar": 0.15, "rear_spar": 0.65, "deflection_limit_mm": 10.0, "rule_set_id": "iacs-ur-s10", "part": "stabilizer"}
+Job: {"speed_kn": 18.0, "span_m": 1.4, "chord_m": 1.2, "thickness_ratio": 0.2, "max_angle_deg": 22.0, "stock_position": 0.35, "depth_m": 3.0, "draught_m": 5.0, "bearing_gap_mm": 200.0, "material_id": "AH36", "stock_material_id": "42CRMO4_QT", "plate_thicknesses_mm": [8.0, 10.0, 12.0, 15.0, 20.0, 25.0], "front_spar": 0.15, "rear_spar": 0.65, "deflection_limit_mm": 10.0, "rule_set_id": "iacs-ur-s10", "include_astern": true, "astern_speed_kn": 0.0, "check_bearings": false, "bearing_spacing_mm": 800.0, "bearing_material": "synthetic", "part": "stabilizer"}
 
-Loads: {"speed_ms": 9.26, "lift_coefficient": 1.09, "lift_slope_per_rad": 2.708, "nemo_lift_n": 80487.73, "ur_s10_force_n": 66740.89, "design_force_n": 80487.73, "lever_m": 0.12, "torque_nm": 9658.528, "root_moment_nm": 56341.411, "stock_moment_nm": 72438.957, "section_angle_deg": 8.475, "cp_min": -2.91, "cavitation_number": 2.953, "area_m2": 1.68, "effective_aspect_ratio": 2.333, "span_arm_m": 0.7, "sling_force_n": 80487.73, "sling_force_t": 8.207}
+Loads: {"speed_ms": 9.26, "lift_coefficient": 1.09, "lift_slope_per_rad": 2.708, "nemo_lift_n": 80487.73, "ur_s10_force_n": 66740.89, "design_force_n": 80487.73, "lever_m": 0.12, "torque_nm": 9658.528, "root_moment_nm": 56341.411, "stock_moment_nm": 72438.957, "section_angle_deg": 8.475, "cp_min": -2.91, "cavitation_number": 2.953, "astern_speed_kn": 9.0, "astern_force_n": 12134.707, "astern_lever_m": 0.372, "astern_torque_nm": 4514.111, "astern_stock_moment_nm": 10921.236, "outer_bearing_n": 0.0, "inner_bearing_n": 0.0, "area_m2": 1.68, "effective_aspect_ratio": 2.333, "span_arm_m": 0.7, "sling_force_n": 80487.73, "sling_force_t": 8.207}
 
 Load steps:
 - Ship speed: V = v_{kn} × 0.5144 ; V = 18.0 kn × 0.5144 = 9.260 m/s
@@ -168,6 +169,10 @@ Load steps:
 - Twisting moment on the stock: Q = F c |0.33 − x_s/c|, at least 0.1 F c ; Q = 80 488 × 0.120 m = 9.659 kN·m
 - Bending at the fin root: M_r = F × 0.5 b ; M_r = 80 488 × 0.700 m = 56.34 kN·m
 - Bending at the outer bearing: M_s = F (0.5 b + l_g) ; M_s = 80 488 × (0.700 + 0.200) m = 72.44 kN·m
+- Astern speed: V_a = max(astern speed, 0.5 V) ; V_a = max(0.0, 0.5 × 18.0) kn = 9.000 kn
+- Rudder force astern, IACS UR S10: C_{Ra} = K_1 K_2 K_3 132 A V_a^2 ; C_{Ra} = 1.056 × 0.80 × 0.8 × 132 × 1.680 × 9.0² = 12.13 kN
+- Twisting moment astern: Q_a = C_{Ra} c |0.66 − x_s/c| ; Q_a = 12 135 × 0.372 m = 4.514 kN·m
+- Bending at the outer bearing astern: M_{sa} = C_{Ra} (0.5 b + l_g) ; M_{sa} = 12 135 × 0.900 m = 10.92 kN·m
 
 ### Design lightest (Lightest), mass 457.451 kg, passed True, governing stock_combined
 Design: {"span_mm": 1400.0, "chord_mm": 1200.0, "thickness_ratio": 0.2, "stock_position": 0.35, "front_spar": 0.15, "rear_spar": 0.65, "skin_mm": 8.0, "web_mm": 8.0, "rib_spacing_mm": 350.0, "stock_diameter_mm": 160.0, "bearing_gap_mm": 200.0}
@@ -178,8 +183,8 @@ stock_material: {"id": "42CRMO4_QT", "name": "Forged steel 42CrMo4, quenched and
 
 | check | category | severity | demand | capacity | unit | use % | source |
 |---|---|---|---|---|---|---|---|
-| Stock twisting (stock_torsion) | strength | required | 12.026 | 110.692 | MPa | 10.9 | IACS UR S10.4.1: torsional stress in the stock |
-| Stock bending and twisting at the outer bearing (stock_combined) | strength | required | 181.589 | 192.084 | MPa | 94.5 | IACS UR S10.4.2: equivalent stress in the stock |
+| Stock twisting (stock_torsion) | strength | required | 12.026 | 110.692 | MPa | 10.9 | IACS UR S10.4.1: torsional stress in the stock, ahead and astern |
+| Stock bending and twisting at the outer bearing (stock_combined) | strength | required | 181.589 | 192.084 | MPa | 94.5 | IACS UR S10.4.2: equivalent stress in the stock, ahead and astern |
 | Stock fits inside the foil (stock_fit) | fit | required | 160 | 214.082 | mm | 74.7 | NEMO practice |
 | Fin body bending at the root (fin_bending) | strength | required | 55.693 | 146.07 | MPa | 38.1 | IACS UR S10.5.1: bending stress in the rudder blade |
 | Spar web shear at the root (fin_shear) | strength | required | 31.21 | 66.396 | MPa | 47.0 | IACS UR S10.5.1: shear stress in the rudder blade |
@@ -193,7 +198,7 @@ stock_material: {"id": "42CRMO4_QT", "name": "Forged steel 42CrMo4, quenched and
 FEA: peak 165.26 MPa, yield 550, FoS 3.33, convergence change 0.117%, converged True, region stock from 80 mm outboard of the bearing to the loaded length, hand 165.66998500379137 (stock, beam theory with bending and twist)
 - level 1: size 35.56/35.56 mm, 2232 elements, 12354 dofs, peak 168.72 MPa, max 189.1 MPa, disp 3.9027 mm, balance 7.7e-12, solve 1.3 s, applied [976.2, 80487.7, 0.0]
 - level 2: size 24.89/24.89 mm, 6160 elements, 31584 dofs, peak 165.46 MPa, max 185.3 MPa, disp 3.8170 mm, balance 2.4e-12, solve 3.9 s, applied [198.3, 80487.7, 0.0]
-- level 3: size 17.78/17.78 mm, 15758 elements, 75831 dofs, peak 165.26 MPa, max 190.2 MPa, disp 3.7736 mm, balance 9.9e-12, solve 11.1 s, applied [-24.8, 80487.7, 0.0]
+- level 3: size 17.78/17.78 mm, 15758 elements, 75831 dofs, peak 165.26 MPa, max 190.2 MPa, disp 3.7736 mm, balance 9.9e-12, solve 11.5 s, applied [-24.8, 80487.7, 0.0]
 CAD volume 56240369.6 mm3
 
 ### Design balanced (Balanced (at least 15% spare)), mass 475.762 kg, passed True, governing stock_combined
@@ -205,8 +210,8 @@ stock_material: {"id": "42CRMO4_QT", "name": "Forged steel 42CrMo4, quenched and
 
 | check | category | severity | demand | capacity | unit | use % | source |
 |---|---|---|---|---|---|---|---|
-| Stock twisting (stock_torsion) | strength | required | 10.026 | 110.692 | MPa | 9.1 | IACS UR S10.4.1: torsional stress in the stock |
-| Stock bending and twisting at the outer bearing (stock_combined) | strength | required | 151.392 | 192.084 | MPa | 78.8 | IACS UR S10.4.2: equivalent stress in the stock |
+| Stock twisting (stock_torsion) | strength | required | 10.026 | 110.692 | MPa | 9.1 | IACS UR S10.4.1: torsional stress in the stock, ahead and astern |
+| Stock bending and twisting at the outer bearing (stock_combined) | strength | required | 151.392 | 192.084 | MPa | 78.8 | IACS UR S10.4.2: equivalent stress in the stock, ahead and astern |
 | Stock fits inside the foil (stock_fit) | fit | required | 170 | 214.082 | mm | 79.4 | NEMO practice |
 | Fin body bending at the root (fin_bending) | strength | required | 55.693 | 146.07 | MPa | 38.1 | IACS UR S10.5.1: bending stress in the rudder blade |
 | Spar web shear at the root (fin_shear) | strength | required | 31.21 | 66.396 | MPa | 47.0 | IACS UR S10.5.1: shear stress in the rudder blade |
@@ -218,9 +223,9 @@ stock_material: {"id": "42CRMO4_QT", "name": "Forged steel 42CrMo4, quenched and
 | Cavitation at the largest fin angle (cavitation) | fit | advice | 2.91 | 2.953 | ratio | 98.5 | Panel method pressure against the cavitation number |
 
 FEA: peak 136.86 MPa, yield 500, FoS 3.65, convergence change 0.387%, converged True, region stock from 85 mm outboard of the bearing to the loaded length, hand 137.2912997920541 (stock, beam theory with bending and twist)
-- level 1: size 37.78/37.78 mm, 2131 elements, 11715 dofs, peak 140.45 MPa, max 153.8 MPa, disp 3.0572 mm, balance 2.6e-12, solve 1.2 s, applied [-61.3, 80487.7, 0.0]
-- level 2: size 26.44/26.44 mm, 5644 elements, 28935 dofs, peak 137.39 MPa, max 153.1 MPa, disp 3.0038 mm, balance 5.2e-12, solve 3.4 s, applied [-63.4, 80487.7, 0.0]
-- level 3: size 18.89/18.89 mm, 15030 elements, 72174 dofs, peak 136.86 MPa, max 159.1 MPa, disp 2.9709 mm, balance 3.5e-12, solve 10.1 s, applied [150.7, 80487.7, 0.0]
+- level 1: size 37.78/37.78 mm, 2131 elements, 11715 dofs, peak 140.45 MPa, max 153.8 MPa, disp 3.0572 mm, balance 2.6e-12, solve 1.3 s, applied [-61.3, 80487.7, 0.0]
+- level 2: size 26.44/26.44 mm, 5644 elements, 28935 dofs, peak 137.39 MPa, max 153.1 MPa, disp 3.0038 mm, balance 5.2e-12, solve 3.6 s, applied [-63.4, 80487.7, 0.0]
+- level 3: size 18.89/18.89 mm, 15030 elements, 72174 dofs, peak 136.86 MPa, max 159.1 MPa, disp 2.9709 mm, balance 3.5e-12, solve 11.5 s, applied [150.7, 80487.7, 0.0]
 CAD volume 58521165.9 mm3
 
 ### Design robust (Extra margin (at least 30% spare)), mass 495.183 kg, passed True, governing stock_combined
@@ -232,8 +237,8 @@ stock_material: {"id": "42CRMO4_QT", "name": "Forged steel 42CrMo4, quenched and
 
 | check | category | severity | demand | capacity | unit | use % | source |
 |---|---|---|---|---|---|---|---|
-| Stock twisting (stock_torsion) | strength | required | 8.446 | 110.692 | MPa | 7.6 | IACS UR S10.4.1: torsional stress in the stock |
-| Stock bending and twisting at the outer bearing (stock_combined) | strength | required | 127.535 | 192.084 | MPa | 66.4 | IACS UR S10.4.2: equivalent stress in the stock |
+| Stock twisting (stock_torsion) | strength | required | 8.446 | 110.692 | MPa | 7.6 | IACS UR S10.4.1: torsional stress in the stock, ahead and astern |
+| Stock bending and twisting at the outer bearing (stock_combined) | strength | required | 127.535 | 192.084 | MPa | 66.4 | IACS UR S10.4.2: equivalent stress in the stock, ahead and astern |
 | Stock fits inside the foil (stock_fit) | fit | required | 180 | 214.082 | mm | 84.1 | NEMO practice |
 | Fin body bending at the root (fin_bending) | strength | required | 55.693 | 146.07 | MPa | 38.1 | IACS UR S10.5.1: bending stress in the rudder blade |
 | Spar web shear at the root (fin_shear) | strength | required | 31.21 | 66.396 | MPa | 47.0 | IACS UR S10.5.1: shear stress in the rudder blade |
@@ -245,16 +250,16 @@ stock_material: {"id": "42CRMO4_QT", "name": "Forged steel 42CrMo4, quenched and
 | Cavitation at the largest fin angle (cavitation) | fit | advice | 2.91 | 2.953 | ratio | 98.5 | Panel method pressure against the cavitation number |
 
 FEA: peak 114.23 MPa, yield 500, FoS 4.38, convergence change 0.698%, converged True, region stock from 90 mm outboard of the bearing to the loaded length, hand 114.95892539043238 (stock, beam theory with bending and twist)
-- level 1: size 40.00/40.00 mm, 1991 elements, 10989 dofs, peak 116.01 MPa, max 132.6 MPa, disp 2.4363 mm, balance 5.0e-12, solve 1.1 s, applied [125.9, 80487.7, 0.0]
-- level 2: size 28.00/28.00 mm, 5391 elements, 27612 dofs, peak 115.03 MPa, max 129.0 MPa, disp 2.3974 mm, balance 2.6e-12, solve 3.2 s, applied [226.7, 80487.7, 0.0]
-- level 3: size 20.00/20.00 mm, 14153 elements, 68112 dofs, peak 114.23 MPa, max 134.9 MPa, disp 2.3691 mm, balance 4.5e-12, solve 9.8 s, applied [-399.0, 80487.7, 0.0]
+- level 1: size 40.00/40.00 mm, 1991 elements, 10989 dofs, peak 116.01 MPa, max 132.6 MPa, disp 2.4363 mm, balance 5.0e-12, solve 1.2 s, applied [125.9, 80487.7, 0.0]
+- level 2: size 28.00/28.00 mm, 5391 elements, 27612 dofs, peak 115.03 MPa, max 129.0 MPa, disp 2.3974 mm, balance 2.6e-12, solve 3.5 s, applied [226.7, 80487.7, 0.0]
+- level 3: size 20.00/20.00 mm, 14153 elements, 68112 dofs, peak 114.23 MPa, max 134.9 MPa, disp 2.3691 mm, balance 4.5e-12, solve 10.5 s, applied [-399.0, 80487.7, 0.0]
 CAD volume 60940192.2 mm3
 
 CAD vs formula: lightest -3.4899%, balanced -3.4411%, robust -3.3933%
 
 ## Verification
 
-All passed: True, total 27.9 s
+All passed: True, total 21.2 s
 
 ### Padeye checks against a hand calculation (padeye-hand-calc), source: Hand calculation in the engineering manual, 0.0 s, mesh None
 - Sling force F: reference 22647.6, NEMO 22647.488069 N, error -0.0005% (tolerance 0.1%)
@@ -269,17 +274,17 @@ All passed: True, total 27.9 s
 - Base weld stress: reference 26.179, NEMO 26.178779 MPa, error -0.0008% (tolerance 0.1%)
 - Plate mass: reference 2.5958, NEMO 2.595784 kg, error -0.0006% (tolerance 0.1%)
 
-### 3D model volume against the exact formula (cad-volume), source: Exact geometry, 0.2 s, mesh None
+### 3D model volume against the exact formula (cad-volume), source: Exact geometry, 0.1 s, mesh None
 - Plain padeye volume: reference 330673, NEMO 330673 mm³, error +0.0000% (tolerance 0.01%)
 - Padeye with cheek plates: reference 424000, NEMO 424000 mm³, error -0.0000% (tolerance 0.01%)
 - Pipe support bracket: reference 324921, NEMO 324921 mm³, error +0.0000% (tolerance 0.01%)
 
-### Cantilever beam (cantilever), source: Timoshenko beam theory, 2.5 s, mesh {'elements': 3487, 'equations': 19479}
+### Cantilever beam (cantilever), source: Timoshenko beam theory, 2.2 s, mesh {'elements': 3487, 'equations': 19479}
 - Tip deflection: reference 0.95981, NEMO 0.952163 mm, error -0.7967% (tolerance 3.0%)
 - Bending stress at mid-span: reference 75, NEMO 76.971893 MPa, error +2.6292% (tolerance 4.0%)
 - Support reaction: reference 1000, NEMO 1000 N, error -0.0000% (tolerance 1e-06%)
 
-### Plate with a hole (plate-hole), source: Heywood (1952), as given in Peterson's Stress Concentration Factors, 19.9 s, mesh {'elements': 16749, 'equations': 96000}
+### Plate with a hole (plate-hole), source: Heywood (1952), as given in Peterson's Stress Concentration Factors, 15.3 s, mesh {'elements': 16749, 'equations': 96000}
 - Stress concentration factor: reference 3.032222, NEMO 3.059706 , error +0.9064% (tolerance 5.0%)
 - Support reaction: reference 200000, NEMO 200000 N, error -0.0000% (tolerance 1e-06%)
 
@@ -288,7 +293,7 @@ All passed: True, total 27.9 s
 - NACA 0012 lift slope: reference 6.863752, NEMO 6.93869 per rad, error +1.0918% (tolerance 3.0%)
 - NACA 0020 lift slope: reference 7.250796, NEMO 7.370365 per rad, error +1.6490% (tolerance 3.0%)
 
-### Fin stock against beam theory (stock-beam), source: Beam and torsion theory, as used in IACS UR S10.4, 5.2 s, mesh {'elements': 6160, 'equations': 31584}
+### Fin stock against beam theory (stock-beam), source: Beam and torsion theory, as used in IACS UR S10.4, 3.5 s, mesh {'elements': 6160, 'equations': 31584}
 - Equivalent stress near the bearing: reference 165.669985, NEMO 165.455671 MPa, error -0.1294% (tolerance 4.0%)
 - Support reaction: reference 80487.730216, NEMO 80487.730216 N, error -0.0000% (tolerance 1e-06%)
 
@@ -322,7 +327,7 @@ Bracket vs pipe size (3 m span, seawater):
 - NPS 3 (OD 88.9): down 1.19 kN, mass 0.8262340366295603, governing Welds to the bulkhead 0.1681561514954659, fn 21.9 Hz, recommended 2.0 m, spans {'stress': 10.901937877295463, 'sag': 4.191410185036489, 'frequency': 2.093479476999065}
 - NPS 4 (OD 114.3): down 1.80 kN, mass 0.9957940366295602, governing Welds to the bulkhead 0.2539839513591594, fn 27.6 Hz, recommended 2.3 m, spans {'stress': 12.0960058263021, 'sag': 4.701272489127292, 'frequency': 2.348139894993984}
 - NPS 6 (OD 168.3): down 3.48 kN, mass 1.4573740366295602, governing Welds to the bulkhead 0.43770653555825845, fn 39.1 Hz, recommended 2.7 m, spans {'stress': 14.139926185301398, 'sag': 5.599219239894011, 'frequency': 2.796636465642022}
-- NPS 8 (OD 219.1): down 5.56 kN, mass 2.130854019734579, governing Welds to the bulkhead 0.5578946040959338, fn 49.7 Hz, recommended 3.1 m, spans {'stress': 15.74304108462145, 'sag': 6.310848891863907, 'frequency': 3.15207342023586}
+- NPS 8 (OD 219.1): down 5.56 kN, mass 2.2026815197345795, governing Seat plate between the knees 0.5490889665389258, fn 49.7 Hz, recommended 3.1 m, spans {'stress': 15.74304108462145, 'sag': 6.310848891863907, 'frequency': 3.15207342023586}
 - NPS 10 (OD 273.0): down 8.27 kN, mass 2.773769019734579, governing Seat plate between the knees 0.8160799018191706, fn 60.6 Hz, recommended 3.4 m, spans {'stress': 17.21674874879629, 'sag': 6.97266989890768, 'frequency': 3.482632500480336}
 - NPS 12 (OD 323.8): down 10.93 kN, mass 4.238355331487805, governing Seat plate between the knees 0.6068796060884066, fn 69.6 Hz, recommended 3.7 m, spans {'stress': 18.131073352974635, 'sag': 7.467304155925497, 'frequency': 3.729686980947145}
 

@@ -44,12 +44,21 @@ The **⋯** button at the right of each saved design opens a menu:
 | Plate thicknesses | Tick only the thicknesses your workshop has. NEMO designs with these only. |
 | Allow cheek plates | Lets NEMO add rings either side of the hole on heavier lifts. |
 
-Under **More about the slings**:
+Under **Advanced settings: sling direction and load sharing** (leave these
+alone for a simple lift):
 
 - **How many points carry the load?** With four points and no spreader beam, the
   load is rarely shared evenly. Riggers often assume only two carry it.
 - **Sideways pull allowance**: an extra sideways force on each padeye. 5% is a
   common allowance.
+- **Angle between the sling and the padeye plate, seen from above**: the second
+  angle of an oblique sling. Leave it at 0° when each padeye is turned to face
+  its sling, which is the usual and best arrangement. If a padeye is fixed and
+  its sling leaves at an angle to the plate, enter that angle (90° means the
+  sling pulls straight across the plate). NEMO then adds the real sideways pull
+  to the base and weld checks, and lowers the shackle's rating for side loading
+  using the maker's table. A shackle pulled 45° to the side keeps only 70% of
+  its rating, so it often has to go up a size.
 
 The 3D view on the right is a **provisional** design. It updates a moment after
 you change an answer. Drag to turn it; scroll to zoom. The chips under it show
@@ -169,6 +178,6 @@ Load 5 t, 2 points, slings at 60°, S355, default plates. Each padeye takes abou
 
 ### 20 t module lift, four padeyes, no spreader
 
-Load 20 t, 4 points, slings at 60°. Under **More about the slings**, set **How
+Load 20 t, 4 points, slings at 60°. Under **Advanced settings**, set **How
 many points carry the load?** to **2**. Each padeye is then designed for half the
 load, about 113 kN (11.5 t), instead of a quarter.

@@ -1,6 +1,6 @@
 import type { PadeyeJob } from "./types";
 
-export type Problems = Partial<Record<"mass" | "points" | "carrying" | "angle" | "plates" | "dynamic" | "side", string>>;
+export type Problems = Partial<Record<"mass" | "points" | "carrying" | "angle" | "plates" | "dynamic" | "side" | "oblique", string>>;
 
 /** Same rules as the engine, checked as you type so mistakes are explained next to the question. */
 export function problems(job: PadeyeJob): Problems {
@@ -15,6 +15,8 @@ export function problems(job: PadeyeJob): Problems {
   if (job.plate_thicknesses_mm.length === 0) p.plates = "Tick at least one plate thickness.";
   if (!(l.dynamic_factor >= 1)) p.dynamic = "The dynamic factor cannot be less than 1.0.";
   if (!(l.side_load_fraction >= 0 && l.side_load_fraction <= 0.5)) p.side = "Use between 0% and 50%.";
+  const beta = l.out_of_plane_angle_deg ?? 0;
+  if (!(beta >= 0 && beta <= 90)) p.oblique = "Use an angle between 0° and 90°.";
   return p;
 }
 

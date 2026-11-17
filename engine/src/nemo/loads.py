@@ -21,6 +21,11 @@ class LiftScenario:
     or standard asks for one. 1.0 adds nothing.
     ``side_load_fraction``: sideways (out-of-plane) force on the padeye as a
     fraction of the sling force, to allow for the sling not lining up perfectly.
+    ``out_of_plane_angle_deg``: the second angle of an oblique sling. Seen from
+    above, it is the angle between the sling and the plane of the padeye plate
+    (0 = the padeye is lined up with its sling, the usual case). The sling
+    then pulls sideways on the plate and on the shackle, and the sideways force
+    is the larger of this real component and the allowance above.
     """
 
     lifted_mass_kg: float
@@ -29,6 +34,7 @@ class LiftScenario:
     dynamic_factor: float = 1.0
     points_carrying: int | None = None
     side_load_fraction: float = 0.05
+    out_of_plane_angle_deg: float = 0.0
 
     def problems(self) -> list[str]:
         issues: list[str] = []
@@ -47,6 +53,8 @@ class LiftScenario:
             issues.append("The dynamic factor cannot be less than 1.0.")
         if not (0.0 <= self.side_load_fraction <= 0.5):
             issues.append("The sideways load must be between 0% and 50% of the sling force.")
+        if not (0.0 <= self.out_of_plane_angle_deg <= 90.0):
+            issues.append("The angle between the sling and the padeye plate must be between 0 and 90 degrees.")
         return issues
 
     @property
@@ -69,6 +77,9 @@ class PadeyeLoads:
     side_n: float
     sling_angle_deg: float
     static_sling_force_n: float
+    out_of_plane_angle_deg: float = 0.0
+    side_angle_deg: float = 0.0  # angle between the sling and the plane of the plate: the shackle's side-load angle
+    side_from_angle_n: float = 0.0  # sideways component from the oblique sling alone, before the allowance
 
     @property
     def sling_force_t(self) -> float:
@@ -84,6 +95,9 @@ class PadeyeLoads:
             "side_n": self.side_n,
             "sling_angle_deg": self.sling_angle_deg,
             "static_sling_force_n": self.static_sling_force_n,
+            "out_of_plane_angle_deg": self.out_of_plane_angle_deg,
+            "side_angle_deg": self.side_angle_deg,
+            "side_from_angle_n": self.side_from_angle_n,
         }
 
 
@@ -95,12 +109,18 @@ def padeye_loads(scenario: LiftScenario) -> PadeyeLoads:
     static_vertical = weight_n / scenario.carrying_points
     vertical = static_vertical * scenario.dynamic_factor
     angle = math.radians(scenario.sling_angle_deg)
+    plan = math.radians(scenario.out_of_plane_angle_deg)
     sling = vertical / math.sin(angle)
+    across = math.cos(angle) * math.sin(plan)  # sideways share of the sling force, from the two angles
+    side_geometric = sling * across
     return PadeyeLoads(
         sling_force_n=sling,
         vertical_n=vertical,
-        horizontal_n=sling * math.cos(angle),
-        side_n=sling * scenario.side_load_fraction,
+        horizontal_n=sling * math.cos(angle) * math.cos(plan),
+        side_n=max(side_geometric, sling * scenario.side_load_fraction),
         sling_angle_deg=scenario.sling_angle_deg,
         static_sling_force_n=static_vertical / math.sin(angle),
+        out_of_plane_angle_deg=scenario.out_of_plane_angle_deg,
+        side_angle_deg=math.degrees(math.asin(min(across, 1.0))),
+        side_from_angle_n=side_geometric,
     )

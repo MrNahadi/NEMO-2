@@ -57,7 +57,7 @@ def test_material_factor():
 
 def test_stock_for_pure_torsion_matches_ur_s10_formula():
     loads = JOB.loads
-    no_bending = type(loads)(**{**loads.__dict__, "stock_moment_nm": 0.0})
+    no_bending = type(loads)(**{**loads.__dict__, "stock_moment_nm": 0.0, "astern_force_n": 0.0})
     d = stock_diameter(JOB, no_bending, 1.0)
     k = IACSS10.material_factor(JOB.stock_material.yield_strength_mpa(d), JOB.stock_material.tensile_strength_mpa)
     dt = 4.2 * (loads.torque_nm * k) ** (1 / 3)

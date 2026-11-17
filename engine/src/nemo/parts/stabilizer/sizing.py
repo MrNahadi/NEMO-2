@@ -15,7 +15,7 @@ from typing import Callable
 
 from ...rules import IACSS10
 from ..padeye.sizing import TARGETS, NoFeasibleDesign
-from .checks import check_fin
+from .checks import bearing_lengths, check_fin, stock_cases
 from .geometry import FinDesign
 from .job import FinJob, FinLoads
 
@@ -56,9 +56,14 @@ def stock_diameter(job: FinJob, loads: FinLoads, cap: float) -> float:
     while d <= 1000.0:
         k = IACSS10.material_factor(stock.yield_strength_mpa(d), stock.tensile_strength_mpa)
         d3 = d**3
-        tau = 5.1 * loads.torque_nm / d3 * 1e3
-        sb = 10.2 * loads.stock_moment_nm / d3 * 1e3
-        if tau <= cap * rs.stock_torsion_mpa / k and math.hypot(sb, math.sqrt(3) * tau) <= cap * rs.stock_equivalent_mpa / k:
+        ok = True
+        for _, _, moment, torque in stock_cases(loads):  # ahead, and astern when included
+            tau = 5.1 * torque / d3 * 1e3
+            sb = 10.2 * moment / d3 * 1e3
+            ok = ok and tau <= cap * rs.stock_torsion_mpa / k and math.hypot(sb, math.sqrt(3) * tau) <= cap * rs.stock_equivalent_mpa / k
+        # The bearings must fit within UR S10's 1.2 x diameter; a bigger stock gives them more surface.
+        ok = ok and all(length <= longest for _, _, _, length, longest in bearing_lengths(job, loads, d))
+        if ok:
             return d
         d += 5.0
     raise NoFeasibleDesign("The stock would have to be more than 1 m across. Reduce the fin size, the speed or the largest angle.")

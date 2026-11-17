@@ -25,6 +25,19 @@ The spar positions (15% and 65% of the chord by default), the largest tip
 deflection, and the design rules. NEMO uses **IACS UR S10** (rudders, Rev.8
 2025): a stabilizer fin turns on a stock like a spade rudder.
 
+Under **Advanced settings: going astern and the stock bearings**:
+
+- **Check the stock going astern** (on by default, no input needed). UR S10
+  checks rudders astern as well as ahead. The force is smaller, but the centre
+  of pressure moves aft to 66% of the chord, so the stock can twist more,
+  especially when it sits well forward. Enter the ship's astern speed, or leave
+  0 to use the rule's minimum of half the ahead speed.
+- **Size the stock bearings** (off by default). Turn on when you know the
+  distance between the outer and inner stock bearings and the bearing material.
+  NEMO works out the force on each bearing, the bearing length needed to keep
+  the pressure within the UR S10 limit, and checks it is no more than 1.2 times
+  the bearing diameter. If it would be longer, NEMO makes the stock bigger.
+
 ## What NEMO works out
 
 1. **Forces on the fin**, two ways:
@@ -49,7 +62,8 @@ deflection, and the design rules. NEMO uses **IACS UR S10** (rudders, Rev.8
 
 | Check | What it means |
 | --- | --- |
-| Stock twisting / bending and twisting | UR S10.4 limits on the stock. Usually the governing check. |
+| Stock twisting / bending and twisting | UR S10.4 limits on the stock, ahead and (by default) astern. Usually the governing check. |
+| Outer and inner stock bearing length | Advanced: the least bearing length for the UR S10 surface pressure, against 1.2 times the bearing diameter. |
 | Stock fits inside the foil | The stock must fit inside the foil at its position. |
 | Fin body bending, spar web shear, skin combined stress | UR S10.5.1 limits on the fin acting as a box beam. |
 | Skin plate thickness, web thickness | UR S10.5.2 minimum thicknesses. |

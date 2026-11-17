@@ -143,8 +143,9 @@ export function DescribeLift({
           </Field>
 
           <details className="more">
-            <summary>More about the slings</summary>
+            <summary>Advanced settings: sling direction and load sharing</summary>
             <div className="form">
+              <p className="field-help">Leave these alone for a simple lift with the padeyes facing their slings.</p>
               <Field label="How many points carry the load?" help={HELP.carrying} error={issues.carrying}>
                 <Segmented
                   label="Points carrying the load"
@@ -164,6 +165,17 @@ export function DescribeLift({
                     unit="%"
                     invalid={!!issues.side}
                     onChange={(v) => setLift({ side_load_fraction: (v ?? -1) / 100 })}
+                  />
+                </div>
+              </Field>
+              <Field label="Angle between the sling and the padeye plate, seen from above" help={HELP.oblique} error={issues.oblique}>
+                <div style={{ width: 160 }}>
+                  <NumberInput
+                    label="Out-of-plane sling angle in degrees"
+                    value={lift.out_of_plane_angle_deg ?? 0}
+                    unit="°"
+                    invalid={!!issues.oblique}
+                    onChange={(v) => setLift({ out_of_plane_angle_deg: v ?? 0 })}
                   />
                 </div>
               </Field>

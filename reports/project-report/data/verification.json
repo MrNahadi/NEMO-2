@@ -1,6 +1,6 @@
 {
   "nemo_version": "0.1.0",
-  "ran_at": "2026-11-17T11:17:17",
+  "ran_at": "2026-11-17T17:26:37",
   "passed": true,
   "benchmarks": [
     {
@@ -144,7 +144,7 @@
       "mesh": null,
       "passed": true,
       "error": null,
-      "seconds": 0.002319100000022445
+      "seconds": 0.0013942000005044974
     },
     {
       "id": "cad-volume",
@@ -205,7 +205,7 @@
       "mesh": null,
       "passed": true,
       "error": null,
-      "seconds": 0.2223708000001352
+      "seconds": 0.1429481000013766
     },
     {
       "id": "cantilever",
@@ -299,7 +299,7 @@
       },
       "passed": true,
       "error": null,
-      "seconds": 2.546650199999931
+      "seconds": 2.175033400002576
     },
     {
       "id": "plate-hole",
@@ -364,7 +364,7 @@
       },
       "passed": true,
       "error": null,
-      "seconds": 19.867594200000894
+      "seconds": 15.267752400002792
     },
     {
       "id": "panel-method",
@@ -425,7 +425,7 @@
       "mesh": null,
       "passed": true,
       "error": null,
-      "seconds": 0.05840140000145766
+      "seconds": 0.09272530000453116
     },
     {
       "id": "stock-beam",
@@ -480,8 +480,8 @@
       },
       "passed": true,
       "error": null,
-      "seconds": 5.171746500000154
+      "seconds": 3.533621000002313
     }
   ],
-  "seconds_total": 27.869129700000485
+  "seconds_total": 21.213509399996838
 }

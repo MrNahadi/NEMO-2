@@ -12,7 +12,7 @@ from the runs kept in \code{data/} with this report.
 \section{Verification results}
 \label{sec:verification-results}
 
-The full benchmark suite ran in 27.9~s and every comparison passed its
+The full benchmark suite ran in 21.2~s and every comparison passed its
 tolerance. Table~\ref{tab:verification} lists the results and
 Figure~\ref{fig:verification} plots each error against its tolerance on a log
 scale.
@@ -111,7 +111,7 @@ thick-section lift slope}
 \label{fig:panel-validation}
 \end{figure}
 
-All 153 automated tests passed on the final version of the engine. The
+All 174 automated tests passed on the final version of the engine. The
 benchmarks can also be run from the application (Figure~\ref{fig:app-verification}).
 
 \begin{figure}[H]
@@ -268,8 +268,8 @@ Elements & 6,487 & 17,200 & 44,271\\
 Unknowns & 34,986 & 86,325 & 209,763\\
 Peak von Mises in head region (MPa) & 227.56 & 227.63 & 228.09\\
 Largest displacement (mm) & 0.1647 & 0.1662 & 0.1671\\
-Force balance error & $1.0\times10^{-12}$ & $4.1\times10^{-13}$ & $2.1\times10^{-13}$\\
-Solve time (s) & 4.2 & 12.9 & 26.9\\
+Force balance error & $1.1\times10^{-12}$ & $2.3\times10^{-13}$ & $2.9\times10^{-13}$\\
+Solve time (s) & 3.0 & 10.6 & 31.3\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -374,6 +374,7 @@ Knee free edge (advice) & 204 & 300 & mm & 68.0\%\\
 Bulkhead and knee weld sizes (advice) & 3 & 3 & mm & 100.0\%\\
 \midrule
 Pipe span clear of vibration & 0.20 & 0.265 & ratio & 75.5\%\\
+Pipe on its brackets clear of vibration & 0.20 & 0.273 & ratio & 73.1\%\\
 Pipe bending between supports & 8.84 & 143.7 & MPa & 6.2\%\\
 Pipe sag between supports (advice) & 0.415 & 2.5 & mm & 16.6\%\\
 Spacing within the recommended maximum (advice) & 3.0 & 2.3 & m & 130.4\%\\
@@ -399,6 +400,8 @@ away, so the span passes the 20\% margin. But the recommended maximum spacing
 is 2.3~m. Below that spacing the span frequency stays at least 20\% above every
 excitation. The stress limit alone would allow 12.1~m and the sag limit
 4.7~m. Vibration, not strength or sag, sets the spacing of these supports.
+Allowing for the bracket's own flexibility lowers the frequency slightly, to
+27.24~Hz, which still passes (Section~\ref{sec:advanced-results}).
 
 Figure~\ref{fig:bracket-span} shows the natural frequency against spacing,
 with a band of $\pm 20\%$ round each excitation. Table~\ref{tab:span-sweep}
@@ -500,7 +503,9 @@ Because both methods scale with $V^2$, the ratio stays the same at every speed
 The stock at 35\% chord lies 0.02$c$ aft of the 33\% centre of pressure, so the
 rule minimum of $0.1Fc$ sets the twisting moment, $Q = 9.66$~kN\,m. The
 bending moment is 56.34~kN\,m at the fin root and 72.44~kN\,m at the outer
-bearing.
+bearing. Going astern at the rule's least astern speed, 9~knots, UR S10 gives
+12.13~kN and a twisting moment of 4.51~kN\,m, so the ahead condition governs
+here (Section~\ref{sec:advanced-results}).
 
 The UR S10 force formula is empirical and was written for rudders. A
 stabilizer fin is a low-aspect-ratio foil, and at large angles it keeps
@@ -575,8 +580,8 @@ fin body is lightly stressed, and the tip deflects 0.89~mm.
 \toprule
 \textbf{Check} & \textbf{Demand} & \textbf{Capacity} & \textbf{Unit} & \textbf{Use}\\
 \midrule
-Stock twisting, S10.4.1 & 12.0 & 110.7 & MPa & 10.9\%\\
-Stock bending and twisting at the outer bearing, S10.4.2 & 181.6 & 192.1 & MPa & 94.5\%\\
+Stock twisting, S10.4.1, ahead and astern & 12.0 & 110.7 & MPa & 10.9\%\\
+Stock bending and twisting at the outer bearing, S10.4.2, ahead and astern & 181.6 & 192.1 & MPa & 94.5\%\\
 Stock fits inside the foil & 160 & 214.1 & mm & 74.7\%\\
 Fin body bending at the root, S10.5.1 & 55.7 & 146.1 & MPa & 38.1\%\\
 Spar web shear at the root, S10.5.1 & 31.2 & 66.4 & MPa & 47.0\%\\
@@ -663,6 +668,109 @@ the lowest pressure, over ship speed}
 \caption{Stock diameter and fin mass against ship speed}
 \label{fig:fin-stock-sweep}
 \end{figure}
+
+\section{Advanced settings}
+\label{sec:advanced-results}
+
+The case studies above use the default advanced settings. This section uses
+the same three cases to show what each advanced setting does. The numbers come
+from full sizing runs without the finite element step, kept in
+\code{data/advanced.json}.
+
+\subsection{Padeye with an oblique sling}
+
+Table~\ref{tab:oblique} sizes the 5~t, two-point, 60$^\circ$ padeye for four
+values of the second angle $\beta$. At 20$^\circ$ the side-load angle on the
+shackle is 9.8$^\circ$, still inside Crosby's first band, so the 3.25~t shackle
+keeps its full rating. The sideways force rises from the 5\% allowance to
+4.84~kN and the design changes to a 20~mm plate without cheek plates, governed
+by splitting above the hole, for 3\% more steel. At 45$^\circ$ the side-load
+angle is 20.7$^\circ$ and the shackle keeps 75\% of its rating, 2.44~t, which is
+less than the 2.89~t sling force. The search therefore moves to the 4.75~t
+shackle, rated 3.56~t at this angle, and the padeye weighs 41\% more than the
+lined-up one, now governed by pulling and bending at its base. With the sling
+pulling straight across the plate ($\beta = 90^\circ$), the whole horizontal
+part of the sling force becomes sideways force. The side-load angle is then
+30$^\circ$, still in the 75\% band.
+
+\begin{table}[H]
+\centering
+\caption{Padeye for 5~t on two points at 60$^\circ$, against the angle $\beta$ between the sling and the plate. The shackle column gives its size and the share of its rating left at the side-load angle $\gamma$}
+\label{tab:oblique}
+\footnotesize
+\begin{tabularx}{\textwidth}{rrrrllr>{\raggedright\arraybackslash}Xr}
+\toprule
+\textbf{$\beta$} & \textbf{$\gamma$} & \textbf{$H$, kN} & \textbf{$Q$, kN} & \textbf{Shackle} & \textbf{Plate, mm} & \textbf{Mass, kg} & \textbf{Governing check} & \textbf{Use}\\
+\midrule
+0$^\circ$ & 0.0$^\circ$ & 14.15 & 1.42 & 3.25~t, 100\% & 6 + 2$\times$6 & 0.305 & Base weld strength & 98\%\\
+20$^\circ$ & 9.8$^\circ$ & 13.30 & 4.84 & 3.25~t, 100\% & 20 & 0.313 & Splitting above the hole & 98\%\\
+45$^\circ$ & 20.7$^\circ$ & 10.01 & 10.01 & 4.75~t, 75\% & 20 & 0.431 & Pulling and bending at the base & 94\%\\
+90$^\circ$ & 30.0$^\circ$ & 0.00 & 14.15 & 4.75~t, 75\% & 25 & 0.420 & Pulling and bending at the base & 93\%\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+An oblique sling costs steel mainly through the shackle and the out-of-plane
+bending at the base. The cheaper answer in practice is to turn the padeye to
+face its sling, which is what the default assumes.
+
+\subsection{Bracket flexibility}
+
+For the NPS~4 case study the bracket's own frequency is 178~Hz. Combined with
+the 27.57~Hz span by Equation~\eqref{eq:dunkerley}, the pipe on its brackets
+vibrates at 27.24~Hz, 1.2\% lower, and keeps a 27.3\% separation from engine
+firing (Table~\ref{tab:bracket-checks-result}). Table~\ref{tab:flexibility}
+repeats this for the other pipe sizes at 3~m spacing. The heavier the pipe, the
+more the bracket matters. For NPS~12 the bracket brings the frequency down
+from 69.6~Hz to 52.1~Hz, by 25\%. All the designs still pass, but for NPS~8
+the separation falls from 32.5\% to 20.4\%, just above the 20\% margin. NPS~2
+and NPS~6 already fail on rigid supports, so for them the check stays in the
+span category and the bracket is not stiffened.
+
+\begin{table}[H]
+\centering
+\caption{Pipe on its brackets at 3~m spacing, against pipe size: span on rigid supports $f_n$, bracket $f_b$ and combined $f$}
+\label{tab:flexibility}
+\small
+\begin{tabular}{lrrrrrl}
+\toprule
+\textbf{Pipe} & \textbf{$f_n$ (Hz)} & \textbf{$f_b$ (Hz)} & \textbf{$f$ (Hz)} & \textbf{Margin, rigid} & \textbf{Margin} & \textbf{Result}\\
+\midrule
+NPS 2 & 14.95 & 340 & 14.94 & 6.6\% & 6.7\% & Fails (span)\\
+NPS 3 & 21.91 & 235 & 21.82 & 37.0\% & 36.4\% & Passes\\
+NPS 4 & 27.57 & 178 & 27.24 & 26.5\% & 27.3\% & Passes\\
+NPS 6 & 39.11 & 122 & 37.25 & 4.3\% & 0.7\% & Fails (span)\\
+NPS 8 & 49.68 & 108 & 45.16 & 32.5\% & 20.4\% & Passes\\
+NPS 10 & 60.64 & 81 & 48.52 & 61.7\% & 29.4\% & Passes\\
+NPS 12 & 69.55 & 79 & 52.05 & 85.5\% & 38.8\% & Passes\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For NPS~4 the combined margin is larger than the rigid one, because the
+frequency moves away from engine firing at 37.5~Hz, which lies above it. The
+rigid assumption is not always the safe side.
+
+\subsection{Fin going astern and stock bearings}
+
+In the case study the astern condition gives 12.13~kN at 9~knots, with a
+twisting moment of 4.51~kN\,m against 9.66~kN\,m ahead, so the ahead
+condition governs both stock checks. Moving the stock forward changes this. For
+the same fin at 12~knots ahead and astern, with the stock at 20\% of the chord
+and the front spar at 10\%, the ahead twist is 5.58~kN\,m, with a lever of $0.13c$, while the astern
+twist is 11.91~kN\,m with a lever of $0.46c$, more than twice as large. The
+stock torsion check is then governed astern, at 28\%, while the combined check
+is still governed ahead and sets the stock at 125~mm.
+
+With the bearing check on, synthetic bearings and 800~mm between the bearings,
+the case-study stock of 160~mm needs an outer bearing 177~mm long and an inner
+one 94~mm long, against UR S10's limit of 1.2 times the 176~mm bearing
+diameter, 211~mm. Both pass, and the stock is unchanged. With the bearings
+only 400~mm apart, the outer reaction rises from 171~kN to 262~kN and a 160~mm
+stock would need a bearing longer than its limit. The search makes the stock
+185~mm, for which the outer bearing needs 237~mm against 241~mm allowed, and
+the fin weighs 505.3~kg instead of 457.5~kg. Bearing spacing can size the stock
+before the stress rules do.
 
 \section{Calculation package and application}
 \label{sec:results-package}
@@ -765,6 +873,55 @@ steps of the run with their numbers, drawn from the engineering log.
 \label{fig:app-record}
 \end{figure}
 
+\section{First session in Fusion}
+\label{sec:fusion-session}
+
+After the case studies, the Fusion connector was run in Autodesk Fusion
+2706.1.17 on a 24~t lift on four padeyes with slings at 78$^\circ$. \NEMO{}'s
+lightest design was a 12~mm S355 plate with two 8~mm cheek plates and a 6.5~t
+shackle, for a sling force of 60.15~kN. The add-in built it as a parametric
+model whose volume, 80,758.6~mm$^3$, matched \NEMO{}'s to within rounding. This
+is the first evidence that the connector works in Fusion itself.
+
+A Fusion Static Stress study of the model was then set up by hand and its
+results entered on the cross-check sheet. \NEMO{} recorded that the two
+analyses did not agree, and the study report showed why
+(Table~\ref{tab:fusion-first}). The model had Fusion's generic \emph{Steel},
+with a 207~MPa yield, so Fusion judged the design to fail. The study left out
+the 3.01~kN sideways component of the load and used a coarse default mesh. The
+reaction typed into the sheet was 2,882~N, although a fixed support carries the
+whole applied load of 60.2~kN. The peak stress entered, 373~MPa, was the legend
+maximum of the whole model; no part of the stress plot near the hole showed
+that value, so it was most likely at a corner of the fixed base, where the
+stress is singular.
+
+\begin{table}[H]
+\centering
+\caption{First Fusion cross-check of a padeye, as recorded}
+\label{tab:fusion-first}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.24\textwidth}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Item} & \textbf{Fusion study} & \textbf{\NEMO{}} & \textbf{Cause}\\
+\midrule
+Material yield & 207~MPa & 355~MPa & Fusion's generic Steel; Fusion has no S355\\
+Sideways load & 0 & 3.01~kN & Left out of the bearing load\\
+Mesh & 2,652 elements & 33,889 elements & Default mesh, no refinement at the hole\\
+Reaction entered & 2,882~N & 60,230~N & Read from the wrong result\\
+Peak stress entered & 373~MPa & 290~MPa & Legend maximum of the whole model, not the stress near the hole\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+None of these differences comes from the design or from \NEMO{}'s solver; they
+are set-up errors of the kind that broke the first phase's bracket studies.
+They led to the changes in connector version 1.1.0 described in
+Section~\ref{sec:fusion-connector}: the add-in now sets \NEMO{}'s material
+values in Fusion and checks them, the sheet lists all three load components, a
+hole mesh size and where to read the stress, and a reaction this far from the
+applied load is refused. The repeat study, with these changes, has not yet
+been made.
+
 \section{Run times}
 \label{sec:run-times}
 
@@ -781,17 +938,17 @@ three finite element solves for each design and the PDF packages.
 \toprule
 \textbf{Run} & \textbf{Designs tried} & \textbf{Kept} & \textbf{Largest model, unknowns} & \textbf{Time (s)}\\
 \midrule
-Padeye & 19,389 & 3 & 209,763 & 138.2\\
-Bracket & 300 & 1 & 97,380 & 29.8\\
-Fin & 3,780 & 3 & 75,831 & 79.9\\
-Verification suite & & & 96,000 & 27.9\\
+Padeye & 19,389 & 3 & 209,763 & 144.8\\
+Bracket & 300 & 1 & 97,380 & 27.6\\
+Fin & 3,780 & 3 & 75,831 & 85.0\\
+Verification suite & & & 96,000 & 21.2\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Most of the padeye time is in the finite element solves. The three meshes of
-the lightest design took 44~s together, and the finest mesh, with 209,763
-unknowns, took 26.9~s. The search itself, 19,389 check evaluations, takes
+the lightest design took 45~s together, and the finest mesh, with 209,763
+unknowns, took 31.3~s. The search itself, 19,389 check evaluations, takes
 less time than the analysis of one design. The live run screen shows progress
 throughout, so the user can see which step is running and what it has found.
 
@@ -815,7 +972,7 @@ Design basis & Screening equations, some with unsourced factors & ASME BTH-1, AI
 Fin load & Assumed & Whicker-Fehlner and UR S10, larger used; panel method for pressure and cavitation\\
 Optimiser & Latin hypercube and Nelder-Mead on continuous variables & Stock plate enumeration, bounded Nelder-Mead, rounding, three targets\\
 Stress analysis & Fusion Simulation, set up by hand; two bracket studies rejected & Built-in, three meshes per design, force balance and convergence checked automatically\\
-Verification & None recorded & Six benchmarks with 24 compared quantities, and 153 automated tests\\
+Verification & None recorded & Six benchmarks with 24 compared quantities, and 174 automated tests\\
 Traceability & Result files & Working for every check, engineering log, every design tried, checksums\\
 Use & Python, virtual environment and Fusion needed & Installer and browser application; Fusion optional\\
 Fusion link & File bridge that rebuilt stale requests & HTTP polling with expiring jobs; parametric model and re-check of edits\\
@@ -858,7 +1015,11 @@ For the fin, the stock governs through the rule limit on combined stress, the
 plating sits at rule minimums, the foil load exceeds the rule load by 21\%, and
 cavitation limits the largest angle above about 18~knots. The common
 implication is that a design method for these details must include the minimum
-sizes, the catalogue and stock steps, the span and the hydrodynamics. A method
+sizes, the catalogue and stock steps, the span and the hydrodynamics. The
+advanced settings add three more cases where something other than plate
+strength decides the design: an oblique sling that costs a shackle size, a
+flexible bracket that moves a large pipe's frequency by a quarter, and bearing
+spacing that can size the fin stock. A method
 that only minimises mass under strength checks would miss what decides the
 design in each case.
 
@@ -899,9 +1060,15 @@ know.
     \item \textbf{Finite element scope.} The finite element models are linear
     elastic, do not include the welds, and model the fin stock alone. They
     confirm the hand checks in the regions they cover.
-    \item \textbf{Fusion connector untested in Fusion.} The add-in has not yet
-    been run in a live Fusion session, and no Fusion stress cross-check has
-    been recorded.
+    \item \textbf{Fusion cross-check incomplete.} The connector has built a
+    padeye in Fusion with the right volume, but the one cross-check recorded
+    was set up wrongly (Section~\ref{sec:fusion-session}), and the material
+    code of version 1.1.0 has not yet been run in Fusion. No agreeing Fusion
+    stress cross-check exists yet.
+    \item \textbf{Advanced settings checked by hand only.} The oblique sling,
+    bracket flexibility, astern condition and bearing checks are verified
+    against hand calculations in the automated tests, but have no published
+    benchmark of their own.
     \item \textbf{No usability study.} Ease of use has been designed for but
     not measured.
 \end{itemize}

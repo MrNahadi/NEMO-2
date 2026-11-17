@@ -17,7 +17,7 @@ Table~\ref{tab:part-modules}.
 \midrule
 \endhead
 \code{checks.py} & 117 & Common check record and part report\\
-\code{loads.py} & 106 & Padeye loads\\
+\code{loads.py} & 126 & Padeye loads, including the oblique sling\\
 \code{working.py} & 59 & Working steps for checks\\
 \code{hydro.py} & 127 & Hess-Smith panel method and cavitation number\\
 \code{fea/mesh.py} & 129 & Gmsh meshing of STEP solids\\
@@ -26,20 +26,20 @@ Table~\ref{tab:part-modules}.
 \code{optimize/nelder\_mead.py} & 89 & Bounded Nelder-Mead search\\
 \code{rules/asme\_bth1.py} & 193 & ASME BTH-1 rule set\\
 \code{rules/aisc360.py} & 66 & AISC 360-16 ASD rule set\\
-\code{rules/iacs\_s10.py} & 64 & IACS UR S10 rule set\\
-\code{data/} & 142 & Loader for materials, shackles, pipes and plate stock\\
+\code{rules/iacs\_s10.py} & 87 & IACS UR S10 rule set, astern factors and bearing limits\\
+\code{data/} & 174 & Loader for materials, shackles, pipes and plate stock; shackle side-load table\\
 \code{parts/registry.py} & 137 & List of parts for the server and application\\
-\code{parts/padeye/} & 2,036 & Padeye job, geometry, checks, working, sizing, CAD, DXF, FEA, Fusion model\\
-\code{parts/bracket/} & 1,413 & Bracket job, pipe span, geometry, checks, sizing, CAD, FEA\\
-\code{parts/stabilizer/} & 982 & Fin job, loads, geometry, checks, sizing, CAD, FEA\\
-\code{report\_pdf.py} & 977 & PDF calculation package for the padeye, and shared page layout\\
-\code{report\_parts.py} & 493 & PDF sections for the bracket and the fin\\
+\code{parts/padeye/} & 2,146 & Padeye job, geometry, checks, working, sizing, CAD, DXF, FEA, Fusion model\\
+\code{parts/bracket/} & 1,467 & Bracket job, pipe span, bracket flexibility, geometry, checks, sizing, CAD, FEA\\
+\code{parts/stabilizer/} & 1,129 & Fin job, loads ahead and astern, bearings, geometry, checks, sizing, CAD, FEA\\
+\code{report\_pdf.py} & 990 & PDF calculation package for the padeye, and shared page layout\\
+\code{report\_parts.py} & 582 & PDF sections for the bracket and the fin, with their Fusion cross-check\\
 \code{projects.py} & 188 & Projects, runs and their folders\\
 \code{runlog.py} & 76 & Engineering log\\
 \code{verification.py} & 269 & Benchmark suite\\
-\code{server.py} & 536 & Local web server\\
+\code{server.py} & 539 & Local web server\\
 \code{fusion\_link.py} & 181 & Fusion job queue\\
-\code{fusion\_sheet.py} & 118 & Fusion cross-check sheet\\
+\code{fusion\_sheet.py} & 147 & Fusion cross-check sheet\\
 \bottomrule
 \end{longtable}
 
@@ -47,7 +47,7 @@ Table~\ref{tab:part-modules}.
 \label{app:tests}
 
 Table~\ref{tab:app-tests} lists the test files. Some tests run once for each
-of several inputs, which is why the CAD file holds 54 tests. All 153 tests
+of several inputs, which is why the CAD file holds 54 tests. All 174 tests
 pass.
 
 \begin{table}[H]
@@ -71,9 +71,10 @@ pass.
 \code{test\_projects\_pipeline.py} & 7 & Projects, runs and output files\\
 \code{test\_server.py} & 8 & Server routes for the padeye\\
 \code{test\_server\_parts.py} & 6 & Server routes for the bracket and the fin\\
-\code{test\_fusion\_link.py} & 6 & Fusion job queue, pickup and expiry\\
+\code{test\_fusion\_link.py} & 7 & Fusion job queue, pickup and expiry, material record, refused reactions\\
+\code{test\_advanced\_settings.py} & 20 & Oblique sling and shackle side loading, bracket flexibility, fin astern condition and bearings, by hand\\
 \midrule
-\textbf{Total} & \textbf{153} & \\
+\textbf{Total} & \textbf{174} & \\
 \bottomrule
 \end{tabularx}
 \end{table}

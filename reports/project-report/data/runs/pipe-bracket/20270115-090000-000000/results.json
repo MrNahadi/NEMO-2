@@ -1,7 +1,7 @@
 {
   "nemo_results_version": 2,
   "part": "pipe-bracket",
-  "created_at": "2026-11-17T08:20:40+00:00",
+  "created_at": "2026-11-17T14:29:54+00:00",
   "job": {
     "pipe_nps": "4",
     "schedule": "STD",
@@ -36,6 +36,7 @@
     "deflection_limit_mm": 1.0,
     "electrode_strength_mpa": 482.0,
     "rule_set_id": "aisc-360-asd",
+    "include_bracket_flexibility": true,
     "part": "pipe-bracket"
   },
   "loads": {
@@ -969,6 +970,88 @@
                 "note": "The frequency limit keeps f_n 20% above the highest excitation (37.50 Hz)."
               }
             ]
+          },
+          {
+            "id": "support_vibration",
+            "title": "Pipe on its brackets clear of vibration",
+            "demand": 0.2,
+            "capacity": 0.27347264275149663,
+            "unit": "ratio",
+            "utilization": 0.7313345788000415,
+            "passed": true,
+            "margin_percent": 26.866542119995852,
+            "source": "NEMO practice: Dunkerley's combination of the pipe span and bracket frequencies, at least 20% from every excitation",
+            "explanation": "The span check assumes the brackets do not move. A bracket bends a little under the pipe, which lowers the frequency of the whole run from 27.6 Hz to 27.2 Hz. Nearest excitation: engine firing, 37.5 Hz.",
+            "basis": "practice",
+            "severity": "required",
+            "category": "stiffness",
+            "details": {
+              "bracket_hz": 178.2235930938585,
+              "combined_hz": 27.244775896818876,
+              "stiffness_n_per_mm": 115180.17503297028
+            },
+            "working": [
+              {
+                "label": "Bracket stiffness under the pipe",
+                "symbol": "k",
+                "formula": "k = F_z / \u03b4",
+                "substituted": "k = 1\u2009802 N / 0.0156 mm",
+                "value": 115.18017503297028,
+                "unit": "kN/mm",
+                "result": "115.2 kN/mm",
+                "note": ""
+              },
+              {
+                "label": "Pipe mass on one bracket",
+                "symbol": "m",
+                "formula": "m = W / g",
+                "substituted": "m = 901 N / 9.807",
+                "value": 91.85178643020065,
+                "unit": "kg",
+                "result": "91.85 kg",
+                "note": ""
+              },
+              {
+                "label": "Bracket frequency",
+                "symbol": "f_b",
+                "formula": "f_b = (1 / 2\u03c0) \u221a(k / m)",
+                "substituted": "f_b = \u221a(115\u2009180\u2009175 / 91.9) / 2\u03c0",
+                "value": 178.2235930938585,
+                "unit": "Hz",
+                "result": "178.2 Hz",
+                "note": ""
+              },
+              {
+                "label": "Pipe span on rigid supports",
+                "symbol": "f_n",
+                "formula": "from the span check",
+                "substituted": "f_n = 27.57 Hz",
+                "value": 27.5688048323118,
+                "unit": "Hz",
+                "result": "27.57 Hz",
+                "note": ""
+              },
+              {
+                "label": "Pipe on its brackets",
+                "symbol": "f",
+                "formula": "1/f^2 = 1/f_n^2 + 1/f_b^2",
+                "substituted": "f = 1 / \u221a(1/27.57\u00b2 + 1/178.2\u00b2)",
+                "value": 27.244775896818876,
+                "unit": "Hz",
+                "result": "27.24 Hz",
+                "note": "Dunkerley's method. It errs low, so it is on the safe side for frequencies above the excitations."
+              },
+              {
+                "label": "Separation",
+                "symbol": "\u0394",
+                "formula": "\u0394 = |f \u2212 f_e| / f_e",
+                "substituted": "\u0394 = |27.24 \u2212 37.50| / 37.50",
+                "value": 27.347264275149662,
+                "unit": "%",
+                "result": "27.35 %",
+                "note": "Must be at least 20%."
+              }
+            ]
           }
         ],
         "values": {
@@ -1135,7 +1218,7 @@
               1801.5166427922136
             ],
             "reaction_balance_error": 5.34184433347865e-13,
-            "solve_seconds": 2.908968999998251
+            "solve_seconds": 2.0117394999979297
           },
           {
             "level": 2,
@@ -1157,7 +1240,7 @@
               1801.5166427924464
             ],
             "reaction_balance_error": 5.672629380710076e-13,
-            "solve_seconds": 5.867340799999511
+            "solve_seconds": 5.297113799999352
           },
           {
             "level": 3,
@@ -1179,7 +1262,7 @@
               1801.5166427920342
             ],
             "reaction_balance_error": 2.932761930961353e-13,
-            "solve_seconds": 15.986762500000623
+            "solve_seconds": 16.474852499995905
           }
         ],
         "hand_stress_mpa": 37.531596724821966,
@@ -1198,5 +1281,5 @@
     "engineering_log": "engineering-log.json",
     "designs_evaluated": "designs-evaluated.csv"
   },
-  "seconds": 29.827832599999965
+  "seconds": 27.60808829999587
 }

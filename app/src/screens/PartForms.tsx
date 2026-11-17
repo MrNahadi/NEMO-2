@@ -2,7 +2,7 @@ import { ArrowLeft, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { PreviewPanel, usePreview } from "../components/PreviewPanel";
 import { Select } from "../components/Select";
-import { Banner, Chips, Field, NumberInput, Segmented } from "../components/ui";
+import { Banner, Chips, Field, NumberInput, Segmented, Switch } from "../components/ui";
 import { HELP_BRACKET as HB, HELP_FIN as HF } from "../help";
 import type { BracketJob, FinJob, Reference } from "../types";
 
@@ -177,6 +177,18 @@ export function BracketAssumptions({ job, reference, onChange, onNext, onBack, s
               ASME BTH-1 is for lifting devices, so pipe supports use the AISC 360 steel rules. Class rules (DNV, BV, LR, ABS) can be added the same way.
             </p>
           </Field>
+          <details className="more">
+            <summary>Advanced settings</summary>
+            <div className="form">
+              <Field label="Allow for the bracket bending in the vibration check" help={HB.flexibility}>
+                <div className="switch-row" style={{ maxWidth: 420 }}>
+                  <span className="muted">Pipe and brackets checked together</span>
+                  <Switch label="Allow for the bracket bending" checked={job.include_bracket_flexibility ?? true}
+                    onChange={(v) => set({ include_bracket_flexibility: v })} />
+                </div>
+              </Field>
+            </div>
+          </details>
           {error && <Banner kind="error">{error}</Banner>}
         </>
       }
@@ -270,6 +282,43 @@ export function FinAssumptions({ job, reference, onChange, onNext, onBack, start
               A stabilizer fin turns on a stock like a spade rudder, so NEMO uses the IACS rudder requirements for its stresses and plating.
             </p>
           </Field>
+          <details className="more">
+            <summary>Advanced settings: going astern and the stock bearings</summary>
+            <div className="form">
+              <p className="field-help">The defaults suit most fins. Turn on the bearing check once you know where the bearings go.</p>
+              <Field label="Check the stock going astern" help={HF.astern}>
+                <div className="switch-row" style={{ maxWidth: 420 }}>
+                  <span className="muted">UR S10 astern condition</span>
+                  <Switch label="Check going astern" checked={job.include_astern ?? true} onChange={(v) => set({ include_astern: v })} />
+                </div>
+              </Field>
+              {(job.include_astern ?? true) && (
+                <Num label="Astern speed (0 = half the ahead speed)" value={job.astern_speed_kn ?? 0} unit="knots" help={HF.asternSpeed}
+                  onChange={(v) => set({ astern_speed_kn: v })} />
+              )}
+              <Field label="Size the stock bearings" help={HF.bearings}>
+                <div className="switch-row" style={{ maxWidth: 420 }}>
+                  <span className="muted">Bearing lengths to UR S10</span>
+                  <Switch label="Size the stock bearings" checked={job.check_bearings ?? false} onChange={(v) => set({ check_bearings: v })} />
+                </div>
+              </Field>
+              {job.check_bearings && (
+                <>
+                  <Num label="Distance between the two stock bearings" value={job.bearing_spacing_mm ?? 800} unit="mm" width={180} help={HF.bearingSpacing}
+                    onChange={(v) => set({ bearing_spacing_mm: v })} />
+                  <Field label="Bearing material">
+                    <Select label="Bearing material" value={job.bearing_material ?? "synthetic"} onChange={(v) => set({ bearing_material: v as FinJob["bearing_material"] })}
+                      options={[
+                        { value: "synthetic", label: "Synthetic, harder than 60 Shore D", hint: "5.5 N/mm²" },
+                        { value: "bronze", label: "Steel or bronze", hint: "7.0 N/mm²" },
+                        { value: "white_metal", label: "White metal, oil lubricated", hint: "4.5 N/mm²" },
+                        { value: "lignum", label: "Lignum vitae", hint: "2.5 N/mm²" },
+                      ]} />
+                  </Field>
+                </>
+              )}
+            </div>
+          </details>
           {error && <Banner kind="error">{error}</Banner>}
         </>
       }

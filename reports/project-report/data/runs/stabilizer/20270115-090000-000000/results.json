@@ -1,7 +1,7 @@
 {
   "nemo_results_version": 2,
   "part": "stabilizer",
-  "created_at": "2026-11-17T08:22:01+00:00",
+  "created_at": "2026-11-17T14:31:20+00:00",
   "job": {
     "speed_kn": 18.0,
     "span_m": 1.4,
@@ -26,6 +26,11 @@
     "rear_spar": 0.65,
     "deflection_limit_mm": 10.0,
     "rule_set_id": "iacs-ur-s10",
+    "include_astern": true,
+    "astern_speed_kn": 0.0,
+    "check_bearings": false,
+    "bearing_spacing_mm": 800.0,
+    "bearing_material": "synthetic",
     "part": "stabilizer"
   },
   "loads": {
@@ -42,6 +47,13 @@
     "section_angle_deg": 8.474985053563763,
     "cp_min": -2.910313075744681,
     "cavitation_number": 2.953208969693507,
+    "astern_speed_kn": 9.0,
+    "astern_force_n": 12134.7072,
+    "astern_lever_m": 0.37200000000000005,
+    "astern_torque_nm": 4514.111078400001,
+    "astern_stock_moment_nm": 10921.23648,
+    "outer_bearing_n": 0.0,
+    "inner_bearing_n": 0.0,
     "area_m2": 1.68,
     "effective_aspect_ratio": 2.3333333333333335,
     "span_arm_m": 0.7,
@@ -148,6 +160,46 @@
       "unit": "kN\u00b7m",
       "result": "72.44 kN\u00b7m",
       "note": ""
+    },
+    {
+      "label": "Astern speed",
+      "symbol": "V_a",
+      "formula": "V_a = max(astern speed, 0.5 V)",
+      "substituted": "V_a = max(0.0, 0.5 \u00d7 18.0) kn",
+      "value": 9.0,
+      "unit": "kn",
+      "result": "9.000 kn",
+      "note": "UR S10.2.1.1: the astern speed is not to be taken less than half the ahead speed."
+    },
+    {
+      "label": "Rudder force astern, IACS UR S10",
+      "symbol": "C_{Ra}",
+      "formula": "C_{Ra} = K_1 K_2 K_3 132 A V_a^2",
+      "substituted": "C_{Ra} = 1.056 \u00d7 0.80 \u00d7 0.8 \u00d7 132 \u00d7 1.680 \u00d7 9.0\u00b2",
+      "value": 12.134707200000001,
+      "unit": "kN",
+      "result": "12.13 kN",
+      "note": "K_2 = 0.80 for NACA sections astern (UR S10 Table 1)."
+    },
+    {
+      "label": "Twisting moment astern",
+      "symbol": "Q_a",
+      "formula": "Q_a = C_{Ra} c |0.66 \u2212 x_s/c|",
+      "substituted": "Q_a = 12\u2009135 \u00d7 0.372 m",
+      "value": 4.514111078400001,
+      "unit": "kN\u00b7m",
+      "result": "4.514 kN\u00b7m",
+      "note": "Going astern the centre of pressure moves aft, to 0.66 of the chord (UR S10.2.1.2)."
+    },
+    {
+      "label": "Bending at the outer bearing astern",
+      "symbol": "M_{sa}",
+      "formula": "M_{sa} = C_{Ra} (0.5 b + l_g)",
+      "substituted": "M_{sa} = 12\u2009135 \u00d7 0.900 m",
+      "value": 10.92123648,
+      "unit": "kN\u00b7m",
+      "result": "10.92 kN\u00b7m",
+      "note": ""
     }
   ],
   "rule_set": {
@@ -213,6 +265,13 @@
           "section_angle_deg": 8.474985053563763,
           "cp_min": -2.910313075744681,
           "cavitation_number": 2.953208969693507,
+          "astern_speed_kn": 9.0,
+          "astern_force_n": 12134.7072,
+          "astern_lever_m": 0.37200000000000005,
+          "astern_torque_nm": 4514.111078400001,
+          "astern_stock_moment_nm": 10921.23648,
+          "outer_bearing_n": 0.0,
+          "inner_bearing_n": 0.0,
           "area_m2": 1.68,
           "effective_aspect_ratio": 2.3333333333333335,
           "span_arm_m": 0.7,
@@ -234,15 +293,17 @@
             "utilization": 0.10864350124726274,
             "passed": true,
             "margin_percent": 89.13564987527373,
-            "source": "IACS UR S10.4.1: torsional stress in the stock",
-            "explanation": "The lift acts behind or ahead of the stock and twists it.",
+            "source": "IACS UR S10.4.1: torsional stress in the stock, ahead and astern",
+            "explanation": "The lift acts behind or ahead of the stock and twists it. Going astern the centre of pressure moves aft, so the twist can be larger at a lower speed.",
             "basis": "rule",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "condition": "ahead"
+            },
             "working": [
               {
-                "label": "Twisting moment",
+                "label": "Twisting moment, ahead",
                 "symbol": "Q",
                 "formula": "Q = F \u00d7 lever",
                 "substituted": "Q = 80\u2009488 N \u00d7 0.120 m",
@@ -252,10 +313,40 @@
                 "note": ""
               },
               {
-                "label": "Torsional stress",
+                "label": "Torsional stress, ahead",
                 "symbol": "\u03c4_t",
                 "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
                 "substituted": "\u03c4_t = 5.1 \u00d7 9\u2009659 / 160\u00b3 \u00d7 10\u00b3",
+                "value": 12.025998753004453,
+                "unit": "MPa",
+                "result": "12.03 MPa",
+                "note": ""
+              },
+              {
+                "label": "Twisting moment, astern",
+                "symbol": "Q",
+                "formula": "Q = F \u00d7 lever",
+                "substituted": "Q = 12\u2009135 N \u00d7 0.372 m",
+                "value": 4.514111078400001,
+                "unit": "kN\u00b7m",
+                "result": "4.514 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Torsional stress, astern",
+                "symbol": "\u03c4_t",
+                "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
+                "substituted": "\u03c4_t = 5.1 \u00d7 4\u2009514 / 160\u00b3 \u00d7 10\u00b3",
+                "value": 5.620597290000001,
+                "unit": "MPa",
+                "result": "5.621 MPa",
+                "note": ""
+              },
+              {
+                "label": "Worse condition",
+                "symbol": "\u03c4_t",
+                "formula": "max(ahead, astern)",
+                "substituted": "ahead",
                 "value": 12.025998753004453,
                 "unit": "MPa",
                 "result": "12.03 MPa",
@@ -292,15 +383,17 @@
             "utilization": 0.9453618709860613,
             "passed": true,
             "margin_percent": 5.463812901393872,
-            "source": "IACS UR S10.4.2: equivalent stress in the stock",
+            "source": "IACS UR S10.4.2: equivalent stress in the stock, ahead and astern",
             "explanation": "Where the stock leaves the hull bearing it carries the whole bending moment from the fin as well as the twist.",
             "basis": "rule",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "condition": "ahead"
+            },
             "working": [
               {
-                "label": "Bending moment at the bearing",
+                "label": "Bending moment at the bearing, ahead",
                 "symbol": "M",
                 "formula": "M = F (0.5 b + l_g)",
                 "substituted": "M = 80\u2009488 N \u00d7 0.900 m",
@@ -310,7 +403,7 @@
                 "note": ""
               },
               {
-                "label": "Bending stress",
+                "label": "Bending stress, ahead",
                 "symbol": "\u03c3_b",
                 "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
                 "substituted": "\u03c3_b = 10.2 \u00d7 72\u2009439 / 160\u00b3 \u00d7 10\u00b3",
@@ -320,10 +413,50 @@
                 "note": ""
               },
               {
-                "label": "Equivalent stress",
+                "label": "Equivalent stress, ahead",
                 "symbol": "\u03c3_e",
                 "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
                 "substituted": "\u03c3_e = \u221a(180.4\u00b2 + 3 \u00d7 12.03\u00b2)",
+                "value": 181.58859900791225,
+                "unit": "MPa",
+                "result": "181.6 MPa",
+                "note": ""
+              },
+              {
+                "label": "Bending moment at the bearing, astern",
+                "symbol": "M",
+                "formula": "M = F (0.5 b + l_g)",
+                "substituted": "M = 12\u2009135 N \u00d7 0.900 m",
+                "value": 10.92123648,
+                "unit": "kN\u00b7m",
+                "result": "10.92 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress, astern",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
+                "substituted": "\u03c3_b = 10.2 \u00d7 10\u2009921 / 160\u00b3 \u00d7 10\u00b3",
+                "value": 27.196438499999996,
+                "unit": "MPa",
+                "result": "27.20 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress, astern",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
+                "substituted": "\u03c3_e = \u221a(27.20\u00b2 + 3 \u00d7 5.621\u00b2)",
+                "value": 28.88632217457508,
+                "unit": "MPa",
+                "result": "28.89 MPa",
+                "note": ""
+              },
+              {
+                "label": "Worse condition",
+                "symbol": "\u03c3_e",
+                "formula": "max(ahead, astern)",
+                "substituted": "ahead",
                 "value": 181.58859900791225,
                 "unit": "MPa",
                 "result": "181.6 MPa",
@@ -798,7 +931,7 @@
               2.429842425044626e-07
             ],
             "reaction_balance_error": 7.681960478525146e-12,
-            "solve_seconds": 1.2834772999995039
+            "solve_seconds": 1.2903511000040453
           },
           {
             "level": 2,
@@ -820,7 +953,7 @@
               1.807347871363163e-08
             ],
             "reaction_balance_error": 2.434766438898042e-12,
-            "solve_seconds": 3.864079799999672
+            "solve_seconds": 3.9101905999996234
           },
           {
             "level": 3,
@@ -842,7 +975,7 @@
               -2.650267560966313e-08
             ],
             "reaction_balance_error": 9.89048964198333e-12,
-            "solve_seconds": 11.053776700000526
+            "solve_seconds": 11.468569199998456
           }
         ],
         "hand_stress_mpa": 165.66998500379137,
@@ -856,6 +989,7 @@
         "step": "designs\\lightest\\fin.step",
         "stl": "designs\\lightest\\fin.stl",
         "dxf": "designs\\lightest\\fin-rib-cutting.dxf",
+        "stock_step": "designs\\lightest\\fin-stock.step",
         "stress_surface": "designs/lightest/stress-surface.json"
       }
     },
@@ -895,6 +1029,13 @@
           "section_angle_deg": 8.474985053563763,
           "cp_min": -2.910313075744681,
           "cavitation_number": 2.953208969693507,
+          "astern_speed_kn": 9.0,
+          "astern_force_n": 12134.7072,
+          "astern_lever_m": 0.37200000000000005,
+          "astern_torque_nm": 4514.111078400001,
+          "astern_stock_moment_nm": 10921.23648,
+          "outer_bearing_n": 0.0,
+          "inner_bearing_n": 0.0,
           "area_m2": 1.68,
           "effective_aspect_ratio": 2.3333333333333335,
           "span_arm_m": 0.7,
@@ -916,15 +1057,17 @@
             "utilization": 0.09057679240968618,
             "passed": true,
             "margin_percent": 90.94232075903138,
-            "source": "IACS UR S10.4.1: torsional stress in the stock",
-            "explanation": "The lift acts behind or ahead of the stock and twists it.",
+            "source": "IACS UR S10.4.1: torsional stress in the stock, ahead and astern",
+            "explanation": "The lift acts behind or ahead of the stock and twists it. Going astern the centre of pressure moves aft, so the twist can be larger at a lower speed.",
             "basis": "rule",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "condition": "ahead"
+            },
             "working": [
               {
-                "label": "Twisting moment",
+                "label": "Twisting moment, ahead",
                 "symbol": "Q",
                 "formula": "Q = F \u00d7 lever",
                 "substituted": "Q = 80\u2009488 N \u00d7 0.120 m",
@@ -934,10 +1077,40 @@
                 "note": ""
               },
               {
-                "label": "Torsional stress",
+                "label": "Torsional stress, ahead",
                 "symbol": "\u03c4_t",
                 "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
                 "substituted": "\u03c4_t = 5.1 \u00d7 9\u2009659 / 170\u00b3 \u00d7 10\u00b3",
+                "value": 10.026153244922906,
+                "unit": "MPa",
+                "result": "10.03 MPa",
+                "note": ""
+              },
+              {
+                "label": "Twisting moment, astern",
+                "symbol": "Q",
+                "formula": "Q = F \u00d7 lever",
+                "substituted": "Q = 12\u2009135 N \u00d7 0.372 m",
+                "value": 4.514111078400001,
+                "unit": "kN\u00b7m",
+                "result": "4.514 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Torsional stress, astern",
+                "symbol": "\u03c4_t",
+                "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
+                "substituted": "\u03c4_t = 5.1 \u00d7 4\u2009514 / 170\u00b3 \u00d7 10\u00b3",
+                "value": 4.685928455086506,
+                "unit": "MPa",
+                "result": "4.686 MPa",
+                "note": ""
+              },
+              {
+                "label": "Worse condition",
+                "symbol": "\u03c4_t",
+                "formula": "max(ahead, astern)",
+                "substituted": "ahead",
                 "value": 10.026153244922906,
                 "unit": "MPa",
                 "result": "10.03 MPa",
@@ -974,15 +1147,17 @@
             "utilization": 0.7881543300547338,
             "passed": true,
             "margin_percent": 21.18456699452662,
-            "source": "IACS UR S10.4.2: equivalent stress in the stock",
+            "source": "IACS UR S10.4.2: equivalent stress in the stock, ahead and astern",
             "explanation": "Where the stock leaves the hull bearing it carries the whole bending moment from the fin as well as the twist.",
             "basis": "rule",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "condition": "ahead"
+            },
             "working": [
               {
-                "label": "Bending moment at the bearing",
+                "label": "Bending moment at the bearing, ahead",
                 "symbol": "M",
                 "formula": "M = F (0.5 b + l_g)",
                 "substituted": "M = 80\u2009488 N \u00d7 0.900 m",
@@ -992,7 +1167,7 @@
                 "note": ""
               },
               {
-                "label": "Bending stress",
+                "label": "Bending stress, ahead",
                 "symbol": "\u03c3_b",
                 "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
                 "substituted": "\u03c3_b = 10.2 \u00d7 72\u2009439 / 170\u00b3 \u00d7 10\u00b3",
@@ -1002,10 +1177,50 @@
                 "note": ""
               },
               {
-                "label": "Equivalent stress",
+                "label": "Equivalent stress, ahead",
                 "symbol": "\u03c3_e",
                 "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
                 "substituted": "\u03c3_e = \u221a(150.4\u00b2 + 3 \u00d7 10.03\u00b2)",
+                "value": 151.39159404364108,
+                "unit": "MPa",
+                "result": "151.4 MPa",
+                "note": ""
+              },
+              {
+                "label": "Bending moment at the bearing, astern",
+                "symbol": "M",
+                "formula": "M = F (0.5 b + l_g)",
+                "substituted": "M = 12\u2009135 N \u00d7 0.900 m",
+                "value": 10.92123648,
+                "unit": "kN\u00b7m",
+                "result": "10.92 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress, astern",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
+                "substituted": "\u03c3_b = 10.2 \u00d7 10\u2009921 / 170\u00b3 \u00d7 10\u00b3",
+                "value": 22.673847363321798,
+                "unit": "MPa",
+                "result": "22.67 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress, astern",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
+                "substituted": "\u03c3_e = \u221a(22.67\u00b2 + 3 \u00d7 4.686\u00b2)",
+                "value": 24.082714355192255,
+                "unit": "MPa",
+                "result": "24.08 MPa",
+                "note": ""
+              },
+              {
+                "label": "Worse condition",
+                "symbol": "\u03c3_e",
+                "formula": "max(ahead, astern)",
+                "substituted": "ahead",
                 "value": 151.39159404364108,
                 "unit": "MPa",
                 "result": "151.4 MPa",
@@ -1480,7 +1695,7 @@
               6.889513315400109e-08
             ],
             "reaction_balance_error": 2.5753768703687366e-12,
-            "solve_seconds": 1.1974020000016026
+            "solve_seconds": 1.3004008999996586
           },
           {
             "level": 2,
@@ -1502,7 +1717,7 @@
               -7.03730620443821e-08
             ],
             "reaction_balance_error": 5.234483411916635e-12,
-            "solve_seconds": 3.4498633000002883
+            "solve_seconds": 3.5780529999974533
           },
           {
             "level": 3,
@@ -1524,7 +1739,7 @@
               -5.1983079174533486e-08
             ],
             "reaction_balance_error": 3.45511710268997e-12,
-            "solve_seconds": 10.075990499999534
+            "solve_seconds": 11.517978899995796
           }
         ],
         "hand_stress_mpa": 137.2912997920541,
@@ -1538,6 +1753,7 @@
         "step": "designs\\balanced\\fin.step",
         "stl": "designs\\balanced\\fin.stl",
         "dxf": "designs\\balanced\\fin-rib-cutting.dxf",
+        "stock_step": "designs\\balanced\\fin-stock.step",
         "stress_surface": "designs/balanced/stress-surface.json"
       }
     },
@@ -1577,6 +1793,13 @@
           "section_angle_deg": 8.474985053563763,
           "cp_min": -2.910313075744681,
           "cavitation_number": 2.953208969693507,
+          "astern_speed_kn": 9.0,
+          "astern_force_n": 12134.7072,
+          "astern_lever_m": 0.37200000000000005,
+          "astern_torque_nm": 4514.111078400001,
+          "astern_stock_moment_nm": 10921.23648,
+          "outer_bearing_n": 0.0,
+          "inner_bearing_n": 0.0,
           "area_m2": 1.68,
           "effective_aspect_ratio": 2.3333333333333335,
           "span_arm_m": 0.7,
@@ -1598,15 +1821,17 @@
             "utilization": 0.07630380334512829,
             "passed": true,
             "margin_percent": 92.36961966548716,
-            "source": "IACS UR S10.4.1: torsional stress in the stock",
-            "explanation": "The lift acts behind or ahead of the stock and twists it.",
+            "source": "IACS UR S10.4.1: torsional stress in the stock, ahead and astern",
+            "explanation": "The lift acts behind or ahead of the stock and twists it. Going astern the centre of pressure moves aft, so the twist can be larger at a lower speed.",
             "basis": "rule",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "condition": "ahead"
+            },
             "working": [
               {
-                "label": "Twisting moment",
+                "label": "Twisting moment, ahead",
                 "symbol": "Q",
                 "formula": "Q = F \u00d7 lever",
                 "substituted": "Q = 80\u2009488 N \u00d7 0.120 m",
@@ -1616,10 +1841,40 @@
                 "note": ""
               },
               {
-                "label": "Torsional stress",
+                "label": "Torsional stress, ahead",
                 "symbol": "\u03c4_t",
                 "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
                 "substituted": "\u03c4_t = 5.1 \u00d7 9\u2009659 / 180\u00b3 \u00d7 10\u00b3",
+                "value": 8.446243294291193,
+                "unit": "MPa",
+                "result": "8.446 MPa",
+                "note": ""
+              },
+              {
+                "label": "Twisting moment, astern",
+                "symbol": "Q",
+                "formula": "Q = F \u00d7 lever",
+                "substituted": "Q = 12\u2009135 N \u00d7 0.372 m",
+                "value": 4.514111078400001,
+                "unit": "kN\u00b7m",
+                "result": "4.514 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Torsional stress, astern",
+                "symbol": "\u03c4_t",
+                "formula": "\u03c4_t = 5.1 Q / D^3 \u00d7 10^3",
+                "substituted": "\u03c4_t = 5.1 \u00d7 4\u2009514 / 180\u00b3 \u00d7 10\u00b3",
+                "value": 3.9475251200000008,
+                "unit": "MPa",
+                "result": "3.948 MPa",
+                "note": ""
+              },
+              {
+                "label": "Worse condition",
+                "symbol": "\u03c4_t",
+                "formula": "max(ahead, astern)",
+                "substituted": "ahead",
                 "value": 8.446243294291193,
                 "unit": "MPa",
                 "result": "8.446 MPa",
@@ -1656,15 +1911,17 @@
             "utilization": 0.6639578572631869,
             "passed": true,
             "margin_percent": 33.60421427368131,
-            "source": "IACS UR S10.4.2: equivalent stress in the stock",
+            "source": "IACS UR S10.4.2: equivalent stress in the stock, ahead and astern",
             "explanation": "Where the stock leaves the hull bearing it carries the whole bending moment from the fin as well as the twist.",
             "basis": "rule",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "condition": "ahead"
+            },
             "working": [
               {
-                "label": "Bending moment at the bearing",
+                "label": "Bending moment at the bearing, ahead",
                 "symbol": "M",
                 "formula": "M = F (0.5 b + l_g)",
                 "substituted": "M = 80\u2009488 N \u00d7 0.900 m",
@@ -1674,7 +1931,7 @@
                 "note": ""
               },
               {
-                "label": "Bending stress",
+                "label": "Bending stress, ahead",
                 "symbol": "\u03c3_b",
                 "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
                 "substituted": "\u03c3_b = 10.2 \u00d7 72\u2009439 / 180\u00b3 \u00d7 10\u00b3",
@@ -1684,10 +1941,50 @@
                 "note": ""
               },
               {
-                "label": "Equivalent stress",
+                "label": "Equivalent stress, ahead",
                 "symbol": "\u03c3_e",
                 "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
                 "substituted": "\u03c3_e = \u221a(126.7\u00b2 + 3 \u00d7 8.446\u00b2)",
+                "value": 127.53547694382861,
+                "unit": "MPa",
+                "result": "127.5 MPa",
+                "note": ""
+              },
+              {
+                "label": "Bending moment at the bearing, astern",
+                "symbol": "M",
+                "formula": "M = F (0.5 b + l_g)",
+                "substituted": "M = 12\u2009135 N \u00d7 0.900 m",
+                "value": 10.92123648,
+                "unit": "kN\u00b7m",
+                "result": "10.92 kN\u00b7m",
+                "note": ""
+              },
+              {
+                "label": "Bending stress, astern",
+                "symbol": "\u03c3_b",
+                "formula": "\u03c3_b = 10.2 M / D^3 \u00d7 10^3",
+                "substituted": "\u03c3_b = 10.2 \u00d7 10\u2009921 / 180\u00b3 \u00d7 10\u00b3",
+                "value": 19.100927999999996,
+                "unit": "MPa",
+                "result": "19.10 MPa",
+                "note": ""
+              },
+              {
+                "label": "Equivalent stress, astern",
+                "symbol": "\u03c3_e",
+                "formula": "\u03c3_e = \u221a(\u03c3_b^2 + 3 \u03c4_t^2)",
+                "substituted": "\u03c3_e = \u221a(19.10\u00b2 + 3 \u00d7 3.948\u00b2)",
+                "value": 20.287787316025298,
+                "unit": "MPa",
+                "result": "20.29 MPa",
+                "note": ""
+              },
+              {
+                "label": "Worse condition",
+                "symbol": "\u03c3_e",
+                "formula": "max(ahead, astern)",
+                "substituted": "ahead",
                 "value": 127.53547694382861,
                 "unit": "MPa",
                 "result": "127.5 MPa",
@@ -2162,7 +2459,7 @@
               3.999593900516629e-08
             ],
             "reaction_balance_error": 5.037684497889455e-12,
-            "solve_seconds": 1.1393515999989177
+            "solve_seconds": 1.1739115999953356
           },
           {
             "level": 2,
@@ -2184,7 +2481,7 @@
               7.275957614183426e-09
             ],
             "reaction_balance_error": 2.583853494270265e-12,
-            "solve_seconds": 3.2264983000004577
+            "solve_seconds": 3.5069189999994705
           },
           {
             "level": 3,
@@ -2206,7 +2503,7 @@
               -1.0733856470324099e-07
             ],
             "reaction_balance_error": 4.475729474568303e-12,
-            "solve_seconds": 9.835001600000396
+            "solve_seconds": 10.498829899996053
           }
         ],
         "hand_stress_mpa": 114.95892539043238,
@@ -2220,6 +2517,7 @@
         "step": "designs\\robust\\fin.step",
         "stl": "designs\\robust\\fin.stl",
         "dxf": "designs\\robust\\fin-rib-cutting.dxf",
+        "stock_step": "designs\\robust\\fin-stock.step",
         "stress_surface": "designs/robust/stress-surface.json"
       }
     }
@@ -2228,5 +2526,5 @@
     "engineering_log": "engineering-log.json",
     "designs_evaluated": "designs-evaluated.csv"
   },
-  "seconds": 79.90633900000103
+  "seconds": 85.03991089999909
 }

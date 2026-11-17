@@ -9,13 +9,18 @@ its source, and how it was verified. Units: N, mm, MPa, kg.
 | --- | --- |
 | Vertical force | V = m g DAF / n<sub>c</sub>, g = 9.80665 m/s² |
 | Sling force | F = V / sin θ |
-| In-plane horizontal | H = F cos θ |
-| Sideways (out of plane) | Q = k F |
+| In-plane horizontal | H = F cos θ cos β |
+| Sideways (out of plane) | Q = F max(cos θ sin β, k) |
+| Side-load angle on the shackle | γ = asin(cos θ sin β) |
 
 m: lifted mass; DAF: user dynamic factor (default 1.0); n<sub>c</sub>: points
 assumed to carry the load (default all); θ: sling angle from horizontal (15° to
-90°); k: sideways allowance (default 0.05). The padeye plate is assumed to lie in
-the plane of its sling.
+90°); k: sideways allowance (default 0.05); β: the second angle of an oblique
+sling, between the sling and the padeye plate seen from above (an advanced
+setting, default 0°, when the plate lies in the plane of its sling and the
+expressions reduce to H = F cos θ and Q = k F). γ is the angle between the sling
+and the plane of the plate; the shackle can swing freely in that plane but not
+out of it, so γ is its side-load angle.
 
 ## 2. Padeye geometry
 
@@ -79,7 +84,7 @@ Practice checks (marked "NEMO practice" in reports):
 | --- | --- | --- |
 | Hole clearance | D<sub>h</sub> ≥ D<sub>p</sub> + 1 mm | Required |
 | Shackle fit | t + 2 mm ≤ jaw width | Required |
-| Shackle rating | F / g ≤ WLL | Required |
+| Shackle rating | F / g ≤ r(γ) WLL, with r from the Crosby side-loading table: 1.00 up to 10°, 0.85 to 20°, 0.75 to 30°, 0.70 to 45°, 0.60 to 55°, 0.55 to 70°, 0.50 to 90°; shackles over 3 in: 1.00 to 5°, 0.85 to 10°, not allowed beyond | Required |
 | Jaw fill | t ≥ 0.6 × jaw width | Advice (a sizing constraint by default) |
 | Pin fit | D<sub>p</sub>/D<sub>h</sub> ≥ 0.90 | Advice |
 | Minimum fillet | AWS D1.1 table: 3 / 5 / 6 / 8 mm for parts up to 6 / 12 / 19 / over 19 mm | Advice |
@@ -89,7 +94,7 @@ Check the expressions against the edition named for the job.
 
 ## 4. Sizing (optimisation)
 
-1. Shackles: the smallest Crosby G-2130 with WLL ≥ F/g, and the next two sizes.
+1. Shackles: the smallest Crosby G-2130 with r(γ) WLL ≥ F/g, and the next two sizes.
 2. Hole: D<sub>h</sub> = D<sub>p</sub> + max(1 mm, 4%), rounded up to 0.5 mm.
 3. For every stock main-plate thickness and cheek thickness (0 or ≤ main) that
    fits the shackle jaw, bounded Nelder-Mead varies R, L (2R to 8R) and R<sub>c</sub>
@@ -231,6 +236,7 @@ bolts (0.75 F_u tension, 0.45 F_u shear, on the threaded tensile area).
 | Pipe bending | σ = q_d S²/(10 Z) with q_d = q √((1 + a_v)² + a_h²), against F_y,pipe / 1.67. |
 | Pipe sag (advice) | 5 q S⁴/(384 E I) ≤ 2.5 mm (MSS SP-58/69 style). |
 | Recommended spacing (advice) | Smallest of the spans meeting the stress, the sag and f_n ≥ (1 + margin) × the highest excitation. |
+| Pipe on its brackets (advanced setting, on by default) | Bracket stiffness k = F_z / δ and mass m = W / g give f_b = (1/2π) √(k/m). Dunkerley's method, 1/f² = 1/f_n² + 1/f_b², gives the frequency of the pipe on its brackets, which must keep the same margin from every excitation. Category `stiffness`, so the search stiffens the bracket if needed; `span` when the span already fails on rigid supports. |
 
 Span checks have category `span`: the sizing search ignores them, because the
 bracket's size cannot change them, but a failing one still fails the design.
@@ -254,6 +260,21 @@ with K1 = (λ + 2)/3, λ = b²/A ≤ 2, K2 = 1.10 (NACA), K3 = 0.8 (outside the
 propeller jet). Design force F = max(L, C_R). Torque Q = F c |0.33 − x_s/c|,
 at least 0.1 F c (UR S10.2.1.2). Root moment F × 0.5 b; stock moment at the
 outer bearing F (0.5 b + l_g).
+
+**Astern condition** (advanced setting, on by default). UR S10.2.1 also checks
+rudders going astern: C_Ra = K1 K2 K3 132 A V_a² with K2 = 0.80 for NACA
+sections astern (Table 1) and V_a the astern speed, not less than 0.5 V. The
+centre of pressure moves to 0.66 c, so Q_a = C_Ra c |0.66 − x_s/c| and
+M_sa = C_Ra (0.5 b + l_g). The stock checks use the worse of ahead and astern.
+
+**Stock bearings** (advanced setting, off by default). With the outer bearing a
+from the fin force and the inner bearing l further in, the reactions are
+P_1 = F (a + l)/l and P_2 = F a/l. Each bearing needs a length L = P / (q_a d_b)
+(S10.8.2), with q_a from Table 3 (lignum 2.5, white metal 4.5, synthetic
+5.5, steel or bronze 7.0 N/mm²) and d_b the stock plus two liners of at least
+8 mm (22 mm for lignum, S10.8.1). L must not exceed 1.2 d_b (S10.8.3); if it
+would, the stock is made bigger. The working also gives the least clearance on
+the diameter (S10.8.4).
 
 **Panel method.** Hess-Smith: constant-strength sources on each of 160 panels
 (cosine spacing) plus one vortex strength, Kutta condition at the trailing

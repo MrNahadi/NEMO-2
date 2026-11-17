@@ -60,6 +60,38 @@ class Shackle:
         return f"{self.wll_t:g} t ({self.size_in} in) {self.series}"
 
 
+# Crosby side-loading reduction for screw pin and bolt type shackles (Crosby catalogue, "Angular loading of
+# Crosby screw pin and bolt type shackles"): (largest side angle in whole degrees, share of the rated WLL).
+SIDE_LOAD_BANDS = ((10, 1.00), (20, 0.85), (30, 0.75), (45, 0.70), (55, 0.60), (70, 0.55), (90, 0.50))
+# Shackles larger than 3 in: full rating up to 5 degrees, 85% up to 10 degrees, beyond that analysis is required.
+LARGE_SIDE_LOAD_BANDS = ((5, 1.00), (10, 0.85))
+
+
+def shackle_size_inches(size_in: str) -> float:
+    """'1 1/4' or '1-1/4' -> 1.25, '5/8' -> 0.625, '3' -> 3.0."""
+    total = 0.0
+    for part in size_in.replace("-", " ").split():
+        if "/" in part:
+            top, bottom = part.split("/")
+            total += float(top) / float(bottom)
+        else:
+            total += float(part)
+    return total
+
+
+def shackle_side_load_factor(shackle: "Shackle", side_angle_deg: float) -> float:
+    """Share of the working load limit usable when the sling pulls at an angle to the shackle's in-line axis.
+
+    0.0 means the maker does not allow that angle without a separate analysis.
+    """
+    bands = LARGE_SIDE_LOAD_BANDS if shackle_size_inches(shackle.size_in) > 3.0 else SIDE_LOAD_BANDS
+    angle = round(abs(side_angle_deg))
+    for limit, factor in bands:
+        if angle <= limit:
+            return factor
+    return 0.0
+
+
 def _load_json(name: str) -> dict:
     with resources.files(__package__).joinpath(name).open("r", encoding="utf-8") as handle:
         return json.load(handle)

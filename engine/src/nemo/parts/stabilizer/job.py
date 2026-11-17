@@ -24,6 +24,7 @@ from dataclasses import asdict, dataclass, field
 from ...data import get_material
 from ...hydro import KNOT, SEA_WATER_DENSITY, cavitation_number, pressure_peak, whicker_fehlner
 from ...rules import IACSS10, get_rule_set
+from ...rules.iacs_s10 import BEARING_MATERIALS
 from ...working import Step, num
 
 CENTRE_OF_PRESSURE_CHORD = 0.33  # UR S10 a, ahead condition
@@ -48,6 +49,13 @@ class FinJob:
     rear_spar: float = 0.65
     deflection_limit_mm: float = 10.0
     rule_set_id: str = "iacs-ur-s10"
+    # Advanced settings. The defaults keep a simple job simple: the astern case needs no input (UR S10's least
+    # astern speed is half the ahead speed), and the bearing check stays off until the bearings are known.
+    include_astern: bool = True
+    astern_speed_kn: float = 0.0  # 0 = use UR S10's minimum, half the ahead speed
+    check_bearings: bool = False
+    bearing_spacing_mm: float = 800.0  # outer to inner stock bearing
+    bearing_material: str = "synthetic"
 
     @property
     def material(self):
@@ -97,7 +105,18 @@ class FinJob:
             p.append("Tick at least one plate thickness your workshop has.")
         if not (1.0 <= self.deflection_limit_mm <= 100.0):
             p.append("The tip deflection limit must be between 1 mm and 100 mm.")
+        if self.include_astern and not (0.0 <= self.astern_speed_kn <= self.speed_kn):
+            p.append("The astern speed must be between 0 (use the rule minimum) and the ahead speed.")
+        if self.check_bearings:
+            if not (100.0 <= self.bearing_spacing_mm <= 5000.0):
+                p.append("The distance between the two stock bearings must be between 100 mm and 5000 mm.")
+            if self.bearing_material not in BEARING_MATERIALS:
+                p.append("Choose the stock bearing material.")
         return p
+
+    @property
+    def astern_speed_used_kn(self) -> float:
+        return max(self.astern_speed_kn, IACSS10.astern_min_speed_fraction * self.speed_kn)
 
     def to_dict(self) -> dict:
         data = asdict(self)
@@ -136,6 +155,15 @@ class FinLoads:
     cp_min: float
     cavitation_number: float
     extra: dict = field(default_factory=dict)
+    # Astern condition (UR S10.2.1): zero when it is not included.
+    astern_speed_kn: float = 0.0
+    astern_force_n: float = 0.0
+    astern_lever_m: float = 0.0
+    astern_torque_nm: float = 0.0
+    astern_stock_moment_nm: float = 0.0
+    # Stock bearing reactions under the design force, when the bearing check is on.
+    outer_bearing_n: float = 0.0
+    inner_bearing_n: float = 0.0
 
     def to_dict(self) -> dict:
         data = {k: v for k, v in asdict(self).items() if k != "extra"}
@@ -159,12 +187,26 @@ def fin_loads(job: FinJob) -> FinLoads:
     torque = force * lever
     arm = CENTRE_OF_PRESSURE_SPAN * job.span_m
     alpha_2d, cp_min = pressure_peak(job.thickness_ratio, cl)
+    lever_bearing = arm + job.bearing_gap_mm / 1000.0
+    astern = {}
+    if job.include_astern:
+        v_ast = job.astern_speed_used_kn
+        cr_ast = IACSS10.rudder_force_n(area, v_ast, job.span_m**2 / area, k2=IACSS10.k2_naca_astern, astern=True)
+        lever_ast = job.chord_m * abs(IACSS10.astern_lever_fraction - job.stock_position)
+        astern = {"astern_speed_kn": v_ast, "astern_force_n": cr_ast, "astern_lever_m": lever_ast,
+                  "astern_torque_nm": cr_ast * lever_ast, "astern_stock_moment_nm": cr_ast * lever_bearing}
+    bearings = {}
+    if job.check_bearings:
+        spacing = job.bearing_spacing_mm / 1000.0
+        bearings = {"outer_bearing_n": force * (lever_bearing + spacing) / spacing,
+                    "inner_bearing_n": force * lever_bearing / spacing}
     return FinLoads(
         speed_ms=v, lift_coefficient=cl, lift_slope_per_rad=slope, nemo_lift_n=lift, ur_s10_force_n=cr,
         design_force_n=force, lever_m=lever, torque_nm=torque, root_moment_nm=force * arm,
         stock_moment_nm=force * (arm + job.bearing_gap_mm / 1000.0), section_angle_deg=alpha_2d, cp_min=cp_min,
         cavitation_number=cavitation_number(job.depth_m, v),
         extra={"area_m2": area, "effective_aspect_ratio": job.effective_aspect_ratio, "span_arm_m": arm},
+        **astern, **bearings,
     )
 
 
@@ -194,4 +236,37 @@ def load_steps(job: FinJob, loads: FinLoads) -> list[Step]:
         Step("Bending at the outer bearing", "M_s", "M_s = F (0.5 b + l_g)",
              f"M_s = {num(loads.design_force_n, 0)} × ({num(0.5 * job.span_m, 3)} + {num(job.bearing_gap_mm / 1000, 3)}) m",
              loads.stock_moment_nm / 1000, "kN·m"),
+    ] + _astern_steps(job, loads) + _bearing_steps(job, loads)
+
+
+def _astern_steps(job: FinJob, loads: FinLoads) -> list[Step]:
+    if not job.include_astern:
+        return []
+    k1 = (min(job.span_m**2 / job.area_m2, 2.0) + 2.0) / 3.0
+    return [
+        Step("Astern speed", "V_a", "V_a = max(astern speed, 0.5 V)",
+             f"V_a = max({num(job.astern_speed_kn, 1)}, 0.5 × {num(job.speed_kn, 1)}) kn", loads.astern_speed_kn, "kn",
+             note="UR S10.2.1.1: the astern speed is not to be taken less than half the ahead speed."),
+        Step("Rudder force astern, IACS UR S10", "C_{Ra}", "C_{Ra} = K_1 K_2 K_3 132 A V_a^2",
+             f"C_{{Ra}} = {num(k1)} × 0.80 × 0.8 × 132 × {num(job.area_m2)} × {num(loads.astern_speed_kn, 1)}²",
+             loads.astern_force_n / 1000, "kN", note="K_2 = 0.80 for NACA sections astern (UR S10 Table 1)."),
+        Step("Twisting moment astern", "Q_a", "Q_a = C_{Ra} c |0.66 − x_s/c|",
+             f"Q_a = {num(loads.astern_force_n, 0)} × {num(loads.astern_lever_m, 3)} m", loads.astern_torque_nm / 1000, "kN·m",
+             note="Going astern the centre of pressure moves aft, to 0.66 of the chord (UR S10.2.1.2)."),
+        Step("Bending at the outer bearing astern", "M_{sa}", "M_{sa} = C_{Ra} (0.5 b + l_g)",
+             f"M_{{sa}} = {num(loads.astern_force_n, 0)} × {num(0.5 * job.span_m + job.bearing_gap_mm / 1000, 3)} m",
+             loads.astern_stock_moment_nm / 1000, "kN·m"),
+    ]
+
+
+def _bearing_steps(job: FinJob, loads: FinLoads) -> list[Step]:
+    if not job.check_bearings:
+        return []
+    a = 0.5 * job.span_m + job.bearing_gap_mm / 1000.0
+    l = job.bearing_spacing_mm / 1000.0
+    return [
+        Step("Outer bearing reaction", "P_1", "P_1 = F (a + l) / l", f"P_1 = {num(loads.design_force_n, 0)} × ({num(a, 3)} + {num(l, 3)}) / {num(l, 3)}",
+             loads.outer_bearing_n / 1000, "kN", note="a: outer bearing to the fin force; l: between the two stock bearings."),
+        Step("Inner bearing reaction", "P_2", "P_2 = F a / l", f"P_2 = {num(loads.design_force_n, 0)} × {num(a, 3)} / {num(l, 3)}",
+             loads.inner_bearing_n / 1000, "kN"),
     ]

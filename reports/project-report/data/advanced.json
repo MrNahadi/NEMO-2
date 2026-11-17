@@ -1,0 +1,240 @@
+{
+  "padeye": [
+    {
+      "beta_deg": 0.0,
+      "side_angle_deg": 0.0,
+      "horizontal_n": 14154.680043371112,
+      "side_n": 1415.4680043371109,
+      "shackle": "3.25 t (5/8 in) Crosby G-2130",
+      "shackle_wll_t": 3.25,
+      "side_factor": 1.0,
+      "rated_t": 3.25,
+      "shackle_use": 0.8882311833686549,
+      "main_plate_mm": 6,
+      "cheek_mm": 6,
+      "mass_kg": 0.30500722463627267,
+      "governing": "Base weld strength",
+      "governing_use": 0.9796597125107048
+    },
+    {
+      "beta_deg": 20.0,
+      "side_angle_deg": 9.846551939834079,
+      "horizontal_n": 13301.048386341397,
+      "side_n": 4841.18569716277,
+      "shackle": "3.25 t (5/8 in) Crosby G-2130",
+      "shackle_wll_t": 3.25,
+      "side_factor": 1.0,
+      "rated_t": 3.25,
+      "shackle_use": 0.8882311833686549,
+      "main_plate_mm": 20,
+      "cheek_mm": 0.0,
+      "mass_kg": 0.3126346190056362,
+      "governing": "Splitting above the hole",
+      "governing_use": 0.979325862002565
+    },
+    {
+      "beta_deg": 45.0,
+      "side_angle_deg": 20.704811054635435,
+      "horizontal_n": 10008.87024419361,
+      "side_n": 10008.870244193608,
+      "shackle": "4.75 t (3/4 in) Crosby G-2130",
+      "shackle_wll_t": 4.75,
+      "side_factor": 0.75,
+      "rated_t": 3.5625,
+      "shackle_use": 0.8103161672836853,
+      "main_plate_mm": 20,
+      "cheek_mm": 0.0,
+      "mass_kg": 0.4305032180831073,
+      "governing": "Pulling and bending at the base",
+      "governing_use": 0.9358722895105424
+    },
+    {
+      "beta_deg": 90.0,
+      "side_angle_deg": 30.000000000000004,
+      "horizontal_n": 8.667241804034675e-13,
+      "side_n": 14154.680043371112,
+      "shackle": "4.75 t (3/4 in) Crosby G-2130",
+      "shackle_wll_t": 4.75,
+      "side_factor": 0.75,
+      "rated_t": 3.5625,
+      "shackle_use": 0.8103161672836853,
+      "main_plate_mm": 25,
+      "cheek_mm": 0.0,
+      "mass_kg": 0.4199940648715086,
+      "governing": "Pulling and bending at the base",
+      "governing_use": 0.9284620431603251
+    }
+  ],
+  "bracket": [
+    {
+      "nps": "2",
+      "span_hz": 14.949445584417841,
+      "bracket_hz": 340.430881546006,
+      "combined_hz": 14.935052303325145,
+      "separation": 0.06655923104217842,
+      "use": 3.004842406806961,
+      "passed": false,
+      "category": "span",
+      "mass_kg": 0.6119290366295602,
+      "rigid_separation": 0.06565965097388493
+    },
+    {
+      "nps": "3",
+      "span_hz": 21.913281603081394,
+      "bracket_hz": 234.9669927345262,
+      "combined_hz": 21.81860192398572,
+      "separation": 0.36366262024910756,
+      "use": 0.5499602897405313,
+      "passed": true,
+      "category": "stiffness",
+      "mass_kg": 0.8262340366295603,
+      "rigid_separation": 0.36958010019258714
+    },
+    {
+      "nps": "4",
+      "span_hz": 27.5688048323118,
+      "bracket_hz": 178.2235930938585,
+      "combined_hz": 27.244775896818876,
+      "separation": 0.27347264275149663,
+      "use": 0.7313345788000415,
+      "passed": true,
+      "category": "stiffness",
+      "mass_kg": 0.9957940366295602,
+      "rigid_separation": 0.26483187113835205
+    },
+    {
+      "nps": "6",
+      "span_hz": 39.1058776047935,
+      "bracket_hz": 122.31804598730427,
+      "combined_hz": 37.24855394765356,
+      "separation": 0.006705228062571678,
+      "use": 29.827471658479784,
+      "passed": false,
+      "category": "span",
+      "mass_kg": 1.4573740366295602,
+      "rigid_separation": 0.04282340279449329
+    },
+    {
+      "nps": "8",
+      "span_hz": 49.67783423278696,
+      "bracket_hz": 108.31597176861861,
+      "combined_hz": 45.1551572146778,
+      "separation": 0.20413752572474134,
+      "use": 0.9797316749575952,
+      "passed": true,
+      "category": "stiffness",
+      "mass_kg": 2.2026815197345795,
+      "rigid_separation": 0.3247422462076522
+    },
+    {
+      "nps": "10",
+      "span_hz": 60.64364566700957,
+      "bracket_hz": 80.90194014165402,
+      "combined_hz": 48.524360746375,
+      "separation": 0.29398295323666673,
+      "use": 0.680311554796148,
+      "passed": true,
+      "category": "stiffness",
+      "mass_kg": 2.773769019734579,
+      "rigid_separation": 0.6171638844535886
+    },
+    {
+      "nps": "12",
+      "span_hz": 69.55282487923314,
+      "bracket_hz": 78.46101074009437,
+      "combined_hz": 52.04706263679802,
+      "separation": 0.3879216703146138,
+      "use": 0.5155680007198237,
+      "passed": true,
+      "category": "stiffness",
+      "mass_kg": 4.238355331487805,
+      "rigid_separation": 0.8547419967795504
+    }
+  ],
+  "fin": {
+    "default": {
+      "astern_speed_kn": 9.0,
+      "astern_force_n": 12134.7072,
+      "astern_torque_nm": 4514.111078400001,
+      "astern_moment_nm": 10921.23648,
+      "ahead_torque_nm": 9658.5276259424,
+      "stock_mm": 160.0,
+      "mass_kg": 457.45129812815543,
+      "torsion_condition": "ahead",
+      "torsion_use": 0.10864350124726274,
+      "combined_condition": "ahead",
+      "combined_use": 0.9453618709860613
+    },
+    "stock_forward": {
+      "astern_speed_kn": 12.0,
+      "astern_force_n": 21572.812800000003,
+      "astern_torque_nm": 11908.192665600003,
+      "astern_moment_nm": 19415.53152,
+      "ahead_torque_nm": 5580.482628322276,
+      "stock_mm": 125.0,
+      "mass_kg": 387.4576583822179,
+      "torsion_condition": "astern",
+      "torsion_use": 0.2809108981624523,
+      "combined_condition": "ahead",
+      "combined_use": 0.8851320073904785
+    },
+    "bearings_800": {
+      "astern_speed_kn": 9.0,
+      "astern_force_n": 12134.7072,
+      "astern_torque_nm": 4514.111078400001,
+      "astern_moment_nm": 10921.23648,
+      "ahead_torque_nm": 9658.5276259424,
+      "stock_mm": 160.0,
+      "mass_kg": 457.45129812815543,
+      "torsion_condition": "ahead",
+      "torsion_use": 0.10864350124726274,
+      "combined_condition": "ahead",
+      "combined_use": 0.9453618709860613,
+      "outer": {
+        "reaction_n": 171036.42670939668,
+        "diameter_mm": 176.0,
+        "length_mm": 176.69052346012054,
+        "longest_mm": 211.2,
+        "use": 0.8366028572922375,
+        "clearance_mm": 1.5
+      },
+      "inner": {
+        "reaction_n": 90548.69649321001,
+        "diameter_mm": 176.0,
+        "length_mm": 93.54204183182853,
+        "longest_mm": 211.2,
+        "use": 0.4429073950370669,
+        "clearance_mm": 1.5
+      }
+    },
+    "bearings_400": {
+      "astern_speed_kn": 9.0,
+      "astern_force_n": 12134.7072,
+      "astern_torque_nm": 4514.111078400001,
+      "astern_moment_nm": 10921.23648,
+      "ahead_torque_nm": 9658.5276259424,
+      "stock_mm": 185.0,
+      "mass_kg": 505.31002608863105,
+      "torsion_condition": "ahead",
+      "torsion_use": 0.07028271274890541,
+      "combined_condition": "ahead",
+      "combined_use": 0.61156531278446,
+      "outer": {
+        "reaction_n": 261585.1232026067,
+        "diameter_mm": 201.0,
+        "length_mm": 236.6215497083733,
+        "longest_mm": 241.2,
+        "use": 0.9810180336168047,
+        "clearance_mm": 1.5
+      },
+      "inner": {
+        "reaction_n": 181097.39298642002,
+        "diameter_mm": 201.0,
+        "length_mm": 163.81491902887382,
+        "longest_mm": 241.2,
+        "use": 0.6791663309654802,
+        "clearance_mm": 1.5
+      }
+    }
+  }
+}

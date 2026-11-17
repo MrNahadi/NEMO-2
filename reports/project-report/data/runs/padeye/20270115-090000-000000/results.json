@@ -1,7 +1,7 @@
 {
   "nemo_results_version": 2,
   "part": "padeye",
-  "created_at": "2026-11-17T08:20:04+00:00",
+  "created_at": "2026-11-17T14:29:21+00:00",
   "job": {
     "part": "padeye",
     "lift": {
@@ -10,7 +10,8 @@
       "sling_angle_deg": 60.0,
       "dynamic_factor": 1.0,
       "points_carrying": null,
-      "side_load_fraction": 0.05
+      "side_load_fraction": 0.05,
+      "out_of_plane_angle_deg": 0.0
     },
     "material_id": "S355",
     "plate_thicknesses_mm": [
@@ -39,7 +40,10 @@
     "horizontal_n": 14154.680043371112,
     "side_n": 1415.4680043371109,
     "sling_angle_deg": 60.0,
-    "static_sling_force_n": 28309.360086742217
+    "static_sling_force_n": 28309.360086742217,
+    "out_of_plane_angle_deg": 0.0,
+    "side_angle_deg": 0.0,
+    "side_from_angle_n": 0.0
   },
   "load_steps": [
     {
@@ -148,7 +152,10 @@
           "horizontal_n": 14154.680043371112,
           "side_n": 1415.4680043371109,
           "sling_angle_deg": 60.0,
-          "static_sling_force_n": 28309.360086742217
+          "static_sling_force_n": 28309.360086742217,
+          "out_of_plane_angle_deg": 0.0,
+          "side_angle_deg": 0.0,
+          "side_from_angle_n": 0.0
         },
         "rule_set": {
           "id": "asme-bth-1",
@@ -874,11 +881,14 @@
             "passed": true,
             "margin_percent": 11.176881663134509,
             "source": "Crosby G-2130 working load limit",
-            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit.",
+            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit. A shackle pulled at an angle to its in-line axis is rated lower, by the maker's side-loading table.",
             "basis": "practice",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "side_angle_deg": 0.0,
+              "side_load_factor": 1.0
+            },
             "working": [
               {
                 "label": "Sling force in tonnes",
@@ -999,10 +1009,10 @@
       },
       "cad_volume_mm3": 38854.4235205443,
       "fea": {
-        "head_von_mises_mpa": 228.09235446010223,
-        "factor_of_safety_on_yield": 1.5563871083723517,
+        "head_von_mises_mpa": 228.09235446018496,
+        "factor_of_safety_on_yield": 1.5563871083717873,
         "yield_strength_mpa": 355.0,
-        "convergence_change": 0.0020134708358516646,
+        "convergence_change": 0.0020134708362279925,
         "converged": true,
         "levels": [
           {
@@ -1011,21 +1021,21 @@
             "local_size_mm": 1.6100662349647687,
             "elements": 6487,
             "dofs": 34986,
-            "head_von_mises_mpa": 227.5587078543355,
-            "max_von_mises_mpa": 227.5587078543355,
-            "max_displacement_mm": 0.16470794487807067,
+            "head_von_mises_mpa": 227.55870785434755,
+            "max_von_mises_mpa": 227.55870785434755,
+            "max_displacement_mm": 0.16470794487840495,
             "applied_force_n": [
-              14155.419413856573,
+              14155.419413856574,
               1415.4680043371109,
               24516.19809451965
             ],
             "reaction_force_n": [
-              -14155.419413860725,
-              -1415.4680043410383,
-              -24516.1980945486
+              -14155.419413862704,
+              -1415.4680043353176,
+              -24516.198094549163
             ],
-            "reaction_balance_error": 1.041106277338207e-12,
-            "solve_seconds": 4.2125804999996035
+            "reaction_balance_error": 1.0653858606559644e-12,
+            "solve_seconds": 2.9523167999941506
           },
           {
             "level": 2,
@@ -1033,21 +1043,21 @@
             "local_size_mm": 1.1270463644753381,
             "elements": 17200,
             "dofs": 86325,
-            "head_von_mises_mpa": 227.63309715651607,
-            "max_von_mises_mpa": 227.63309715651607,
-            "max_displacement_mm": 0.16620843276969055,
+            "head_von_mises_mpa": 227.6330971565128,
+            "max_von_mises_mpa": 227.6330971565128,
+            "max_displacement_mm": 0.1662084327696281,
             "applied_force_n": [
-              14155.486822489873,
+              14155.486822489875,
               1415.4680043371109,
-              24516.15917045856
+              24516.159170458555
             ],
             "reaction_force_n": [
-              -14155.48682248075,
-              -1415.4680043356857,
-              -24516.159170451323
+              -14155.486822484778,
+              -1415.4680043412636,
+              -24516.159170457588
             ],
-            "reaction_balance_error": 4.1385192411948234e-13,
-            "solve_seconds": 12.886544799999683
+            "reaction_balance_error": 2.344437417257898e-13,
+            "solve_seconds": 10.587061999998696
           },
           {
             "level": 3,
@@ -1055,21 +1065,21 @@
             "local_size_mm": 0.8050331174823844,
             "elements": 44271,
             "dofs": 209763,
-            "head_von_mises_mpa": 228.09235446010223,
-            "max_von_mises_mpa": 228.09235446010223,
-            "max_displacement_mm": 0.16706030092046895,
+            "head_von_mises_mpa": 228.09235446018496,
+            "max_von_mises_mpa": 228.09235446018496,
+            "max_displacement_mm": 0.1670603009206325,
             "applied_force_n": [
-              14154.73750720648,
+              14154.737507206482,
               1415.4680043371109,
               24516.591823059596
             ],
             "reaction_force_n": [
-              -14154.737507206752,
-              -1415.4680043428798,
-              -24516.59182306098
+              -14154.73750720606,
+              -1415.4680043446763,
+              -24516.591823062412
             ],
-            "reaction_balance_error": 2.0950776727138758e-13,
-            "solve_seconds": 26.912653299999874
+            "reaction_balance_error": 2.851835164101495e-13,
+            "solve_seconds": 31.326398800003517
           }
         ]
       },
@@ -1113,7 +1123,10 @@
           "horizontal_n": 14154.680043371112,
           "side_n": 1415.4680043371109,
           "sling_angle_deg": 60.0,
-          "static_sling_force_n": 28309.360086742217
+          "static_sling_force_n": 28309.360086742217,
+          "out_of_plane_angle_deg": 0.0,
+          "side_angle_deg": 0.0,
+          "side_from_angle_n": 0.0
         },
         "rule_set": {
           "id": "asme-bth-1",
@@ -1839,11 +1852,14 @@
             "passed": true,
             "margin_percent": 39.22628745372361,
             "source": "Crosby G-2130 working load limit",
-            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit.",
+            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit. A shackle pulled at an angle to its in-line axis is rated lower, by the maker's side-loading table.",
             "basis": "practice",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "side_angle_deg": 0.0,
+              "side_load_factor": 1.0
+            },
             "working": [
               {
                 "label": "Sling force in tonnes",
@@ -1964,10 +1980,10 @@
       },
       "cad_volume_mm3": 55028.512138003556,
       "fea": {
-        "head_von_mises_mpa": 189.54527243407017,
-        "factor_of_safety_on_yield": 1.8729034781043152,
+        "head_von_mises_mpa": 189.54527243401634,
+        "factor_of_safety_on_yield": 1.872903478104847,
         "yield_strength_mpa": 355.0,
-        "convergence_change": 0.0008940686973403749,
+        "convergence_change": 0.000894068698053326,
         "converged": true,
         "levels": [
           {
@@ -1976,21 +1992,21 @@
             "local_size_mm": 1.8456856839840037,
             "elements": 5530,
             "dofs": 30201,
-            "head_von_mises_mpa": 188.7096226454797,
-            "max_von_mises_mpa": 188.7096226454797,
-            "max_displacement_mm": 0.10865418824001949,
+            "head_von_mises_mpa": 188.70962264546733,
+            "max_von_mises_mpa": 188.70962264546733,
+            "max_displacement_mm": 0.10865418824015766,
             "applied_force_n": [
-              14155.08165595531,
+              14155.081655955317,
               1415.4680043371109,
-              24516.39312009435
+              24516.393120094355
             ],
             "reaction_force_n": [
-              -14155.081655957081,
-              -1415.4680043329533,
-              -24516.393120106906
+              -14155.081655956546,
+              -1415.4680043370731,
+              -24516.393120106994
             ],
-            "reaction_balance_error": 4.707505990662757e-13,
-            "solve_seconds": 3.285216999998738
+            "reaction_balance_error": 4.479871288092298e-13,
+            "solve_seconds": 3.84833819999767
           },
           {
             "level": 2,
@@ -1998,21 +2014,21 @@
             "local_size_mm": 1.2919799787888024,
             "elements": 13982,
             "dofs": 71370,
-            "head_von_mises_mpa": 189.71473892888233,
-            "max_von_mises_mpa": 189.71473892888233,
-            "max_displacement_mm": 0.10913372538639195,
+            "head_von_mises_mpa": 189.71473892896358,
+            "max_von_mises_mpa": 189.71473892896358,
+            "max_displacement_mm": 0.10913372538655214,
             "applied_force_n": [
-              14154.561376121568,
+              14154.561376121575,
               1415.4680043371109,
-              24516.69351180263
+              24516.693511802627
             ],
             "reaction_force_n": [
-              -14154.56137611501,
-              -1415.4680043431695,
-              -24516.693511790785
+              -14154.561376113083,
+              -1415.4680043424949,
+              -24516.693511796566
             ],
-            "reaction_balance_error": 5.23306220884554e-13,
-            "solve_seconds": 9.76748310000039
+            "reaction_balance_error": 4.1422026776556013e-13,
+            "solve_seconds": 11.443658099997265
           },
           {
             "level": 3,
@@ -2020,21 +2036,21 @@
             "local_size_mm": 0.9228428419920018,
             "elements": 35940,
             "dofs": 172938,
-            "head_von_mises_mpa": 189.54527243407017,
-            "max_von_mises_mpa": 189.54527243407017,
-            "max_displacement_mm": 0.10967819193507118,
+            "head_von_mises_mpa": 189.54527243401634,
+            "max_von_mises_mpa": 189.54527243401634,
+            "max_displacement_mm": 0.10967819193481215,
             "applied_force_n": [
-              14154.661461851914,
-              1415.4680043371109,
+              14154.661461851912,
+              1415.468004337111,
               24516.63572802633
             ],
             "reaction_force_n": [
-              -14154.661461841893,
-              -1415.4680043384733,
-              -24516.635728024947
+              -14154.661461843145,
+              -1415.468004332307,
+              -24516.635728021196
             ],
-            "reaction_balance_error": 3.6010427012931437e-13,
-            "solve_seconds": 19.06089769999926
+            "reaction_balance_error": 3.9648636046594125e-13,
+            "solve_seconds": 23.1554757000049
           }
         ]
       },
@@ -2078,7 +2094,10 @@
           "horizontal_n": 14154.680043371112,
           "side_n": 1415.4680043371109,
           "sling_angle_deg": 60.0,
-          "static_sling_force_n": 28309.360086742217
+          "static_sling_force_n": 28309.360086742217,
+          "out_of_plane_angle_deg": 0.0,
+          "side_angle_deg": 0.0,
+          "side_from_angle_n": 0.0
         },
         "rule_set": {
           "id": "asme-bth-1",
@@ -2804,11 +2823,14 @@
             "passed": true,
             "margin_percent": 39.22628745372361,
             "source": "Crosby G-2130 working load limit",
-            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit.",
+            "explanation": "The sling force on this padeye must not exceed the shackle's working load limit. A shackle pulled at an angle to its in-line axis is rated lower, by the maker's side-loading table.",
             "basis": "practice",
             "severity": "required",
             "category": "strength",
-            "details": {},
+            "details": {
+              "side_angle_deg": 0.0,
+              "side_load_factor": 1.0
+            },
             "working": [
               {
                 "label": "Sling force in tonnes",
@@ -2929,10 +2951,10 @@
       },
       "cad_volume_mm3": 56976.55955720808,
       "fea": {
-        "head_von_mises_mpa": 200.43481789901696,
-        "factor_of_safety_on_yield": 1.771149362776162,
+        "head_von_mises_mpa": 200.43481789901364,
+        "factor_of_safety_on_yield": 1.7711493627761916,
         "yield_strength_mpa": 355.0,
-        "convergence_change": 0.00020070571891242088,
+        "convergence_change": 0.00020070571889243036,
         "converged": true,
         "levels": [
           {
@@ -2941,21 +2963,21 @@
             "local_size_mm": 1.8456856839840037,
             "elements": 5011,
             "dofs": 27867,
-            "head_von_mises_mpa": 198.1060079850213,
-            "max_von_mises_mpa": 198.1060079850213,
-            "max_displacement_mm": 0.10450311243884519,
+            "head_von_mises_mpa": 198.10600798497308,
+            "max_von_mises_mpa": 198.10600798497308,
+            "max_displacement_mm": 0.10450311243857234,
             "applied_force_n": [
-              14154.71762888582,
+              14154.717628885826,
               1415.4680043371106,
-              24516.603299916136
+              24516.60329991614
             ],
             "reaction_force_n": [
-              -14154.717628880155,
-              -1415.468004341531,
-              -24516.603299906536
+              -14154.717628879693,
+              -1415.4680043390813,
+              -24516.60329990687
             ],
-            "reaction_balance_error": 4.230900834112584e-13,
-            "solve_seconds": 3.176648300001034
+            "reaction_balance_error": 3.9825689187563295e-13,
+            "solve_seconds": 3.54769259999739
           },
           {
             "level": 2,
@@ -2963,21 +2985,21 @@
             "local_size_mm": 1.2919799787888024,
             "elements": 12648,
             "dofs": 65556,
-            "head_von_mises_mpa": 200.39458948479546,
-            "max_von_mises_mpa": 200.39458948479546,
-            "max_displacement_mm": 0.10560921049399176,
+            "head_von_mises_mpa": 200.39458948479614,
+            "max_von_mises_mpa": 200.39458948479614,
+            "max_displacement_mm": 0.10560921049410074,
             "applied_force_n": [
-              14154.358481771449,
+              14154.35848177145,
               1415.4680043371109,
               24516.810648052713
             ],
             "reaction_force_n": [
-              -14154.358481774338,
-              -1415.4680043416984,
-              -24516.810648068826
+              -14154.35848177473,
+              -1415.468004344091,
+              -24516.810648069582
             ],
-            "reaction_balance_error": 5.997640232642323e-13,
-            "solve_seconds": 8.88553850000062
+            "reaction_balance_error": 6.543947260142005e-13,
+            "solve_seconds": 11.197346899993136
           },
           {
             "level": 3,
@@ -2985,21 +3007,21 @@
             "local_size_mm": 0.9228428419920018,
             "elements": 32096,
             "dofs": 155709,
-            "head_von_mises_mpa": 200.43481789901696,
-            "max_von_mises_mpa": 200.43481789901696,
-            "max_displacement_mm": 0.10603171830133025,
+            "head_von_mises_mpa": 200.43481789901364,
+            "max_von_mises_mpa": 200.43481789901364,
+            "max_displacement_mm": 0.10603171830109945,
             "applied_force_n": [
-              14154.777056755187,
+              14154.777056755185,
               1415.4680043371109,
               24516.56898878474
             ],
             "reaction_force_n": [
-              -14154.777056758294,
-              -1415.4680043534674,
-              -24516.568988783234
+              -14154.777056760242,
+              -1415.4680043355227,
+              -24516.568988778647
             ],
-            "reaction_balance_error": 5.89775118912263e-13,
-            "solve_seconds": 22.82904140000028
+            "reaction_balance_error": 2.849292340315219e-13,
+            "solve_seconds": 16.974710000002233
           }
         ]
       },
@@ -3015,5 +3037,5 @@
     "engineering_log": "engineering-log.json",
     "designs_evaluated": "designs-evaluated.csv"
   },
-  "seconds": 138.14238730000034
+  "seconds": 144.7683818000005
 }

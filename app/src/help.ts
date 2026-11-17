@@ -20,6 +20,8 @@ export const HELP = {
     "An extra multiplier for jerks and swinging during the lift. ASME BTH-1's safety factor already allows for normal lifting, so leave this at 1.0 unless your lift plan or standard asks for one (for example offshore lifts).",
   side:
     "Slings never line up perfectly with the padeye. This adds a sideways pull as a share of the sling force. 5% is a common allowance.",
+  oblique:
+    "Leave at 0° when the padeye is turned to face its sling, which is the usual and best arrangement. If the padeye is fixed and the sling leaves it at an angle, enter the angle between the sling and the plate as seen from above (90° = the sling pulls straight across the plate). NEMO then adds the real sideways pull and reduces the shackle's rating for side loading, by the maker's table.",
   serviceClass:
     "How many times the padeye will be used at full load over its life. Choose 'Up to 20,000 lifts' for most one-off or occasional lifts.",
   fill:
@@ -27,6 +29,9 @@ export const HELP = {
 } as const;
 
 export const HELP_BRACKET = {
+  flexibility:
+    "The span check treats the brackets as rigid. A real bracket bends a little under the pipe, which lowers the frequency of the whole run. With this on, NEMO combines the two (Dunkerley's method) and checks the result against the same excitations. It needs no extra input."
+  ,
   pipe: "The nominal pipe size and wall thickness. NEMO uses the outside diameter and wall from ASME B36.10M.",
   contents: "What normally fills the pipe. Pick the heaviest case, for example full of sea water during testing.",
   insulation: "Insulation adds weight and pushes the pipe further from the bulkhead.",
@@ -47,6 +52,14 @@ export const HELP_BRACKET = {
 } as const;
 
 export const HELP_FIN = {
+  astern:
+    "IACS UR S10 checks rudders going astern as well as ahead. Astern the force is smaller, but the centre of pressure moves aft, so the stock can twist more. It needs no extra input, so it is on by default.",
+  asternSpeed:
+    "The ship's largest astern speed. Leave at 0 to use the rule's minimum, half the ahead speed.",
+  bearings:
+    "Works out how long the two stock bearings must be so the bearing pressure stays within the IACS limit, and whether they fit within 1.2 times their diameter. Turn on when you know where the bearings go.",
+  bearingSpacing:
+    "From the outer bearing, nearest the fin, to the inner bearing inside the hull. A short distance gives large bearing forces.",
   speed: "The ship's service speed with the fins working. Fin forces grow with the square of the speed.",
   size: "Span is how far the fin sticks out from the hull; chord is its width front to back.",
   thickness: "Foil thickness as a share of the chord. Thicker foils have room for a bigger stock and are stiffer.",

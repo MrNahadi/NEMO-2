@@ -12,9 +12,11 @@ thousands of designs and leaves them out.
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 
 from ...checks import CheckResult, PartCheckReport
 from ...data import piping
+from ...loads import STANDARD_GRAVITY
 from ...working import Step, num
 from ..padeye.checks import minimum_fillet_size_mm
 from .geometry import BracketDesign
@@ -187,6 +189,9 @@ def check_bracket(design: BracketDesign, job: BracketJob, loads: BracketLoads, s
 
     # -------------------------------------------------------------- pipe span
     checks += _span_checks(job, span)
+    flex = _support_vibration(job, loads, span, deflection) if job.include_bracket_flexibility else None
+    if flex:
+        checks.append(flex[0])
 
     values = {"yield_mpa": fy, "allow_tension_mpa": ft, "allow_bending_mpa": fb, "allow_shear_mpa": fv,
               "allow_weld_mpa": fw, "deflection_mm": deflection, "governing_station_mm": sec.x_mm,
@@ -203,8 +208,55 @@ def check_bracket(design: BracketDesign, job: BracketJob, loads: BracketLoads, s
     )
     if not working:
         return report
-    return _with_working(report, job, loads, span, worst, worst_shear, (lines, a, aw, zw, iw, iwz, c_w, fn, fs, my0, mz0),
-                         (flow, ak), (tension, span_seat, w_eff, m_seat, fb_plate), (ub, f_t, f_v, ft_b, fv_b, shear), deflection)
+    report = _with_working(report, job, loads, span, worst, worst_shear, (lines, a, aw, zw, iw, iwz, c_w, fn, fs, my0, mz0),
+                           (flow, ak), (tension, span_seat, w_eff, m_seat, fb_plate), (ub, f_t, f_v, ft_b, fv_b, shear), deflection)
+    if flex:
+        report = replace(report, checks=tuple(replace(c, working=flex[1]) if c.id == "support_vibration" else c
+                                              for c in report.checks))
+    return report
+
+
+def _support_vibration(job: BracketJob, loads: BracketLoads, span: SpanResult, deflection_mm: float):
+    """The pipe span on flexible brackets: Dunkerley's combination of the span and bracket frequencies.
+
+    The span frequency assumes rigid supports. The bracket is a spring under the pipe's share of the span, with
+    its own frequency f_b = (1/2 pi) sqrt(k / m), k = F_z / delta and m = W / g. Dunkerley's lower bound
+    1/f^2 = 1/f_n^2 + 1/f_b^2 then gives the frequency of the pipe on its brackets (Blevins, Formulas for
+    Natural Frequency and Mode Shape). It must keep the same margin from every excitation.
+    """
+    if deflection_mm <= 0 or loads.static_n <= 0:
+        return None
+    k_n_per_m = loads.down_n / deflection_mm * 1000.0
+    mass_kg = loads.static_n / STANDARD_GRAVITY
+    f_bracket = math.sqrt(k_n_per_m / mass_kg) / (2.0 * math.pi)
+    f_n = span.natural_hz
+    f_c = 1.0 / math.sqrt(1.0 / f_n**2 + 1.0 / f_bracket**2)
+    nearest = min(span.excitations, key=lambda e: abs(f_c - e[1]) / e[1])
+    separation = abs(f_c - nearest[1]) / nearest[1]
+    # When the span already fails on rigid supports, a stiffer bracket cannot fix it: leave it out of the sizing.
+    category = "stiffness" if span.separation >= job.frequency_margin else "span"
+    check = CheckResult(
+        id="support_vibration", title="Pipe on its brackets clear of vibration", demand=job.frequency_margin,
+        capacity=separation, unit="ratio", basis="practice", category=category,
+        source=(f"NEMO practice: Dunkerley's combination of the pipe span and bracket frequencies, at least "
+                f"{job.frequency_margin * 100:.0f}% from every excitation"),
+        explanation=(f"The span check assumes the brackets do not move. A bracket bends a little under the pipe, which "
+                     f"lowers the frequency of the whole run from {f_n:.1f} Hz to {f_c:.1f} Hz. Nearest excitation: "
+                     f"{nearest[0].lower()}, {nearest[1]:.1f} Hz."),
+        details={"bracket_hz": f_bracket, "combined_hz": f_c, "stiffness_n_per_mm": k_n_per_m / 1000.0},
+    )
+    steps = (
+        Step("Bracket stiffness under the pipe", "k", "k = F_z / δ", f"k = {num(loads.down_n, 0)} N / {num(deflection_mm, 4)} mm",
+             k_n_per_m / 1e6, "kN/mm"),
+        Step("Pipe mass on one bracket", "m", "m = W / g", f"m = {num(loads.static_n, 0)} N / 9.807", mass_kg, "kg"),
+        Step("Bracket frequency", "f_b", "f_b = (1 / 2π) √(k / m)", f"f_b = √({num(k_n_per_m, 0)} / {num(mass_kg, 1)}) / 2π", f_bracket, "Hz"),
+        Step("Pipe span on rigid supports", "f_n", "from the span check", f"f_n = {num(f_n)} Hz", f_n, "Hz"),
+        Step("Pipe on its brackets", "f", "1/f^2 = 1/f_n^2 + 1/f_b^2", f"f = 1 / √(1/{num(f_n)}² + 1/{num(f_bracket)}²)", f_c, "Hz",
+             note="Dunkerley's method. It errs low, so it is on the safe side for frequencies above the excitations."),
+        Step("Separation", "Δ", "Δ = |f − f_e| / f_e", f"Δ = |{num(f_c)} − {num(nearest[1])}| / {num(nearest[1])}", separation * 100, "%",
+             note=f"Must be at least {num(job.frequency_margin * 100, 0)}%."),
+    )
+    return check, steps
 
 
 def _span_checks(job: BracketJob, span: SpanResult) -> list[CheckResult]:

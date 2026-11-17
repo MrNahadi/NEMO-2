@@ -619,7 +619,8 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
     story.append(verdict)
     story.append(Spacer(1, 5 * mm))
     summary_rows = [
-        ("Load lifted", f"{n(lift['lifted_mass_kg'], 0)} kg on {lift['lift_points']} padeyes, slings at {lift['sling_angle_deg']:g}°"),
+        ("Load lifted", f"{n(lift['lifted_mass_kg'], 0)} kg on {lift['lift_points']} padeyes, slings at {lift['sling_angle_deg']:g}°"
+         + (f", {lift['out_of_plane_angle_deg']:g}° to the plate seen from above" if lift.get("out_of_plane_angle_deg") else "")),
         ("Sling force on one padeye", f"{kn(loads['sling_force_n'])} ({n(loads['sling_force_t'], 2)} t)"),
         ("Shackle", shackle["label"]),
         ("Main plate", f"{design.main_thickness_mm:g} mm {material['name']}"),
@@ -789,7 +790,10 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
             ("Elements", "Quadratic tetrahedra (10-node), linear elastic, isotropic"),
             ("Material", f"E = {n(material['elastic_modulus_gpa'], 0)} GPa, ν = 0.30"),
             ("Support", "Base face fixed in all directions (welded to rigid structure)"),
-            ("Pin load", f"Cosine pressure on the half of the hole facing the sling, scaled to F = {kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}°"),
+            ("Pin load", f"Cosine pressure on the half of the hole facing the sling, scaled to F = {kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}°"
+             if not lift.get("out_of_plane_angle_deg") else
+             f"Cosine pressure on the half of the hole facing the sling, scaled to the in-plane part of F, "
+             f"{kn(math.hypot(loads['horizontal_n'], loads['vertical_n']))}"),
             ("Side load", f"Same distribution, scaled to Q = {kn(loads['side_n'])} through the plate"),
             ("Solver", "scikit-fem assembly; multigrid-preconditioned conjugate gradients, direct solver for small models"),
         ], s))
@@ -944,6 +948,7 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
         ("Lifted mass", f"{n(lift['lifted_mass_kg'], 0)} kg"),
         ("Lifting points / carrying", f"{lift['lift_points']} / {lift['points_carrying'] or lift['lift_points']}"),
         ("Sling angle", f"{lift['sling_angle_deg']:g}°"),
+        ("Angle between sling and plate, from above", f"{lift.get('out_of_plane_angle_deg', 0.0):g}°"),
         ("Dynamic factor", n(lift["dynamic_factor"], 2)),
         ("Sideways allowance", f"{lift['side_load_fraction'] * 100:g}%"),
         ("Material", job["material_id"]),

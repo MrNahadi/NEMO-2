@@ -40,6 +40,12 @@ a support), the friction between pipe and bracket, and the U-bolt material.
 - **Largest bracket deflection** under the design load.
 - **Design rules**: AISC 360-16 (allowable strength design). ASME BTH-1 is for
   lifting devices, so it is not used for pipe supports.
+- **Advanced settings**: **Allow for the bracket bending in the vibration
+  check** is on by default and needs no input. The span check treats the
+  brackets as rigid; a real bracket bends a little under the pipe, which lowers
+  the frequency of the whole run. NEMO combines the two by Dunkerley's method
+  and checks the result against the same excitations. It matters most for
+  large pipes on long brackets.
 
 ## What NEMO works out
 
@@ -68,6 +74,7 @@ a support), the friction between pipe and bracket, and the U-bolt material.
 | Shear in the arm | The vertical force travelling back to the bulkhead. |
 | Welds to the bulkhead | All the welds at the bulkhead as one group, with bending and shear combined. |
 | Knee-to-seat welds | The welds that make the knees and the seat work as one beam. |
+| Pipe on its brackets clear of vibration | The pipe span frequency lowered for the bracket's own flexibility. If this fails while the span check passes, a stiffer bracket fixes it, and NEMO's search makes the bracket stiffer by itself. |
 | Seat plate between the knees | The seat spanning between the knees under the pipe or a U-bolt leg. |
 | U-bolt legs | Tension and shear in each leg, combined. |
 | Bracket deflection | How far the bracket drops under the pipe. |

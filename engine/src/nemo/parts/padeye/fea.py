@@ -5,7 +5,8 @@ Model (matches the Fusion cross-check study NEMO prints):
 * Support: the base face (z = 0) fully fixed, as if welded to rigid structure.
 * Pin load: the shackle pin presses on the half of the hole facing the sling,
   spread as a cosine (highest in line with the sling, zero at 90 degrees). It
-  adds up exactly to the sling force, in the sling direction.
+  adds up exactly to the in-plane part of the sling force (the whole sling
+  force when the padeye is lined up with its sling).
 * Side load: the sideways force, spread the same way over the same surface.
 * Material: linear elastic. Stress is reported as von Mises.
 
@@ -112,9 +113,11 @@ def analyse_padeye(
     t_half = design.total_thickness_mm / 2.0
     head_reach = design.head_radius_mm + 1.0
 
-    angle = math.radians(loads.sling_angle_deg)
-    direction = np.array([math.cos(angle), 0.0, math.sin(angle)])
-    bearing_force = loads.sling_force_n * direction
+    # In-plane part of the sling force. With an oblique sling (second angle beta) it is F cos(gamma), and the
+    # sideways part goes in side_force; with the padeye lined up it is the whole sling force.
+    in_plane = np.array([loads.horizontal_n, 0.0, loads.vertical_n])
+    direction = in_plane / np.linalg.norm(in_plane)
+    bearing_force = in_plane
     side_force = np.array([0.0, loads.side_n, 0.0])
 
     def bearing_shape(x: np.ndarray) -> np.ndarray:

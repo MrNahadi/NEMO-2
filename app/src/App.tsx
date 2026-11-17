@@ -2,6 +2,7 @@ import { Moon, ShieldCheck, Sun } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "./api";
 import { FusionLight, FusionProvider } from "./components/Fusion";
+import { Logo } from "./components/Logo";
 import { Banner } from "./components/ui";
 import { Assumptions } from "./screens/Assumptions";
 import { DescribeLift } from "./screens/DescribeLift";
@@ -166,7 +167,7 @@ export function App() {
     <div className="shell">
       <header className="topbar">
         <button className="brand" onClick={() => setScreen({ name: "home" })} aria-label="NEMO home">
-          <span className="brand-mark">N</span> NEMO
+          <span className="brand-mark"><Logo /></span> NEMO
         </button>
         <div className="topbar-meta">
           {project && !["home", "new", "verification"].includes(screen.name) && <span>{project.name}</span>}

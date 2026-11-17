@@ -49,7 +49,8 @@ h1, h2, h3, p { margin: 0; }
 .shell { min-height: 100%; display: flex; flex-direction: column; padding: var(--s-1); gap: var(--s-1); }
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: var(--s-1) var(--s-2); min-height: 48px; }
 .brand { display: flex; align-items: center; gap: var(--s-1); font-weight: 600; letter-spacing: var(--tracking-heading); background: none; border: 0; padding: 0; cursor: pointer; }
-.brand-mark { width: 28px; height: 28px; border-radius: var(--radius-lg); background: var(--color-inverted-solid); color: var(--color-on-inverted-foreground); display: grid; place-items: center; font-size: 13px; font-weight: 600; }
+.brand-mark { width: 28px; height: 28px; border-radius: var(--radius-lg); background: var(--color-inverted-solid); color: var(--color-on-inverted-foreground); display: grid; place-items: center; flex: none; }
+.brand-mark svg { display: block; width: 20px; height: 20px; }
 .topbar-meta { color: var(--color-secondary-foreground); font-size: var(--text-caption); display: flex; gap: var(--s-2); align-items: center; }
 
 .panel {

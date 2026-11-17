@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
 export interface MenuItem {
@@ -127,28 +127,41 @@ export function MoreMenu({
   );
 }
 
-/** Modal dialog. Focus moves into it; Escape or the overlay closes it. */
+/** Geist Modal. Focus moves into it; Escape, the close button or the overlay closes it. */
 export function Dialog({
   title,
+  description,
   children,
   actions,
   onClose,
+  wide,
+  initialFocus,
 }: {
   title: string;
+  description?: ReactNode;
   children: ReactNode;
   actions: ReactNode;
   onClose: () => void;
+  /** 640 px instead of 540 px. */
+  wide?: boolean;
+  /** CSS selector of the element to focus first (default: the first input, else the primary button). */
+  initialFocus?: string;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const descId = useId();
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const first = box.current?.querySelector<HTMLElement>("input, button.btn-primary, button.btn-danger, button");
+    const first =
+      (initialFocus ? box.current?.querySelector<HTMLElement>(initialFocus) : null) ??
+      box.current?.querySelector<HTMLElement>(".dialog-body input, .dialog-actions button.btn-primary, .dialog-actions button.btn-danger, .dialog-actions button");
     first?.focus();
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "Tab" && box.current) {
-        const focusable = [...box.current.querySelectorAll<HTMLElement>("input, button:not([disabled])")];
+        const focusable = [...box.current.querySelectorAll<HTMLElement>("input:not([disabled]), button:not([disabled]), a[href], summary")].filter(
+          (el) => !(el instanceof HTMLInputElement && el.type === "radio" && !el.checked),
+        );
         const firstEl = focusable[0];
         const lastEl = focusable[focusable.length - 1];
         if (e.shiftKey && document.activeElement === firstEl) {
@@ -165,13 +178,31 @@ export function Dialog({
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose]);
   return (
     <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} ref={box}>
-        <h2 id={titleId} className="dialog-title">
-          {title}
-        </h2>
+      <div
+        className={`dialog${wide ? " wide" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descId : undefined}
+        ref={box}
+      >
+        <div className="dialog-head">
+          <h2 id={titleId} className="dialog-title">
+            {title}
+          </h2>
+          {description && (
+            <p id={descId} className="dialog-description">
+              {description}
+            </p>
+          )}
+          <button type="button" className="icon-btn dialog-close" aria-label="Close" onClick={onClose}>
+            <X aria-hidden />
+          </button>
+        </div>
         <div className="dialog-body">{children}</div>
         <div className="dialog-actions">{actions}</div>
       </div>

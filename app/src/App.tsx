@@ -1,9 +1,10 @@
-import { FolderClosed, Moon, Plus, ShieldCheck, Sun } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Loader2, Moon, Sun } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "./api";
 import { FusionLight, FusionProvider } from "./components/Fusion";
 import { Logo } from "./components/Logo";
-import { Banner } from "./components/ui";
+import { Page } from "./components/Page";
+import { Note, Skeleton, Tooltip } from "./components/ui";
 import { Assumptions } from "./screens/Assumptions";
 import { DescribeLift } from "./screens/DescribeLift";
 import { Home } from "./screens/Home";
@@ -13,6 +14,7 @@ import { Results } from "./screens/Results";
 import { Running } from "./screens/Running";
 import { Verification } from "./screens/Verification";
 import type { Job, PartId, Project, Reference } from "./types";
+import { isValid } from "./validate";
 
 type Screen =
   | { name: "home" }
@@ -21,6 +23,7 @@ type Screen =
   | { name: "assumptions" }
   | { name: "running"; runId: string }
   | { name: "results" }
+  | { name: "runlog" }
   | { name: "verification" };
 
 export function App() {
@@ -43,8 +46,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    document.querySelector(".panel")?.scrollTo(0, 0);
+    if (screen.name !== "new") window.scrollTo(0, 0);
   }, [screen.name]);
 
   const openProject = useCallback(
@@ -93,16 +95,30 @@ export function App() {
   let body: React.ReactNode = null;
   if (fatal) {
     body = (
-      <div className="page page-narrow">
-        <Banner kind="error">{fatal}</Banner>
-      </div>
+      <Page>
+        <div className="page-header" />
+        <Note kind="error">{fatal}</Note>
+      </Page>
     );
   } else if (!reference) {
-    body = <div className="page page-narrow muted">Starting NEMO…</div>;
-  } else if (screen.name === "home") {
-    body = <Home onNew={() => setScreen({ name: "new" })} onOpen={openProject} />;
-  } else if (screen.name === "new") {
-    body = <NewDesign onCreated={openProject} onCancel={() => setScreen({ name: "home" })} />;
+    body = (
+      <Page>
+        <div className="page-header" aria-busy="true" aria-label="Starting NEMO">
+          <div className="stack gap-2">
+            <Skeleton width={160} height={32} />
+            <Skeleton width={360} height={20} />
+          </div>
+        </div>
+        <Skeleton height={240} radius={12} />
+      </Page>
+    );
+  } else if (screen.name === "home" || screen.name === "new") {
+    body = (
+      <>
+        <Home onNew={() => setScreen({ name: "new" })} onOpen={openProject} />
+        {screen.name === "new" && <NewDesign onCreated={openProject} onCancel={() => setScreen({ name: "home" })} />}
+      </>
+    );
   } else if (project && job && job.part === "pipe-bracket" && (screen.name === "describe" || screen.name === "assumptions")) {
     body = screen.name === "describe" ? (
       <DescribeBracket job={job} reference={reference} onChange={setJob}
@@ -158,83 +174,141 @@ export function App() {
     );
   } else if (screen.name === "verification") {
     body = <Verification />;
-  } else if (project && screen.name === "results" && project.results) {
-    body = <Results project={project} onEdit={() => setScreen({ name: "describe" })} onRunAgain={startRun} />;
+  } else if (project && (screen.name === "results" || screen.name === "runlog") && project.results) {
+    body = (
+      <Results
+        project={project}
+        view={screen.name === "runlog" ? "log" : "results"}
+        onEdit={() => setScreen({ name: "describe" })}
+        onRunAgain={startRun}
+        onShowLog={() => setScreen({ name: "runlog" })}
+      />
+    );
   }
 
   const inDesign = !!project && !["home", "new", "verification"].includes(screen.name);
-  const stepIndex = screen.name === "describe" ? 0 : screen.name === "assumptions" ? 1 : 2;
-  const steps = ["Describe", "Assumptions", screen.name === "running" ? "Running" : "Results"];
-  const crumbs: string[] =
-    screen.name === "new" ? ["New design"]
-    : screen.name === "verification" ? ["Verification"]
-    : inDesign && project ? [project.name, steps[stepIndex]]
-    : [];
   const go = (s: Screen) => setScreen(s);
+  const running = screen.name === "running";
+  const hasResults = !!project?.results;
+  const answered = !!job && (job.part === "padeye" ? isValid(job) : job.plate_thicknesses_mm.length > 0);
+  const whileRunning = "Available when the run finishes.";
+  const tabs: { key: string; label: string; current: boolean; enabled: boolean; why: string; busy?: boolean; open: () => void }[] = [
+    {
+      key: "describe", label: "Describe", current: screen.name === "describe", enabled: !running, why: whileRunning,
+      open: () => go({ name: "describe" }),
+    },
+    {
+      key: "assumptions", label: "Assumptions", current: screen.name === "assumptions", enabled: !running && answered,
+      why: running ? whileRunning : "Answer the questions on Describe first.",
+      open: () => {
+        if (screen.name === "describe") saveDraft();
+        go({ name: "assumptions" });
+      },
+    },
+    {
+      key: "results", label: "Results", current: screen.name === "results" || running, enabled: hasResults || running, busy: running,
+      why: "Results appear after you press Find designs.",
+      open: () => go({ name: "results" }),
+    },
+    {
+      key: "runlog", label: "Run log", current: screen.name === "runlog", enabled: hasResults && !running,
+      why: running ? whileRunning : "The run log appears after a run.",
+      open: () => go({ name: "runlog" }),
+    },
+  ];
+
+  useEffect(() => {
+    const where = screen.name === "verification" ? "Verification" : inDesign && project ? project.name : "Designs";
+    document.title = `${where} - NEMO`;
+  }, [screen.name, inDesign, project]);
 
   return (
     <FusionProvider>
-    <div className="app">
-      <aside className="sidebar" aria-label="NEMO">
-        <div className="sidebar-inner">
-        <button className="brand" onClick={() => go({ name: "home" })} aria-label="NEMO home">
-          <span className="brand-mark"><Logo size={16} /></span>
-          <span className="brand-name">NEMO</span>
-        </button>
-        <nav className="side-nav" aria-label="Main">
-          <button className="side-item side-new" onClick={() => go({ name: "new" })} aria-current={screen.name === "new" ? "page" : undefined}>
-            <Plus aria-hidden /> <span>New design</span>
-          </button>
-          <button className="side-item" onClick={() => go({ name: "home" })} aria-current={screen.name === "home" ? "page" : undefined}>
-            <FolderClosed aria-hidden /> <span>Designs</span>
-          </button>
-          <button className="side-item" onClick={() => go({ name: "verification" })} aria-current={screen.name === "verification" ? "page" : undefined}>
-            <ShieldCheck aria-hidden /> <span>Verification</span>
-          </button>
-        </nav>
-        {inDesign && project && (
-          <div className="side-group">
-            <div className="side-label">Open design</div>
-            <div className="side-project" title={project.name}>{project.name}</div>
-            <ol className="side-steps" aria-label="Steps for this design">
-              {steps.map((label, i) => (
-                <li key={label} className={i < stepIndex ? "done" : i === stepIndex ? "current" : ""} aria-current={i === stepIndex ? "step" : undefined}>
-                  <span className="side-step-mark" aria-hidden>{i + 1}</span>
-                  {label}
-                </li>
-              ))}
-            </ol>
+      <div className={inDesign ? "app has-tabs" : "app"}>
+        <header className="app-header">
+          <div className="frame app-header-bar">
+            <nav className="crumbs" aria-label="Breadcrumb">
+              <button className="brand" onClick={() => go({ name: "home" })} aria-label="NEMO, go to Designs">
+                <span className="brand-mark" aria-hidden>
+                  <Logo size={16} />
+                </span>
+                <span>NEMO</span>
+              </button>
+              <Slash />
+              {screen.name === "verification" ? (
+                <span className="crumb" aria-current="page">Verification</span>
+              ) : inDesign && project ? (
+                <>
+                  <button className="crumb" onClick={() => go({ name: "home" })}>Designs</button>
+                  <Slash />
+                  <span className="crumb" aria-current="page" title={project.name}>
+                    <span className="crumb-text">{project.name}</span>
+                  </span>
+                </>
+              ) : (
+                <span className="crumb" aria-current="page">Designs</span>
+              )}
+            </nav>
+            <div className="header-actions">
+              <FusionLight />
+              <button
+                className="btn btn-ghost btn-sm nav-link"
+                onClick={() => go({ name: "verification" })}
+                aria-current={screen.name === "verification" ? "page" : undefined}
+              >
+                Verification
+              </button>
+              <Tooltip text={theme === "light" ? "Dark theme" : "Light theme"} side="bottom">
+                <button
+                  className="icon-btn"
+                  aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+                  onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                >
+                  {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
+                </button>
+              </Tooltip>
+            </div>
           </div>
-        )}
-        <div className="side-foot">
-          <button
-            className="side-item"
-            aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
-            <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
-          </button>
-        </div>
-        </div>
-      </aside>
-      <div className="main">
-        <header className="main-header">
-          <nav className="crumbs" aria-label="Where you are">
-            <button className="crumb" onClick={() => go({ name: "home" })} aria-current={crumbs.length === 0 ? "page" : undefined}>Designs</button>
-            {crumbs.map((c, i) => (
-              <span key={i} className={i === crumbs.length - 1 ? "crumb current" : "crumb"} aria-current={i === crumbs.length - 1 ? "page" : undefined}>
-                <span className="crumb-sep" aria-hidden>/</span>
-                <span className="crumb-text">{c}</span>
-              </span>
-            ))}
-          </nav>
-          <FusionLight />
+          {inDesign && (
+            <div className="frame">
+              <nav className="app-tabs" aria-label="Design steps">
+                {tabs.map((t) => {
+                  const button = (
+                    <button
+                      className="tab"
+                      aria-current={t.current ? "page" : undefined}
+                      aria-disabled={!t.enabled || undefined}
+                      onClick={() => t.enabled && !t.current && t.open()}
+                    >
+                      {t.busy && <Loader2 className="spin" aria-hidden />}
+                      <span>{t.label}</span>
+                      {t.busy && <span className="sr-only">(running)</span>}
+                    </button>
+                  );
+                  return t.enabled ? (
+                    <Fragment key={t.key}>{button}</Fragment>
+                  ) : (
+                    <Tooltip key={t.key} text={t.why} side="bottom">
+                      {button}
+                    </Tooltip>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
         </header>
-        <main className="panel">{body}</main>
+        <main>{body}</main>
       </div>
-    </div>
     </FusionProvider>
+  );
+}
+
+/** Geist breadcrumb separator: a thin slanted slash. */
+function Slash() {
+  return (
+    <svg className="crumb-sep" viewBox="0 0 16 24" aria-hidden focusable="false">
+      <path d="M11 4 5 20" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" fill="none" />
+    </svg>
   );
 }
 

@@ -75,7 +75,7 @@ export function FusionLight() {
   const state = !status ? "unknown" : status.connected ? "connected" : status.installed ? "waiting" : "missing";
   const label = { unknown: "Fusion", connected: "Fusion connected", waiting: "Fusion not running", missing: "Connect to Fusion" }[state];
   return (
-    <button className={`btn btn-ghost nav-btn fusion-light fusion-${state}`} onClick={openSetup} aria-label={`${label}. Open Fusion connector settings.`}>
+    <button className={`btn btn-ghost btn-sm fusion-light fusion-${state}`} onClick={openSetup} aria-label={`${label}. Open Fusion connector settings.`}>
       <span className="fusion-dot" aria-hidden />
       <span className="fusion-label">{label}</span>
     </button>
@@ -139,10 +139,11 @@ function FusionSetup({ status, onClose, onChanged }: { status: FusionStatus | nu
   return (
     <Dialog
       title="Fusion connector"
+      description="Fusion is optional. With the connector, NEMO designs open in Fusion as parametric models you can edit, and Fusion can send edited dimensions back to NEMO to be checked."
       onClose={stableClose}
       actions={
         <>
-          <button className="btn btn-ghost" onClick={stableClose}>
+          <button className="btn" onClick={stableClose}>
             Close
           </button>
           <button className="btn btn-primary" onClick={install} disabled={busy}>
@@ -152,16 +153,13 @@ function FusionSetup({ status, onClose, onChanged }: { status: FusionStatus | nu
         </>
       }
     >
-      <p className="muted">
-        Fusion is optional. With the connector, NEMO designs open in Fusion as parametric models you can edit, and Fusion can send edited
-        dimensions back to NEMO to be checked.
-      </p>
       <ol className="setup-steps">
         {steps.map((s, i) => (
           <li key={s.title} className={s.done ? "done" : ""}>
             <span className="setup-mark" aria-hidden>
               {s.done ? <CheckCircle2 /> : i + 1}
             </span>
+            <span className="sr-only">{s.done ? "Done: " : `Step ${i + 1}: `}</span>
             <span className="stack">
               <span className="setup-title">{s.title}</span>
               <span className="caption">{s.text}</span>
@@ -177,7 +175,7 @@ function FusionSetup({ status, onClose, onChanged }: { status: FusionStatus | nu
             {[...status.activity].reverse().map((a, i) => (
               <li key={i}>
                 <span>{a.message}</span>
-                <span className="caption">{new Date(a.at).toLocaleTimeString()}</span>
+                <span className="caption mono">{new Date(a.at).toLocaleTimeString()}</span>
               </li>
             ))}
           </ul>

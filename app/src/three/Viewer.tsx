@@ -49,42 +49,53 @@ function FitCamera({ size, centreY }: { size: number; centreY: number }) {
   return null;
 }
 
+/** The 3D view as one bordered panel: canvas, an optional toolbar (top left), an optional legend (top right)
+ *  and an optional readout strip attached to the bottom edge. Fills its container's height. */
 export function Viewer({
   size,
   centreY,
   children,
   overlay,
   top,
+  toolbar,
 }: {
   size: number;
   centreY: number;
   children: ReactNode;
+  /** Readouts shown in a strip along the bottom edge (children are .viewer-chip cells). */
   overlay?: ReactNode;
+  /** Legend or status, top right. */
   top?: ReactNode;
+  /** Controls such as the Model / Mesh / Stress switch, top left. */
+  toolbar?: ReactNode;
 }) {
   const dark = useDarkTheme();
   const grid = Math.max(50, Math.pow(10, Math.ceil(Math.log10(size))) / 10);
+  // Geist background-200 behind the part; grid lines from the gray scale; the floor only catches the shadow.
   const colours = dark
-    ? { bg: "#1a1b1e", floor: "#1f2023", major: "#34363b", minor: "#26282c" }
-    : { bg: "#f1f2f4", floor: "#e7e9ec", major: "#cdd1d7", minor: "#dcdfe3" };
+    ? { bg: "#000000", major: "#2E2E2E", minor: "#1A1A1A", shadow: 0.5 }
+    : { bg: "#FAFAFA", major: "#E3E3E3", minor: "#EFEFEF", shadow: 0.14 };
   return (
-    <div className="viewer" aria-label="3D view of the part. Drag to turn it, scroll to zoom.">
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 35, position: [size * 1.1, size * 0.9, size * 1.5] }}>
-        <color attach="background" args={[colours.bg]} />
-        <hemisphereLight args={["#ffffff", dark ? "#3a4048" : "#c9ced6", dark ? 0.9 : 1.1]} />
-        <directionalLight position={[size, size * 2, size * 1.5]} intensity={1.6} castShadow />
-        <directionalLight position={[-size, size, -size]} intensity={0.5} />
-        {children}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.1, 0]} receiveShadow>
-          <planeGeometry args={[size * 6, size * 6]} />
-          <meshStandardMaterial color={colours.floor} roughness={0.95} />
-        </mesh>
-        <gridHelper key={dark ? "d" : "l"} args={[grid * 40, 40, colours.major, colours.minor]} position={[0, -3, 0]} />
-        <OrbitControls makeDefault enablePan={false} minDistance={size * 0.4} maxDistance={size * 8} />
-        <FitCamera size={size} centreY={centreY} />
-      </Canvas>
-      {top && <div className="viewer-top">{top}</div>}
-      {overlay && <div className="viewer-overlay">{overlay}</div>}
+    <div className="viewer-panel">
+      <div className="viewer" aria-label="3D view of the part. Drag to turn it, scroll to zoom.">
+        <Canvas shadows dpr={[1, 2]} camera={{ fov: 35, position: [size * 1.1, size * 0.9, size * 1.5] }}>
+          <color attach="background" args={[colours.bg]} />
+          <hemisphereLight args={["#ffffff", dark ? "#3a3a3a" : "#d4d4d4", dark ? 0.9 : 1.1]} />
+          <directionalLight position={[size, size * 2, size * 1.5]} intensity={1.6} castShadow />
+          <directionalLight position={[-size, size, -size]} intensity={0.5} />
+          {children}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.1, 0]} receiveShadow>
+            <planeGeometry args={[size * 6, size * 6]} />
+            <shadowMaterial transparent opacity={colours.shadow} />
+          </mesh>
+          <gridHelper key={dark ? "d" : "l"} args={[grid * 40, 40, colours.major, colours.minor]} position={[0, -3, 0]} />
+          <OrbitControls makeDefault enablePan={false} minDistance={size * 0.4} maxDistance={size * 8} />
+          <FitCamera size={size} centreY={centreY} />
+        </Canvas>
+        {toolbar && <div className="viewer-toolbar">{toolbar}</div>}
+        {top && <div className="viewer-top">{top}</div>}
+      </div>
+      {overlay && <div className="viewer-readouts">{overlay}</div>}
     </div>
   );
 }

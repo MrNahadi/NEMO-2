@@ -9,8 +9,9 @@ import type { PadeyeDesign } from "../types";
 const STEEL = new THREE.Color("#b9bec6");
 const CHEEK = new THREE.Color("#9aa3ad");
 const WELD = new THREE.Color("#6f7680");
-const SHACKLE = new THREE.Color("#d9483b");
-const ACCENT = new THREE.Color("#0090ff");
+const SHACKLE = new THREE.Color("#4a4f57"); // galvanised hardware: neutral, so red stays a status colour
+const ACCENT = new THREE.Color("#0070f7"); // Geist blue-700: the region the selected check is about
+const FORCE = new THREE.Color("#8f8f8f"); // Geist gray-700: the sling pull direction
 
 type Dims = PadeyeDesign;
 const KEYS: (keyof Dims)[] = [
@@ -167,7 +168,7 @@ export function PadeyeModel({
       <CheckRegion design={d} pin={pin} angle={angle} check={highlight} />
       <mesh position={[0, -1.5, 0]}>
         <boxGeometry args={[d.base_length_mm + 40, 3, Math.max(d.main_thickness_mm * 6, 40)]} />
-        <meshStandardMaterial color="#8a929c" roughness={0.9} />
+        <meshStandardMaterial color="#a3a9b0" roughness={0.9} />
       </mesh>
       <mesh geometry={main} castShadow receiveShadow>
         <meshStandardMaterial color={STEEL} metalness={0.55} roughness={0.42} />
@@ -199,11 +200,11 @@ export function PadeyeModel({
           </mesh>
           <mesh position={[bowLength * 1.4, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
             <cylinderGeometry args={[pin * 0.12, pin * 0.12, bowLength * 1.6, 8]} />
-            <meshBasicMaterial color={ACCENT} transparent opacity={0.55} />
+            <meshBasicMaterial color={FORCE} transparent opacity={0.8} />
           </mesh>
           <mesh position={[bowLength * 2.3, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
             <coneGeometry args={[pin * 0.4, pin * 1.1, 16]} />
-            <meshBasicMaterial color={ACCENT} />
+            <meshBasicMaterial color={FORCE} />
           </mesh>
         </group>
       )}

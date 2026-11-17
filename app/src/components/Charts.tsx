@@ -5,6 +5,10 @@ function cssVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
 }
 
+const MONO = "'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace";
+const tickFont = `12px ${MONO}`;
+const strongFont = `600 12px ${MONO}`;
+
 const fmt = (v: number, d = 1) => v.toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
 
 /** Every design the optimizer tried: plate mass against the highest check use. */
@@ -36,28 +40,32 @@ export function DesignSpaceChart({
       const ctx = c.getContext("2d")!;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
-      const ink = cssVar("--gauge");
-      const muted = cssVar("--text-3");
-      const rule = cssVar("--line");
-      const accent = cssVar("--accent");
-      const danger = cssVar("--fail");
-      const tickFont = "12px 'Archivo Variable', 'Archivo', system-ui, sans-serif";
-      const strongFont = "600 12px 'Archivo Variable', 'Archivo', system-ui, sans-serif";
+      // Geist tokens: points gray, failures red, the chosen design blue; labels mono gray-900, gridlines gray-400.
+      const ink = cssVar("--ds-gray-700");
+      const fail = cssVar("--ds-red-700");
+      const failText = cssVar("--ds-red-900");
+      const rule = cssVar("--ds-gray-400");
+      const label = cssVar("--ds-gray-900");
+      const accent = cssVar("--ds-blue-700");
       const pad = { l: 68, r: 16, t: 14, b: 40 };
       const plotW = width - pad.l - pad.r;
       const plotH = height - pad.t - pad.b;
       const masses = points.map((p) => p[0]).sort((a, b) => a - b);
-      const xMax = Math.max(masses.length ? masses[Math.floor(masses.length * 0.97)] * 1.15 : 1, ...(chosen ?? []).map((c) => c.mass * 1.3), 0.1);
-      const yMax = Math.max(Math.ceil((limit * 2) / 0.5) * 0.5, 1.5);
+      const xRaw = Math.max(masses.length ? masses[Math.floor(masses.length * 0.97)] * 1.15 : 1, ...(chosen ?? []).map((c) => c.mass * 1.3), 0.1);
+      // Autoscale Y so points are not squashed: 0 to 120% when nothing exceeds the limit.
+      const maxUse = Math.max(limit, ...points.map((p) => p[1]), ...(chosen ?? []).map((c) => c.use), 0);
+      const yAxis = niceAxis(maxUse <= 1 ? 1.2 : maxUse * 1.1);
+      const xAxis = niceAxis(xRaw);
+      const yMax = yAxis.max;
+      const xMax = xAxis.max;
       const X = (m: number) => pad.l + (m / xMax) * plotW;
       const Y = (u: number) => pad.t + plotH - (Math.min(u, yMax) / yMax) * plotH;
 
       ctx.font = tickFont;
-      ctx.fillStyle = muted;
+      ctx.fillStyle = label;
       ctx.strokeStyle = rule;
       ctx.lineWidth = 1;
-      for (let i = 0; i <= 4; i++) {
-        const u = (yMax * i) / 4;
+      for (const u of yAxis.ticks) {
         const y = Math.round(Y(u)) + 0.5;
         ctx.beginPath();
         ctx.moveTo(pad.l, y);
@@ -66,10 +74,9 @@ export function DesignSpaceChart({
         ctx.textAlign = "right";
         ctx.fillText(`${Math.round(u * 100)}%`, pad.l - 8, y + 4);
       }
-      for (let i = 0; i <= 4; i++) {
-        const m = (xMax * i) / 4;
+      for (const m of xAxis.ticks) {
         ctx.textAlign = "center";
-        ctx.fillText(m < 10 ? fmt(m, 2) : fmt(m, 0), X(m), height - pad.b + 18);
+        ctx.fillText(fmt(m, xAxis.digits), X(m), height - pad.b + 18);
       }
       ctx.fillText("Plate mass (kg)", pad.l + plotW / 2, height - 6);
       ctx.save();
@@ -81,19 +88,19 @@ export function DesignSpaceChart({
 
       for (const [m, u, ok] of points) {
         if (m > xMax) continue;
-        ctx.fillStyle = ok ? ink : muted;
-        ctx.globalAlpha = ok ? 0.85 : 0.45;
+        ctx.fillStyle = ok ? ink : fail;
+        ctx.globalAlpha = ok ? 0.85 : 0.7;
         ctx.fillRect(X(m) - 1.5, Y(u) - 1.5, 3, 3);
       }
       ctx.globalAlpha = 1;
-      ctx.strokeStyle = danger;
+      ctx.strokeStyle = fail;
       ctx.setLineDash([5, 4]);
       ctx.beginPath();
       ctx.moveTo(pad.l, Math.round(Y(limit)) + 0.5);
       ctx.lineTo(width - pad.r, Math.round(Y(limit)) + 0.5);
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = danger;
+      ctx.fillStyle = failText;
       ctx.font = strongFont;
       ctx.textAlign = "right";
       ctx.fillText(`Limit ${Math.round(limit * 100)}%`, width - pad.r, Y(limit) - 7);
@@ -131,9 +138,9 @@ export function DesignSpaceChart({
       aria-label={`Chart of ${points.length} designs tried, plate mass against highest check use, with the limit at ${Math.round(limit * 100)}%.`}>
       <canvas ref={canvas} />
       <div className="chart-legend">
-        <span><i className="dot dot-ink" /> Passes every check</span>
-        <span><i className="dot dot-muted" /> Fails a check</span>
-        {chosen?.length ? <span><i className="dot dot-accent" /> Design chosen</span> : null}
+        <span><i className="dot dot-pass" /> Passes every check</span>
+        <span><i className="dot dot-fail" /> Fails a check</span>
+        {chosen?.length ? <span><i className="dot dot-chosen" /> Design chosen</span> : null}
       </div>
     </div>
   );
@@ -254,7 +261,7 @@ export function ForceDiagram({
         </pattern>
       </defs>
       <rect x={ox - (span * s) / 2 - 20} y={oy} width={span * s + 40} height={10} fill="url(#hatch)" />
-      <line x1={ox - (span * s) / 2 - 20} x2={ox + (span * s) / 2 + 20} y1={oy} y2={oy} className="ground" />
+      <line x1={ox - (span * s) / 2 - 20} x2={ox + (span * s) / 2 + 40} y1={oy} y2={oy} className="ground" />
       <polygon points={outline.map(([x, y]) => P(x, y)).join(" ")} className="part" />
       <circle cx={cx} cy={cy} r={(holeDiameter / 2) * s} className="hole" />
       <line x1={cx} y1={cy} x2={ex} y2={cy} className="component" markerEnd="url(#arrow-muted)" />
@@ -335,4 +342,17 @@ export function PressureChart({ upper, lower, cavitation, height = 220 }: {
       <text x={(w + pad.l) / 2} y={height - 6} textAnchor="middle" className="tick">Along the chord, leading edge to trailing edge. Upper line: suction side</text>
     </svg>
   );
+}
+
+/** Round axis: a 1, 2, 2.5 or 5 x 10^n step giving about four intervals, the max rounded up to a step. */
+function niceAxis(max: number, count = 4): { max: number; ticks: number[]; digits: number } {
+  const raw = Math.max(max, 1e-9) / count;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const norm = raw / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+  const top = Math.ceil(max / step - 1e-9) * step;
+  const ticks: number[] = [];
+  for (let v = 0; v <= top + step / 2; v += step) ticks.push(Math.round(v / step) * step);
+  const digits = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9) + (norm > 2 && norm <= 2.5 ? 1 : 0));
+  return { max: top, ticks, digits };
 }

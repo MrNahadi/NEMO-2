@@ -5,9 +5,9 @@ import type { BracketDesign } from "../types";
 // Viewer axes: x out from the bulkhead (centred on the seat), y up, z along the pipe. 1 unit = 1 mm.
 const STEEL = new THREE.Color("#b9bec6");
 const KNEE = new THREE.Color("#9aa3ad");
-const PIPE = new THREE.Color("#5f8fd6");
-const BOLT = new THREE.Color("#d9483b");
-const BULKHEAD = new THREE.Color("#8a929c");
+const PIPE = new THREE.Color("#8d949c");
+const BOLT = new THREE.Color("#4a4f57");
+const BULKHEAD = new THREE.Color("#a3a9b0");
 
 export function bracketSize(d: BracketDesign): number {
   return Math.max(d.seat_length_mm * 1.8, (d.seat_thickness_mm + d.knee_depth_mm + d.pipe_od_mm) * 1.4, d.pipe_od_mm * 2.4, 160);

@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Loader2, XCircle } from "lucide-react";
+import { Check, Circle, Loader2, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { MeshModel } from "../three/MeshModel";
 import { Viewer } from "../three/Viewer";
@@ -115,21 +115,19 @@ export function stagesFrom(events: EngEvent[], finished: boolean, failed: boolea
   ];
 }
 
+/** Geist vertical step list: 16px status icon, title, one-line summary. Selected step = gray-alpha-100 fill. */
 export function StageList({ stages, selected, onSelect }: { stages: Stage[]; selected: StageKey; onSelect: (k: StageKey) => void }) {
   return (
-    <ol className="stages">
-      {stages.map((s, i) => (
+    <ol className="stage-list">
+      {stages.map((s) => (
         <li key={s.key}>
-          <button type="button" className={`stage stage-${s.state}`} aria-pressed={selected === s.key} onClick={() => onSelect(s.key)}>
-            <span className="stage-icon" aria-hidden>
-              {s.state === "done" ? <CheckCircle2 /> : s.state === "active" ? <Loader2 className="spin" /> : s.state === "failed" ? <XCircle /> : <Circle />}
+          <button type="button" className="stage-row" aria-pressed={selected === s.key} onClick={() => onSelect(s.key)}>
+            <span className={`stage-icon ${s.state}`} aria-hidden>
+              {s.state === "done" ? <Check /> : s.state === "active" ? <Loader2 className="spin" /> : s.state === "failed" ? <X /> : <Circle />}
             </span>
             <span className="stage-text">
-              <span className="stage-title">
-                <span className="stage-number">{i + 1}</span>
-                {s.title}
-              </span>
-              <span className="stage-summary">{s.summary}</span>
+              <span className="stage-title">{s.title}</span>
+              <span className="stage-summary" title={typeof s.summary === "string" ? s.summary : undefined}>{s.summary}</span>
             </span>
           </button>
         </li>
@@ -366,7 +364,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
         </p>
         {s.residuals.length > 1 ? <ResidualChart residuals={s.residuals} /> : <p className="muted">Solved directly in one step.</p>}
         <dl className="kv">
-          <dt>Design, mesh</dt><dd>{TARGET_NAMES[s.target]}, mesh {s.level}</dd>
+          <dt>Design, mesh</dt><dd className="kv-words">{TARGET_NAMES[s.target]}, mesh {s.level}</dd>
           <dt>Equations</dt><dd>{n0(s.equations)}</dd>
           <dt>Iterations</dt><dd>{s.iterations || 1}</dd>
           <dt>Final error, |K·u − f| / |f|</dt><dd>{s.relative_residual.toExponential(1)}</dd>
@@ -387,7 +385,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
   return (
     <div className="stack gap-3">
       <div>
-        <h3 className="view-heading">Does the answer depend on the mesh?</h3>
+        <h3 className="text-heading-14">Does the answer depend on the mesh?</h3>
         <p className="muted">
           {part === "padeye" ? "Peak stress near the hole" : "Peak stress"} on each mesh. It changed by <b>{n1(f.convergence_change * 100, 2)}%</b> between the two finest
           meshes; under 5% means the mesh is fine enough.
@@ -395,7 +393,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
         <ConvergenceChart levels={f.levels} />
       </div>
       <div>
-        <h3 className="view-heading">Do the support forces balance the load?</h3>
+        <h3 className="text-heading-14">Do the support forces balance the load?</h3>
         <div className="table-wrap">
           <table className="data">
             <thead><tr><th /><th className="r">Along the base</th><th className="r">Through the plate</th><th className="r">Up</th></tr></thead>
@@ -438,7 +436,7 @@ function MeshTable({ events }: { events: EngEvent[] }) {
 }
 
 function Waiting() {
-  return <p className="muted">This step has not started yet.</p>;
+  return <p className="muted">No numbers from this step yet. They appear here as soon as it starts working.</p>;
 }
 
 /** The stage the run is working on now, for the live view to follow. */

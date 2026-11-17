@@ -5,8 +5,8 @@ import type { FinDesign } from "../types";
 // Viewer axes: x along the chord (stock at x = 0), y up the span from the hull, z across the foil.
 const SKIN = new THREE.Color("#b9bec6");
 const INNER = new THREE.Color("#7f8894");
-const STOCK = new THREE.Color("#d9483b");
-const HULL = new THREE.Color("#8a929c");
+const STOCK = new THREE.Color("#4a4f57");
+const HULL = new THREE.Color("#a3a9b0");
 
 function halfThickness(x: number, t: number): number {
   return 5 * t * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4);

@@ -2,7 +2,8 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../api";
 import { activeStage, StageList, stagesFrom, StageView, type StageKey } from "../components/Engineering";
-import { Banner } from "../components/ui";
+import { Page, PageHeader } from "../components/Page";
+import { Note, Progress } from "../components/ui";
 import type { EngEvent, RunStatus } from "../types";
 
 export function Running({ runId, onDone, onBack, title }: { runId: string; onDone: () => void; onBack: () => void; title: string }) {
@@ -49,44 +50,60 @@ export function Running({ runId, onDone, onBack, title }: { runId: string; onDon
   const shown = pinned ?? current;
   const seconds = Math.round((now - started.current) / 1000);
   const shownStage = stages.find((s) => s.key === shown)!;
+  const doneCount = stages.filter((s) => s.state === "done").length;
+  const stateWord =
+    shownStage.state === "active" ? "Running now" : shownStage.state === "done" ? "Done" : shownStage.state === "failed" ? "Stopped" : "Not started";
 
   return (
-    <div className="page page-wide">
-      <div className="step-label">Step 3 of 3</div>
-      <div className="title-row">
-        <h1 className="title">{failed ? "No design found" : finished ? "Designs ready" : "Finding designs"}</h1>
-        <span className="elapsed" aria-live="off">{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}</span>
+    <Page>
+      <PageHeader
+        title={failed ? "No design found" : finished ? "Designs ready" : "Finding designs"}
+        description={`${title}. Each step shows the numbers NEMO is working with. Select a step to see its working.`}
+        actions={
+          <span className="run-elapsed text-label-16-mono" role="timer" aria-label="Elapsed time">
+            {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
+          </span>
+        }
+      />
+      <div className="run-progress">
+        <Progress value={doneCount} max={stages.length} label={`${doneCount} of ${stages.length} steps done`} tone={failed ? "red" : undefined} />
       </div>
-      <p className="lead">{title}. Each step below shows the numbers NEMO is working with. Select a step to see its working.</p>
 
       {(failed || error) && (
-        <div className="stack gap-2 mt-4">
-          <Banner kind="error">{status?.error ?? error}</Banner>
-          <div className="actions" style={{ marginTop: 0 }}>
-            <button className="btn btn-primary" onClick={onBack}>
+        <Note
+          kind="error"
+          className="run-fail"
+          action={
+            <button className="btn" onClick={onBack}>
               <ArrowLeft aria-hidden /> Change the answers
             </button>
-          </div>
-        </div>
+          }
+        >
+          {status?.error ?? error}
+        </Note>
       )}
 
-      <div className="run-grid">
-        <div className="stack gap-2 sticky">
+      <div className="workspace">
+        <div className="workspace-main">
           <StageList stages={stages} selected={shown} onSelect={(k) => setPinned(k === current && !finished ? null : k)} />
           {pinned && !finished && (
-            <button className="btn btn-ghost" onClick={() => setPinned(null)}>
+            <button className="btn btn-ghost btn-sm run-follow" onClick={() => setPinned(null)}>
               Follow the live step
             </button>
           )}
         </div>
-        <section className="live-panel run-live" aria-live="polite" aria-label={`${shownStage.title}: details`}>
-          <div className="live-head">
+        <aside
+          className="workspace-aside workspace-aside-scroll run-panel"
+          aria-live="polite"
+          aria-label={`${shownStage.title}: details`}
+        >
+          <div className="run-panel-head">
             <h2 className="section-title">{shownStage.title}</h2>
-            <span className="caption">{shownStage.state === "active" ? "Running now" : shownStage.state === "done" ? "Done" : shownStage.state === "failed" ? "Stopped" : "Not started"}</span>
+            <span className="caption">{stateWord}</span>
           </div>
           <StageView stage={shown} events={events} />
-        </section>
+        </aside>
       </div>
-    </div>
+    </Page>
   );
 }

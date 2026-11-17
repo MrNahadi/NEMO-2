@@ -1,61 +1,69 @@
-/* Screen styles owned by helper A: Home, New design, Verification, Running.
-   Tokens from tokens.css; shared classes from nemo.css; see DESIGN-NOTES.md. */
+/* Screen styles for helper a (round 2). Geist tokens (--ds-*) and shared classes from nemo.css; see DESIGN-NOTES.md.
+   Covers: Designs list (Home), New design modal, Verification. */
 
-/* ------------------------------------------------------------ Home */
-.project-row { flex-wrap: wrap; }
-.project-icon {
-  width: 32px; height: 32px; flex: none; border-radius: var(--r-sm);
-  background: var(--track); color: var(--text-2); display: grid; place-items: center;
+/* ================================================================ Designs (Home) */
+
+.home-search { width: 280px; flex: none; }
+.home-notices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+.designs-table .menu-h,
+.designs-table .menu-cell { width: 48px; }
+.designs-table td.part { font-size: 13px; color: var(--ds-gray-900); }
+.designs-table th.saved,
+.designs-table td.saved { text-align: right; }
+.designs-table td.saved { font-size: 13px; color: var(--ds-gray-900); font-variant-numeric: tabular-nums; }
+
+/* Name cell: 28 px part tile + label-14 (500) name, truncated with a title tooltip. */
+.design-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.part-tile {
+  width: 28px; height: 28px; display: grid; place-items: center; flex: none;
+  border-radius: var(--radius-small); box-shadow: var(--shadow-border);
+  background: var(--ds-background-100); color: var(--ds-gray-1000);
 }
-.project-icon svg { width: 17px; height: 17px; stroke-width: 1.75; }
-.project-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.project-badge { flex: none; margin-right: var(--sp-1); }
-@media (max-width: 520px) {
-  .project-row {
-    display: grid; align-items: center;
-    grid-template-columns: 32px minmax(0, 1fr) auto;
-    grid-template-areas: "icon text chevron" ". badge badge";
-    column-gap: var(--sp-3); row-gap: 4px;
-  }
-  .project-icon { grid-area: icon; }
-  .project-text { grid-area: text; }
-  .project-badge { grid-area: badge; justify-self: start; margin: 0; }
-  .project-row > svg { grid-area: chevron; }
+.part-tile svg { width: 16px; height: 16px; stroke-width: 1.75; }
+.design-name {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left;
+  font-size: 14px; font-weight: 500; color: var(--ds-gray-1000); border-radius: var(--radius-small);
+}
+.design-name:hover { text-decoration: underline; text-decoration-color: var(--ds-gray-alpha-500); text-underline-offset: 3px; }
+
+/* Quiet row when the search matches nothing. */
+.designs-empty td { height: auto; padding: 32px 16px; text-align: center; font-size: 13px; color: var(--ds-gray-900); }
+
+/* Right-aligned skeleton in the Saved column. */
+.sk-right { display: flex; justify-content: flex-end; }
+
+/* ================================================================ Verification */
+
+.v-progress { margin-bottom: 16px; }
+.v-error { margin-bottom: 16px; }
+
+.v-table th.result,
+.v-table td.result { width: 120px; }
+.v-table .v-chev { width: 28px; }
+.v-table td.name { white-space: normal; }
+
+/* Benchmark cell: title (label-14, 500) + one-line description clamped to two lines. */
+.v-bench {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; min-width: 0; text-align: left; border-radius: var(--radius-small);
+}
+.v-bench:disabled { cursor: default; }
+.v-bench-title { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ds-gray-1000); }
+.v-bench-desc {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 13px; line-height: 18px; color: var(--ds-gray-900);
 }
 
-.home-notice .home-notice-text { flex: 1; min-width: 0; }
-.home-notice .home-notice-dismiss { margin-top: 0; flex: none; }
-
-.home-empty {
-  display: flex; flex-direction: column; align-items: center; gap: var(--sp-3);
-  padding: var(--sp-10) var(--sp-5); text-align: center;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
-}
-.home-empty-icon {
-  width: 36px; height: 36px; border-radius: var(--r-sm);
-  background: var(--track); color: var(--text-3); display: grid; place-items: center;
-}
-.home-empty-icon svg { width: 18px; height: 18px; stroke-width: 1.75; }
-
-/* Engineer-review disclaimer: present but quiet. */
-.home-note .banner { background: transparent; color: var(--text-3); }
-.home-note .banner svg { color: var(--text-3); }
-
-/* ------------------------------------------------------------ New design */
-.input-wrap.name-input { max-width: 480px; }
-.part-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); }
-.part-grid .choice-card { height: 100%; border-radius: var(--r-md); }
-.choice-name { font-weight: 600; }
-@media (max-width: 620px) {
-  .part-grid { grid-template-columns: 1fr; }
-  .part-grid .choice-card { min-height: 0; }
+/* Reference source: single line, truncated with a title tooltip. */
+.v-ref {
+  display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis;
+  font-size: 13px; color: var(--ds-gray-900);
 }
 
-/* ------------------------------------------------------------ Verification */
-.bench-state { display: flex; align-items: center; gap: var(--sp-3); }
-.bench-chevron { width: 14px; height: 14px; flex: none; color: var(--text-3); transition: transform var(--base) var(--ease), color var(--fast) var(--ease); }
-.bench-head[aria-expanded="true"] .bench-chevron { transform: rotate(90deg); color: var(--text); }
-.bench-body > * + * { margin-top: var(--sp-3); }
+.bench-chevron { width: 16px; height: 16px; color: var(--ds-gray-900); transition: transform var(--dur-fast); }
+.v-table tr.open .bench-chevron { transform: rotate(90deg); }
 
-/* ------------------------------------------------------------ Running */
-.run-live .live-head { padding-bottom: var(--sp-4); border-bottom: 1px solid var(--line); }
+/* Expanded row: detail tables on background-200. */
+.v-table td.v-detail-cell { height: auto; white-space: normal; padding: 16px; background: var(--ds-background-200); }
+.v-detail-body { display: flex; flex-direction: column; gap: 16px; }

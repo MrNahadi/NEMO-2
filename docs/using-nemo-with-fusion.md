@@ -186,6 +186,29 @@ These steps follow Autodesk's guide
 5. In **Study Materials**, set the padeye's study material to the copy.
 6. Check the yield in **Materials > Material Properties** before you solve.
 
+## Pipe support brackets and stabilizer fins
+
+The connector only builds padeyes for now. For a bracket or a fin, repeat
+NEMO's stress check in Fusion by hand, using section 8, "Fusion cross-check",
+of the design's calculation report. It lists every value: the material, the
+fixed faces, the face to load and how to split it off, the force components,
+the mesh size, and the reaction and stress NEMO expects.
+
+- **Bracket:** open `bracket.step` (**Download files > 3D model**). Load a
+  strip of the seat top under the pipe; the report gives its position.
+- **Fin:** NEMO's stress check models the stock alone, so open
+  `fin-stock.step` (**Download files > Stock alone, for a Fusion check**), not
+  the whole fin. Runs made before this file existed can use a plain cylinder
+  with the size given in the report. Apply the fin force and the twisting
+  moment to the end of the stock, as the report says.
+
+Fusion's library has none of the grades NEMO uses for these parts (Grade A,
+AH36, 42CrMo4), so make each material by hand with the values in the report.
+See [Make the material by hand](#make-the-material-by-hand). Read the reaction
+from the **Reaction Force** result and the stress where the report says to
+probe it, not the legend maximum. Write the results in the table in section 8
+and sign it.
+
 ## Without the connector
 
 1. In NEMO, open the design's results, click **Download files** and choose

@@ -258,7 +258,8 @@ def build_part_report(run_dir: Path, results: dict, design_key: str, *, project_
         story.append(left)
     sections = ["1  Summary", "2  Design basis", "3  Fabrication drawing",
                 "4  Pipe span and vibration" if part == "pipe-bracket" else "4  Foil loads and cavitation",
-                "5  Design search", "6  Calculation sheets", "7  Finite element analysis", "8  Limitations", "A  Audit trail"]
+                "5  Design search", "6  Calculation sheets", "7  Finite element analysis", "8  Fusion cross-check",
+                "9  Limitations", "A  Audit trail"]
     story += [Spacer(1, 6 * mm), Paragraph("Contents", s["h2"]), Paragraph("<br/>".join(sections), s["body"]), Spacer(1, 6 * mm),
               Paragraph("Revision history", s["h2"]),
               _table([["Rev", "Date", "Description", "By"], ["A", date, "First issue, generated from run " + run_name, f"NEMO {__version__}"]],
@@ -440,8 +441,11 @@ def build_part_report(run_dir: Path, results: dict, design_key: str, *, project_
                             f"<font color='{(PASS if fea_ok else FAIL).hexval()}'><b>{'PASS' if fea_ok else 'REVIEW'}</b></font>.", s["body"])]
     story.append(PageBreak())
 
-    # --------------------------------------------------- 8 Limitations
-    story.append(Paragraph("8  Limitations", s["h1"]))
+    # ---------------------------------------------- 8 Fusion cross-check
+    story += _fusion_section(part, results, entry, s)
+
+    # --------------------------------------------------- 9 Limitations
+    story.append(Paragraph("9  Limitations", s["h1"]))
     if part == "pipe-bracket":
         limits = ["The bulkhead or deck the bracket is welded to must be checked separately for the same forces.",
                   "Ship-motion accelerations are inputs; they are not calculated from a class rule.",
@@ -482,6 +486,91 @@ def build_part_report(run_dir: Path, results: dict, design_key: str, *, project_
     doc.addPageTemplates([PageTemplate(id="page", frames=[frame])])
     doc.build(story, canvasmaker=lambda *a, **k: _NumberedCanvas(*a, meta=meta, **k))
     return target
+
+
+# ------------------------------------------------------- Fusion cross-check
+GRADE_LABELS = {"GRADE_A": "Grade A", "AH36": "AH36", "42CRMO4_QT": "42CrMo4", "AL5083_H111": "5083-H111"}
+
+
+def _material_text(material: dict, yield_mpa: float) -> str:
+    from .data import get_material
+
+    nu = get_material(material["id"]).poisson_ratio
+    grade = GRADE_LABELS.get(material["id"], material["id"].replace("_", " "))
+    return (f"{material['name']}: E {n(material['elastic_modulus_gpa'], 0)} GPa, Poisson's ratio {nu:.2f}, density "
+            f"{n(material['density_kg_m3'], 0)} kg/m\u00b3, yield {n(yield_mpa, 0)} MPa, ultimate "
+            f"{n(material['tensile_strength_mpa'], 0)} MPa. Fusion's library has no {grade}, and its generic Steel has a "
+            "207 MPa yield: copy Steel (Manage Physical Materials, pencil-and-arrow icon), enter these values on its "
+            "Physical tab, then choose the copy in Study Materials")
+
+
+def _fusion_section(part: str, results: dict, entry: dict, s: dict) -> list:
+    """Section 8: the values for repeating NEMO's stress check in Autodesk Fusion by hand, from the STEP file."""
+    fea = entry.get("fea")
+    dz = entry["check_report"]["design"]
+    out: list = [Paragraph("8  Fusion cross-check", s["h1"])]
+    if not fea:
+        return out + [Paragraph("The stress check was not run for this design, so there is nothing to compare.", s["body"])]
+    last = fea["levels"][-1]
+    ap = last["applied_force_n"]
+    total = math.sqrt(sum(v * v for v in ap))
+    finest = last.get("global_size_mm") or 0.0
+    if part == "pipe-bracket":
+        e = dz["pipe_offset_mm"]
+        strip = fea.get("load_strip_mm") or 0.0
+        keep_out = 1.5 * max(dz["seat_thickness_mm"], dz["knee_thickness_mm"])
+        intro = ("Use these values to repeat the stress check independently in Autodesk Fusion (Simulation, Static Stress). "
+                 f"Open {escape(entry['files']['step'].replace(chr(92), '/').split('/')[-1])} from this run, in millimetres.")
+        rows = [
+            ["1", "Study type", "Static Stress"],
+            ["2", "Axes", "As in the STEP file: x out from the bulkhead, y along the pipe, z up; the seat top is at z = 0"],
+            ["3", "Material", _material_text(results["material"], fea["yield_strength_mpa"])],
+            ["4", "Fixed constraint", "Every face lying on the bulkhead (x = 0): the end of the seat and the ends of both knees"],
+            ["5", "Load face", f"Split the seat top face (Design, Modify, Split Face) with planes at x = {n(e - strip / 2, 1)} mm and "
+                              f"x = {n(e + strip / 2, 1)} mm. The strip between them, {n(strip, 1)} mm wide under the pipe, carries the load"],
+            ["6", "Force on the strip", f"X {kn(ap[0])}, Y {kn(ap[1])}, Z {kn(ap[2])} (total {kn(total)})"],
+            ["7", "Mesh", f"Element size about {n(finest, 1)} mm, finer near the bulkhead; at least 3 elements through each plate"],
+            ["8", "Reaction", f"Total of the Reaction Force result equals {kn(total)} within 2%"],
+            ["9", "Peak stress", f"Probe the von Mises stress at x \u2265 {n(keep_out, 0)} mm, clear of the bulkhead face, not the legend "
+                                 f"maximum (that sits on the fixed edges). NEMO found {n(fea['head_von_mises_mpa'], 1)} MPa; within 15% agrees. "
+                                 f"Hand value for the seat between the knees: {n(fea.get('hand_stress_mpa') or 0, 1)} MPa"],
+        ]
+    else:
+        d = dz["stock_diameter_mm"]
+        gap, span = dz["bearing_gap_mm"], dz["span_mm"]
+        length = gap + 0.6 * span
+        stock_file = entry["files"].get("stock_step")
+        model = (f"Open {escape(stock_file.replace(chr(92), '/').split('/')[-1])} from this run, in millimetres: the stock alone, as NEMO models it"
+                 if stock_file else f"Make a solid cylinder \u00d8{n(d, 0)} mm, {n(length, 0)} mm long: the stock alone, as NEMO models it")
+        intro = ("NEMO's stress check models the stock, which carries every load from the fin into the ship; the thin fin body is "
+                 "covered by the hand calculation in section 6. Repeat the stock check independently in Autodesk Fusion "
+                 "(Simulation, Static Stress) with these values.")
+        rows = [
+            ["1", "Study type", "Static Stress"],
+            ["2", "Model", model + f". Its axis is z; the outer bearing end is at z = {n(-gap, 0)} mm and the free end at z = {n(0.6 * span, 0)} mm"],
+            ["3", "Material", _material_text(results["stock_material"], fea["yield_strength_mpa"])],
+            ["4", "Fixed constraint", "The flat end face at the outer bearing"],
+            ["5", "Load face", f"Split the round face (Design, Modify, Split Face) with a plane {n(gap + 0.4 * span, 0)} mm from the bearing end. "
+                              f"The last {n(0.2 * span, 0)} mm, up to the free end, carries the loads"],
+            ["6", "Force on that face", f"Y {kn(ap[1])}, across the stock (total {kn(total)})"],
+            ["7", "Moment on that face", f"{n(results['loads']['torque_nm'] / 1000, 2)} kN\u00b7m about the stock axis (z)"],
+            ["8", "Mesh", f"Element size about {n(finest, 0)} mm"],
+            ["9", "Reaction", f"Total of the Reaction Force result equals {kn(total)} within 2%"],
+            ["10", "Peak stress", f"Probe the von Mises stress on the surface {n(0.5 * d, 0)} mm from the bearing end, on the side facing "
+                                  f"along y, not the legend maximum (that sits on the fixed edge). NEMO found "
+                                  f"{n(fea['head_von_mises_mpa'], 1)} MPa and beam theory gives {n(fea.get('hand_stress_mpa') or 0, 1)} MPa; "
+                                  "within 15% agrees"],
+        ]
+    table = _table([["Step", "Setting", "Value"]] + [[a, b, Paragraph(c, s["cell"])] for a, b, c in rows],
+                   [12 * mm, 34 * mm, CONTENT_W - 46 * mm])
+    blank = _table([["Result in Fusion", "Value", "Agrees with NEMO?"], ["Reaction force", "", ""], ["Peak stress", "", ""],
+                    ["Largest movement", "", ""], ["Checked by / date", "", ""]],
+                   [60 * mm, 60 * mm, CONTENT_W - 120 * mm],
+                   style_extra=[("BOTTOMPADDING", (0, 1), (-1, -1), 10), ("TOPPADDING", (0, 1), (-1, -1), 10),
+                                ("GRID", (0, 0), (-1, -1), 0.4, RULE)])
+    return out + [Paragraph(intro, s["body"]), Spacer(1, 2 * mm), table, Spacer(1, 5 * mm), blank,
+                  Paragraph("Fill in by hand and sign. Movement is for information only: it depends on how each program models the "
+                            "support.", s["caption"]), PageBreak()]
 
 
 def _fin_outline(dz: dict) -> list:

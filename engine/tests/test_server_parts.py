@@ -8,6 +8,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 import nemo.server as server
+from nemo.report_parts import _fusion_section
+from nemo.report_pdf import _fonts, _styles
 
 
 @pytest.fixture()
@@ -59,6 +61,15 @@ def test_full_run_and_report(client, part, step):
     run = detail["latest_run"]
     pdf = client.get(f"/api/projects/{project['id']}/runs/{run}/report.pdf?design={design['key']}")
     assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
+    _fonts()
+    flow = _fusion_section(part, results, design, _styles())
+    cells = [c for f in flow if hasattr(f, "_cellvalues") for row in f._cellvalues for c in row]
+    text = " ".join(getattr(c, "text", str(c)) for c in cells)
+    assert "207 MPa" in text and "Reaction Force" in text and "legend maximum" in text
+    if part == "stabilizer":
+        assert design["files"]["stock_step"].endswith("fin-stock.step")
+        stock = client.get(f"/api/projects/{project['id']}/runs/{run}/files/{design['files']['stock_step']}")
+        assert stock.status_code == 200 and b"ISO-10303" in stock.content[:200]
     kinds = {e["kind"] for e in client.get(f"/api/runs/{started['id']}?since=0").json()["events"]}
     assert {"loads", "search_done", "cad", "mesh", "solve", "fea_done", "done"} <= kinds
     assert ("span" if part == "pipe-bracket" else "hydro") in kinds

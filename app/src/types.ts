@@ -244,7 +244,7 @@ export interface DesignResult {
   check_report: CheckReport;
   cad_volume_mm3: number;
   fea: FeaSummary | null;
-  files: { step: string; stl: string; dxf: string; stress_surface: string | null };
+  files: { step: string; stl: string; dxf: string; stress_surface: string | null; stock_step?: string };
 }
 
 export interface Results {

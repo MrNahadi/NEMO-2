@@ -846,7 +846,7 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
     story.append(Spacer(1, 2 * mm))
     story.append(_table([["Step", "Setting", "Value"],
                          ["1", "Study type", "Static Stress"],
-                         ["2", "Material", f"{material['name']}: E {n(material['elastic_modulus_gpa'], 0)} GPa, ν 0.30, density {n(material['density_kg_m3'], 0)} kg/m³, yield {n(min(values['yield_main_mpa'], values.get('yield_head_mpa', values['yield_main_mpa'])), 0)} MPa, ultimate {n(material['tensile_strength_mpa'], 0)} MPa. Fusion's library has no {escape(material['name'].split(' ')[0])} and its generic Steel has a 207 MPa yield: the NEMO connector sets these values, or make a copy of Steel with them"],
+                         ["2", "Material", f"{material['name']}: E {n(material['elastic_modulus_gpa'], 0)} GPa, Poisson's ratio 0.30, density {n(material['density_kg_m3'], 0)} kg/m³, yield {n(min(values['yield_main_mpa'], values.get('yield_head_mpa', values['yield_main_mpa'])), 0)} MPa, ultimate {n(material['tensile_strength_mpa'], 0)} MPa. Fusion's library has no {escape(material['name'].split(' ')[0])} and its generic Steel has a 207 MPa yield: the NEMO connector sets these values, or make a copy of Steel with them"],
                          ["3", "Fixed constraint", "Flat base face, all directions"],
                          ["4", "Bearing load on hole", f"Total {kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}° from the base, in the plane of the plate"],
                          ["5", "Force components", f"X {kn(ap[0])}, Y {kn(ap[1])}, Z {kn(ap[2])} (STEP axes, Z up). In the model built by the NEMO connector Y is up: X {kn(ap[0])}, Y {kn(ap[2])}, Z {kn(ap[1])}"],

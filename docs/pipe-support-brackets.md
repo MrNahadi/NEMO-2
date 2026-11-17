@@ -84,3 +84,11 @@ then falls into a gap between excitations, and run again.
 NEMO does not check the bulkhead the bracket is welded to, pipe anchors,
 thermal expansion or water hammer, or weld fatigue. The vibration check
 assumes rigid supports; a flexible bracket lowers the pipe's frequency.
+
+## Checking the stress in Fusion
+
+Section 8 of the calculation report lists the values for repeating NEMO's
+stress check in Autodesk Fusion from `bracket.step`. See
+[Using NEMO with Fusion](using-nemo-with-fusion.md#pipe-support-brackets-and-stabilizer-fins).
+Fusion has no Grade A steel, so make the material by hand with the report's
+values.

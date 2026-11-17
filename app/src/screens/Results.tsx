@@ -107,6 +107,9 @@ export function Results({ project, onEdit, onRunAgain }: { project: Project; onE
                   { label: "Everything", hint: "ZIP", icon: <Package aria-hidden />, onSelect: () => download(bundleUrl(project.id, run, design.key)) },
                   { label: "Calculation report", hint: "PDF", icon: <FileText aria-hidden />, separated: true, onSelect: () => download(reportUrl(project.id, run, design.key, true)) },
                   { label: "3D model", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.step)) },
+                  ...(design.files.stock_step
+                    ? [{ label: "Stock alone, for a Fusion check", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.stock_step!)) }]
+                    : []),
                   { label: "Cutting profile", hint: "DXF", icon: <Scissors aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.dxf)) },
                   ...(results.files
                     ? [
@@ -118,7 +121,7 @@ export function Results({ project, onEdit, onRunAgain }: { project: Project; onE
               />
             </div>
             <p className="caption">
-              The report has a fabrication drawing, every calculation and the stress results{part === "padeye" ? ", with a Fusion cross-check sheet" : ""}.
+              The report has a fabrication drawing, every calculation and the stress results, with a Fusion cross-check sheet.
               "Everything" puts the report, 3D model, cutting profile and the run's records in one ZIP file, ready to send.
             </p>
             {fusionMessage && <Banner kind={fusionMessage.kind}>{fusionMessage.text}</Banner>}

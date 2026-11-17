@@ -62,3 +62,11 @@ deflection, and the design rules. NEMO uses **IACS UR S10** (rudders, Rev.8
 NEMO does not design the hull structure round the fin, the bearings, the
 stock housing or the stock-to-fin connection. The loads are quasi-static:
 dynamic fin motion, slamming and fatigue are not covered.
+
+## Checking the stress in Fusion
+
+NEMO's stress check models the stock alone. Section 8 of the calculation
+report lists the values for repeating it in Autodesk Fusion from
+`fin-stock.step` (**Download files > Stock alone, for a Fusion check**). See
+[Using NEMO with Fusion](using-nemo-with-fusion.md#pipe-support-brackets-and-stabilizer-fins).
+Fusion has no 42CrMo4, so make the material by hand with the report's values.

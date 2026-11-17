@@ -10,12 +10,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+from build123d import export_step
 
 from ... import __version__
 from ...fea_study import MESH_LEVELS
 from ...hydro import naca_00xx, panel_solve
 from ...runlog import EngineeringLog, stress_surface
-from .cad import build_fin, formula_volume_mm3, write_cutting_dxf
+from .cad import build_fin, build_stock, formula_volume_mm3, write_cutting_dxf
 from .fea import analyse_stock
 from .job import FinJob, load_steps
 from .sizing import EVALUATED_COLUMNS, shortlist_fins
@@ -73,6 +74,9 @@ def run_fin_job(job: FinJob, run_dir: Path, *, project_name: str = "", progress=
                      "difference": (solid.volume_mm3 - formula) / formula, "solids": solid.solid_count, "mass_kg": item.mass_kg})
         step = solid.export_step(folder / "fin.step")
         stl = solid.export_stl(folder / "fin.stl")
+        stock_step = folder / "fin-stock.step"  # the stock alone, as NEMO's stress check models it, for a Fusion cross-check
+        if not export_step(build_stock(item.design), str(stock_step)):
+            raise RuntimeError(f"STEP export failed: {stock_step}")
         dxf = write_cutting_dxf(item.design, folder / "fin-rib-cutting.dxf", material_name=plate.name, project_name=project_name)
         fea_summary = None
         if run_fea:
@@ -84,6 +88,7 @@ def run_fin_job(job: FinJob, run_dir: Path, *, project_name: str = "", progress=
             "key": item.key, "label": item.label, "target_utilization": item.target_utilization,
             "check_report": item.report.to_dict(), "cad_volume_mm3": solid.volume_mm3, "fea": fea_summary,
             "files": {"step": str(step.relative_to(run_dir)), "stl": str(stl.relative_to(run_dir)), "dxf": str(dxf.relative_to(run_dir)),
+                      "stock_step": str(stock_step.relative_to(run_dir)),
                       "stress_surface": f"designs/{item.key}/stress-surface.json" if run_fea else None},
         })
     with (run_dir / "designs-evaluated.csv").open("w", newline="", encoding="utf-8") as handle:

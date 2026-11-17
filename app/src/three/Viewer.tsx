@@ -65,8 +65,8 @@ export function Viewer({
   const dark = useDarkTheme();
   const grid = Math.max(50, Math.pow(10, Math.ceil(Math.log10(size))) / 10);
   const colours = dark
-    ? { bg: "#16181b", floor: "#1d2024", major: "#30353b", minor: "#25292e" }
-    : { bg: "#f4f5f7", floor: "#e3e6ea", major: "#c6ccd4", minor: "#d6dbe1" };
+    ? { bg: "#1a1b1e", floor: "#1f2023", major: "#34363b", minor: "#26282c" }
+    : { bg: "#f1f2f4", floor: "#e7e9ec", major: "#cdd1d7", minor: "#dcdfe3" };
   return (
     <div className="viewer" aria-label="3D view of the part. Drag to turn it, scroll to zoom.">
       <Canvas shadows dpr={[1, 2]} camera={{ fov: 35, position: [size * 1.1, size * 0.9, size * 1.5] }}>

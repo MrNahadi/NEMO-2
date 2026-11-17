@@ -1,4 +1,4 @@
-import { Box, ChevronRight, Copy, FileText, FolderOpen, FolderSearch, Pencil, Plus, Trash2 } from "lucide-react";
+import { Anchor, Box, ChevronRight, Copy, FileText, FolderOpen, FolderSearch, Info, Pencil, Plus, Ship, Trash2, Wrench, type LucideIcon } from "lucide-react";
 import { useFusion } from "../components/Fusion";
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError, reportUrl } from "../api";
@@ -8,6 +8,8 @@ import { PART_NAMES } from "../three/PartModel";
 import type { PartId, Project } from "../types";
 
 type Pending = { kind: "rename"; project: Project; name: string } | { kind: "delete"; project: Project } | null;
+
+const PART_ICONS: Record<string, LucideIcon> = { padeye: Anchor, "pipe-bracket": Wrench, stabilizer: Ship };
 
 export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project) => void }) {
   const [projects, setProjects] = useState<Project[] | null>(null);
@@ -55,31 +57,42 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
       <div className="mt-6 stack gap-2">
         <h2 className="section-title">Saved designs</h2>
         {notice && (
-          <div className="banner banner-info" role="status">
-            <span style={{ flex: 1 }}>{notice}</span>
-            <button className="link" style={{ marginTop: 0 }} onClick={() => setNotice(null)}>
+          <div className="banner banner-info home-notice" role="status">
+            <Info aria-hidden />
+            <span className="home-notice-text">{notice}</span>
+            <button className="link home-notice-dismiss" onClick={() => setNotice(null)}>
               Dismiss
             </button>
           </div>
         )}
         {error && <Banner kind="error">{error}</Banner>}
         {projects && projects.length === 0 && (
-          <p className="muted">No saved designs yet. Your designs will appear here after you create one.</p>
+          <div className="home-empty">
+            <span className="home-empty-icon" aria-hidden>
+              <FolderOpen />
+            </span>
+            <p className="caption">No saved designs yet. Your designs will appear here after you create one.</p>
+          </div>
         )}
         {projects && projects.length > 0 && (
           <ul className="card project-list">
             {projects.map((p) => {
               const run = p.runs[p.runs.length - 1];
+              const PartIcon = PART_ICONS[p.part] ?? FolderOpen;
               return (
                 <li key={p.id} className="project-item">
                   <button className="project-row" onClick={() => onOpen(p)}>
-                    <FolderOpen aria-hidden size={20} />
-                    <span className="stack" style={{ flex: 1, minWidth: 0 }}>
+                    <span className="project-icon" aria-hidden>
+                      <PartIcon />
+                    </span>
+                    <span className="project-text">
                       <span className="project-name">{p.name}</span>
                       <span className="caption">
-                        {PART_NAMES[(p.part as PartId)]?.title ?? "Design"}, {p.runs.length > 0 ? `${p.runs.length} result${p.runs.length > 1 ? "s" : ""}` : "not run yet"}, saved{" "}
-                        {relative(p.updated_at ?? p.created_at)}
+                        {PART_NAMES[(p.part as PartId)]?.title ?? "Design"}, saved {relative(p.updated_at ?? p.created_at)}
                       </span>
+                    </span>
+                    <span className="badge badge-neutral project-badge">
+                      {p.runs.length > 0 ? `${p.runs.length} result${p.runs.length > 1 ? "s" : ""}` : "Not run yet"}
                     </span>
                     <ChevronRight aria-hidden size={18} />
                   </button>
@@ -132,7 +145,7 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
         )}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 home-note">
         <Banner kind="info">
           NEMO is a design aid. A competent engineer must review every design, the structure it is welded to and the lifting
           arrangement before anything is made or used.

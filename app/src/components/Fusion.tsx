@@ -77,7 +77,7 @@ export function FusionLight() {
   return (
     <button className={`btn btn-ghost nav-btn fusion-light fusion-${state}`} onClick={openSetup} aria-label={`${label}. Open Fusion connector settings.`}>
       <span className="fusion-dot" aria-hidden />
-      {label}
+      <span className="fusion-label">{label}</span>
     </button>
   );
 }

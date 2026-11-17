@@ -34,7 +34,7 @@ export function NewDesign({ onCreated, onCancel }: { onCreated: (p: Project) => 
 
       <div className="form mt-6">
         <Field label="What should we call this design?">
-          <div className="input-wrap" style={{ maxWidth: 480 }}>
+          <div className="input-wrap name-input">
             <input
               className="input"
               aria-label="Design name"
@@ -48,7 +48,7 @@ export function NewDesign({ onCreated, onCancel }: { onCreated: (p: Project) => 
         </Field>
 
         <Field label="What are you designing?">
-          <div className="card-grid">
+          <div className="part-grid">
             {PARTS.map((p) => (
               <button
                 key={p.id}
@@ -60,26 +60,22 @@ export function NewDesign({ onCreated, onCancel }: { onCreated: (p: Project) => 
                 <span className="icon">
                   <p.icon size={20} aria-hidden />
                 </span>
-                <span style={{ fontWeight: 600 }}>{p.title}</span>
+                <span className="choice-name">{p.title}</span>
                 <span className="caption">{p.text}</span>
               </button>
             ))}
           </div>
         </Field>
-      </div>
 
-      {error && (
-        <div className="mt-3">
-          <Banner kind="error">{error}</Banner>
+        {error && <Banner kind="error">{error}</Banner>}
+        <div className="actions">
+          <button className="btn btn-primary" onClick={create} disabled={busy}>
+            Create design
+          </button>
+          <button className="btn btn-ghost" onClick={onCancel}>
+            Cancel
+          </button>
         </div>
-      )}
-      <div className="actions">
-        <button className="btn btn-primary" onClick={create} disabled={busy}>
-          Create design
-        </button>
-        <button className="btn btn-ghost" onClick={onCancel}>
-          Cancel
-        </button>
       </div>
     </div>
   );

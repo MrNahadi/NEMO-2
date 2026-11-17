@@ -36,11 +36,13 @@ export function DesignSpaceChart({
       const ctx = c.getContext("2d")!;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
-      const ink = cssVar("--color-primary-foreground");
-      const muted = cssVar("--color-tertiary-foreground");
-      const rule = cssVar("--color-border-subtle");
-      const accent = cssVar("--color-brand-solid");
-      const danger = cssVar("--color-danger-foreground");
+      const ink = cssVar("--gauge");
+      const muted = cssVar("--text-3");
+      const rule = cssVar("--line");
+      const accent = cssVar("--accent");
+      const danger = cssVar("--fail");
+      const tickFont = "12px 'Archivo Variable', 'Archivo', system-ui, sans-serif";
+      const strongFont = "600 12px 'Archivo Variable', 'Archivo', system-ui, sans-serif";
       const pad = { l: 68, r: 16, t: 14, b: 40 };
       const plotW = width - pad.l - pad.r;
       const plotH = height - pad.t - pad.b;
@@ -50,7 +52,7 @@ export function DesignSpaceChart({
       const X = (m: number) => pad.l + (m / xMax) * plotW;
       const Y = (u: number) => pad.t + plotH - (Math.min(u, yMax) / yMax) * plotH;
 
-      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.font = tickFont;
       ctx.fillStyle = muted;
       ctx.strokeStyle = rule;
       ctx.lineWidth = 1;
@@ -73,36 +75,44 @@ export function DesignSpaceChart({
       ctx.save();
       ctx.translate(13, pad.t + plotH / 2);
       ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
       ctx.fillText("Highest check use", 0, 0);
       ctx.restore();
 
       for (const [m, u, ok] of points) {
         if (m > xMax) continue;
         ctx.fillStyle = ok ? ink : muted;
-        ctx.globalAlpha = ok ? 0.75 : 0.35;
-        ctx.fillRect(X(m) - 1.25, Y(u) - 1.25, 2.5, 2.5);
+        ctx.globalAlpha = ok ? 0.85 : 0.45;
+        ctx.fillRect(X(m) - 1.5, Y(u) - 1.5, 3, 3);
       }
       ctx.globalAlpha = 1;
       ctx.strokeStyle = danger;
       ctx.setLineDash([5, 4]);
       ctx.beginPath();
-      ctx.moveTo(pad.l, Y(limit));
-      ctx.lineTo(width - pad.r, Y(limit));
+      ctx.moveTo(pad.l, Math.round(Y(limit)) + 0.5);
+      ctx.lineTo(width - pad.r, Math.round(Y(limit)) + 0.5);
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = danger;
+      ctx.font = strongFont;
       ctx.textAlign = "right";
-      ctx.fillText(`Limit ${Math.round(limit * 100)}%`, width - pad.r, Y(limit) - 6);
+      ctx.fillText(`Limit ${Math.round(limit * 100)}%`, width - pad.r, Y(limit) - 7);
+      ctx.font = tickFont;
 
       for (const c of chosen ?? []) {
+        const cx = X(c.mass);
+        const cy = Y(c.use);
         ctx.strokeStyle = accent;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(X(c.mass), Y(c.use), 7, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
         ctx.stroke();
         ctx.fillStyle = accent;
-        ctx.textAlign = "left";
-        ctx.fillText(c.label, X(c.mass) + 11, Y(c.use) + 18);
+        ctx.font = strongFont;
+        ctx.textAlign = "center";
+        const above = cy - 16 > pad.t + 6 && Math.abs(cy - Y(limit)) > 22;
+        ctx.fillText(c.label, cx, above ? cy - 13 : cy + 24);
+        ctx.font = tickFont;
       }
     };
     draw();

@@ -1,0 +1,38 @@
+/* Helper C screens: Results, engineering log (shared with Running), report viewer, Fusion.
+   Only screen-specific layout lives here; shared primitives are in nemo.css. */
+
+/* Dimensions panel on Results: the .kv list inside a hairline group with a section title. */
+.kv-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-5) var(--sp-3);
+}
+.kv-panel > .section-title { margin-bottom: var(--sp-1); }
+.kv-panel .kv dt, .kv-panel .kv dd { padding: 8px 0; }
+
+/* Viewer toolbar: the Model / Mesh / Stress segmented control attached to the viewer,
+   aligned to its edges; the check-highlight note sits on the right. */
+.viewer-tools { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.viewer-tools-note { text-align: right; max-width: 34ch; }
+@media (max-width: 520px) {
+  .viewer-tools { flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
+  .viewer-tools-note { text-align: left; max-width: none; }
+}
+
+/* Report viewer: the PDF frame area below the bar. */
+.report-body { position: relative; flex: 1; display: flex; min-height: 0; }
+
+/* Key figures: on narrow screens the third stat wraps; keep hairlines tidy. */
+@media (max-width: 560px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+}
+
+/* Right column of Results: the sticky viewer, its toolbar and the report and files actions,
+   so the 3D view and the report stay in reach while reading the checks. */
+.results-side .viewer { height: min(54vh, 500px); }
+.files-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-4) var(--sp-5); margin-top: var(--sp-2); }
+.files-panel .caption { max-width: 64ch; }
+@media (max-width: 1100px) { .results-side .viewer { height: min(64vh, 480px); } }
+@media (max-width: 520px) { .files-panel, .kv-panel { padding-left: var(--sp-4); padding-right: var(--sp-4); } }

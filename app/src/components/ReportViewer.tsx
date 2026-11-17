@@ -53,7 +53,7 @@ export function ReportViewer({
             <X aria-hidden />
           </button>
         </div>
-        <div style={{ position: "relative", flex: 1, display: "flex" }}>
+        <div className="report-body">
           {!loaded && (
             <div className="report-loading">
               <span className="row">

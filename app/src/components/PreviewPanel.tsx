@@ -101,7 +101,7 @@ export function PreviewPanel({ job, preview, error, busy }: { job: Job; preview:
         ? `Each bracket carries a downward design force of ${force ? formatKn(force) : "-"}.`
         : `The fin is designed for a force of ${force ? formatKn(force) : "-"} at its largest angle.`;
   return (
-    <div className="stack gap-2 sticky">
+    <div className="stack gap-2 sticky preview-panel">
       <Viewer
         size={frame.size}
         centreY={frame.centreY}

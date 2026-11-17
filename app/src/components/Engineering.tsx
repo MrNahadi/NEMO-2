@@ -242,22 +242,24 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
     return (
       <div className="stack gap-2">
         <p className="muted">{s.rule} The sling force on each padeye is {n1(s.sling_force_t, 2)} t.</p>
-        <table className="data">
-          <thead>
-            <tr><th>Shackle</th><th className="r">Rated (WLL)</th><th className="r">Pin</th><th className="r">Jaw</th><th className="r">Hole drilled</th></tr>
-          </thead>
-          <tbody>
-            {s.candidates.map((c: { label: string; wll_t: number; pin_diameter_mm: number; jaw_width_mm: number; hole_mm: number }, i: number) => (
-              <tr key={c.label} className={i === 0 ? "row-strong" : undefined}>
-                <td>{c.label}{i === 0 ? " (smallest that covers the load)" : ""}</td>
-                <td className="r">{c.wll_t} t</td>
-                <td className="r">{c.pin_diameter_mm} mm</td>
-                <td className="r">{c.jaw_width_mm} mm</td>
-                <td className="r">{c.hole_mm} mm</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="table-wrap">
+          <table className="data">
+            <thead>
+              <tr><th>Shackle</th><th className="r">Rated (WLL)</th><th className="r">Pin</th><th className="r">Jaw</th><th className="r">Hole drilled</th></tr>
+            </thead>
+            <tbody>
+              {s.candidates.map((c: { label: string; wll_t: number; pin_diameter_mm: number; jaw_width_mm: number; hole_mm: number }, i: number) => (
+                <tr key={c.label} className={i === 0 ? "row-strong" : undefined}>
+                  <td>{c.label}{i === 0 ? " (smallest that covers the load)" : ""}</td>
+                  <td className="r">{c.wll_t} t</td>
+                  <td className="r">{c.pin_diameter_mm} mm</td>
+                  <td className="r">{c.jaw_width_mm} mm</td>
+                  <td className="r">{c.hole_mm} mm</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p className="caption">Hole = pin + the larger of 1 mm and 4%, rounded up to 0.5 mm. Larger shackles are tried only if the smallest cannot give a design.</p>
       </div>
     );
@@ -282,20 +284,22 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
         <DesignSpaceChart points={points} limit={start?.max_use ?? 1}
           chosen={found ? [{ mass: found.mass_kg, use: found.max_use, label: `${n1(found.mass_kg, 2)} kg` }] : undefined} />
         {combos.length > 0 && (
-          <table className="data">
-            <thead><tr><th>Combination</th><th>{part === "padeye" ? "Plate" : part === "pipe-bracket" ? "Seat" : "Skin"}</th><th>{part === "padeye" ? "Cheeks" : part === "pipe-bracket" ? "Knees" : "Webs"}</th>{part === "padeye" && <th className="r">Shackle</th>}<th>Outcome</th></tr></thead>
-            <tbody>
-              {combos.map((c) => (
-                <tr key={c.seq} className={c.outcome === "best" ? "row-strong" : undefined}>
-                  <td>{c.index} of {c.count}</td>
-                  <td>{c.plate_mm} mm</td>
-                  <td>{part !== "padeye" ? `2 × ${c.cheek_mm} mm` : c.cheek_mm ? `2 × ${c.cheek_mm} mm` : "None"}</td>
-                  {part === "padeye" && <td className="r">{c.shackle_wll_t} t</td>}
-                  <td>{c.outcome === "best" ? `Best so far, ${n1(c.mass_kg, 2)} kg` : c.outcome === "passed" ? `${n1(c.mass_kg, 2)} kg, heavier` : c.outcome === "skipped" ? "Skipped: cannot beat the best" : "No design passes"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="table-wrap">
+            <table className="data">
+              <thead><tr><th>Combination</th><th>{part === "padeye" ? "Plate" : part === "pipe-bracket" ? "Seat" : "Skin"}</th><th>{part === "padeye" ? "Cheeks" : part === "pipe-bracket" ? "Knees" : "Webs"}</th>{part === "padeye" && <th className="r">Shackle</th>}<th>Outcome</th></tr></thead>
+              <tbody>
+                {combos.map((c) => (
+                  <tr key={c.seq} className={c.outcome === "best" ? "row-strong" : undefined}>
+                    <td>{c.index} of {c.count}</td>
+                    <td>{c.plate_mm} mm</td>
+                    <td>{part !== "padeye" ? `2 × ${c.cheek_mm} mm` : c.cheek_mm ? `2 × ${c.cheek_mm} mm` : "None"}</td>
+                    {part === "padeye" && <td className="r">{c.shackle_wll_t} t</td>}
+                    <td>{c.outcome === "best" ? `Best so far, ${n1(c.mass_kg, 2)} kg` : c.outcome === "passed" ? `${n1(c.mass_kg, 2)} kg, heavier` : c.outcome === "skipped" ? "Skipped: cannot beat the best" : "No design passes"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     );
@@ -310,20 +314,22 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
           Each design is built as an exact solid with the OpenCASCADE geometry kernel, the same model exported as STEP. Its
           volume is compared with the formula the mass came from.
         </p>
-        <table className="data">
-          <thead><tr><th>Design</th><th className="r">Solid volume</th><th className="r">Formula volume</th><th className="r">Difference</th><th className="r">Mass</th></tr></thead>
-          <tbody>
-            {cads.map((c) => (
-              <tr key={c.seq}>
-                <td>{TARGET_NAMES[c.target]}</td>
-                <td className="r">{n0(c.volume_mm3)} mm³</td>
-                <td className="r">{n0(c.formula_volume_mm3)} mm³</td>
-                <td className="r">{Math.abs(c.difference * 100) >= 0.01 ? `${n1(c.difference * 100, 2)}%` : `${(c.difference * 100).toExponential(1)}%`}</td>
-                <td className="r">{n1(c.mass_kg, 2)} kg</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="table-wrap">
+          <table className="data">
+            <thead><tr><th>Design</th><th className="r">Solid volume</th><th className="r">Formula volume</th><th className="r">Difference</th><th className="r">Mass</th></tr></thead>
+            <tbody>
+              {cads.map((c) => (
+                <tr key={c.seq}>
+                  <td>{TARGET_NAMES[c.target]}</td>
+                  <td className="r">{n0(c.volume_mm3)} mm³</td>
+                  <td className="r">{n0(c.formula_volume_mm3)} mm³</td>
+                  <td className="r">{Math.abs(c.difference * 100) >= 0.01 ? `${n1(c.difference * 100, 2)}%` : `${(c.difference * 100).toExponential(1)}%`}</td>
+                  <td className="r">{n1(c.mass_kg, 2)} kg</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
@@ -390,15 +396,17 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
       </div>
       <div>
         <h3 className="view-heading">Do the support forces balance the load?</h3>
-        <table className="data">
-          <thead><tr><th /><th className="r">Along the base</th><th className="r">Through the plate</th><th className="r">Up</th></tr></thead>
-          <tbody>
-            <tr><td>{part === "padeye" ? "Load applied to the hole" : "Load applied"}</td>{ap.map((v, i) => <td key={i} className="r">{formatKn(v)}</td>)}</tr>
-            <tr><td>{part === "padeye" ? "Reaction at the base" : "Reaction at the support"}</td>{re.map((v, i) => <td key={i} className="r">{formatKn(v)}</td>)}</tr>
-            <tr className="row-strong"><td>Sum</td>{ap.map((v, i) => <td key={i} className="r">{formatKn(Math.abs(v + re[i]) < 0.5 ? 0 : v + re[i])}</td>)}</tr>
-          </tbody>
-        </table>
-        <p className="caption">Balance error {lvl.reaction_balance_error.toExponential(1)}. The load in the model is the force calculated in step 1.</p>
+        <div className="table-wrap">
+          <table className="data">
+            <thead><tr><th /><th className="r">Along the base</th><th className="r">Through the plate</th><th className="r">Up</th></tr></thead>
+            <tbody>
+              <tr><td>{part === "padeye" ? "Load applied to the hole" : "Load applied"}</td>{ap.map((v, i) => <td key={i} className="r">{formatKn(v)}</td>)}</tr>
+              <tr><td>{part === "padeye" ? "Reaction at the base" : "Reaction at the support"}</td>{re.map((v, i) => <td key={i} className="r">{formatKn(v)}</td>)}</tr>
+              <tr className="row-strong"><td>Sum</td>{ap.map((v, i) => <td key={i} className="r">{formatKn(Math.abs(v + re[i]) < 0.5 ? 0 : v + re[i])}</td>)}</tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="caption mt-3">Balance error {lvl.reaction_balance_error.toExponential(1)}. The load in the model is the force calculated in step 1.</p>
       </div>
       <p>
         Peak stress {n1(f.head_von_mises_mpa)} MPa against yield {n0(f.yield_strength_mpa)} MPa: safety factor on yield{" "}
@@ -410,20 +418,22 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
 
 function MeshTable({ events }: { events: EngEvent[] }) {
   return (
-    <table className="data">
-      <thead><tr><th>Design</th><th className="r">Mesh</th><th className="r">Element size at hole</th><th className="r">Nodes</th><th className="r">Elements</th></tr></thead>
-      <tbody>
-        {events.map((m) => (
-          <tr key={m.seq}>
-            <td>{TARGET_NAMES[m.target]}</td>
-            <td className="r">{m.level} of {m.levels}</td>
-            <td className="r">{n1(m.hole_size_mm, 2)} mm</td>
-            <td className="r">{n0(m.nodes)}</td>
-            <td className="r">{n0(m.elements)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="table-wrap">
+      <table className="data">
+        <thead><tr><th>Design</th><th className="r">Mesh</th><th className="r">Element size at hole</th><th className="r">Nodes</th><th className="r">Elements</th></tr></thead>
+        <tbody>
+          {events.map((m) => (
+            <tr key={m.seq}>
+              <td>{TARGET_NAMES[m.target]}</td>
+              <td className="r">{m.level} of {m.levels}</td>
+              <td className="r">{n1(m.hole_size_mm, 2)} mm</td>
+              <td className="r">{n0(m.nodes)}</td>
+              <td className="r">{n0(m.elements)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

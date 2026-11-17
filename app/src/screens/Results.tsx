@@ -86,66 +86,68 @@ export function Results({ project, onEdit, onRunAgain }: { project: Project; onE
             <CheckList checks={design.check_report.checks} selected={check} onSelect={(id) => { setCheck(id); if (id) setView("model"); }} />
           </section>
           {design.fea && <FeaSummary design={design} part={part} />}
-          <section className="stack gap-2">
-            <h2 className="section-title">Calculation report and files</h2>
-            <div className="downloads">
-              <button className="btn btn-primary" onClick={() => setShowReport(true)}>
-                <FileText aria-hidden /> View calculation report
-              </button>
-              {part === "padeye" && (
-                <button className="btn" onClick={openFusion} disabled={fusionBusy}>
-                  {fusionBusy ? <Loader2 className="spin" aria-hidden /> : <Box aria-hidden />}
-                  {fusionBusy ? "Building in Fusion" : "Open in Fusion"}
-                </button>
-              )}
-              <MoreMenu
-                label="Download files"
-                align="left"
-                triggerClassName="btn"
-                trigger={<><Download aria-hidden /> Download files <ChevronDown aria-hidden /></>}
-                items={[
-                  { label: "Everything", hint: "ZIP", icon: <Package aria-hidden />, onSelect: () => download(bundleUrl(project.id, run, design.key)) },
-                  { label: "Calculation report", hint: "PDF", icon: <FileText aria-hidden />, separated: true, onSelect: () => download(reportUrl(project.id, run, design.key, true)) },
-                  { label: "3D model", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.step)) },
-                  ...(design.files.stock_step
-                    ? [{ label: "Stock alone, for a Fusion check", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.stock_step!)) }]
-                    : []),
-                  { label: "Cutting profile", hint: "DXF", icon: <Scissors aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.dxf)) },
-                  ...(results.files
-                    ? [
-                        { label: "Engineering log", hint: "JSON", icon: <ListTree aria-hidden />, separated: true, onSelect: () => download(fileUrl(project.id, run, results.files!.engineering_log)) },
-                        { label: "Every design tried", hint: "CSV", icon: <FileSpreadsheet aria-hidden />, onSelect: () => download(fileUrl(project.id, run, results.files!.designs_evaluated)) },
-                      ]
-                    : []),
-                ]}
-              />
-            </div>
-            <p className="caption">
-              The report has a fabrication drawing, every calculation and the stress results, with a Fusion cross-check sheet.
-              "Everything" puts the report, 3D model, cutting profile and the run's records in one ZIP file, ready to send.
-            </p>
-            {fusionMessage && <Banner kind={fusionMessage.kind}>{fusionMessage.text}</Banner>}
-          </section>
           {part === "padeye" && <FusionSection records={records} />}
         </div>
 
-        <div className="stack gap-2 sticky">
+        <div className="stack gap-2 sticky results-side">
           <ResultViewer projectId={project.id} run={run} design={design} view={view} check={check} mesh={mesh} part={part} slingAngle={results.job.part === "padeye" ? results.job.lift.sling_angle_deg : 60} />
-          <Segmented
-            label="What the 3D view shows"
-            value={view}
-            onChange={(v) => { setView(v); if (v !== "model") setCheck(null); }}
-            options={[
-              { value: "model", label: "Model" },
-              { value: "mesh", label: "Mesh" },
-              { value: "stress", label: "Stress" },
-            ]}
-          />
-          {check && view === "model" && part === "padeye" && (
-            <p className="caption">
-              Highlighted in blue: the part of the padeye the selected check is about.
-            </p>
-          )}
+          <div className="viewer-tools">
+            <Segmented
+              label="What the 3D view shows"
+              value={view}
+              onChange={(v) => { setView(v); if (v !== "model") setCheck(null); }}
+              options={[
+                { value: "model", label: "Model" },
+                { value: "mesh", label: "Mesh" },
+                { value: "stress", label: "Stress" },
+              ]}
+            />
+            {check && view === "model" && part === "padeye" && (
+              <p className="caption viewer-tools-note">
+                Highlighted in blue: the part of the padeye the selected check is about.
+              </p>
+            )}
+          </div>
+            <section className="files-panel stack gap-2" aria-label="Calculation report and files">
+              <h2 className="section-title">Calculation report and files</h2>
+              <div className="downloads">
+                <button className="btn btn-primary" onClick={() => setShowReport(true)}>
+                  <FileText aria-hidden /> View calculation report
+                </button>
+                {part === "padeye" && (
+                  <button className="btn" onClick={openFusion} disabled={fusionBusy}>
+                    {fusionBusy ? <Loader2 className="spin" aria-hidden /> : <Box aria-hidden />}
+                    {fusionBusy ? "Building in Fusion" : "Open in Fusion"}
+                  </button>
+                )}
+                <MoreMenu
+                  label="Download files"
+                  align="left"
+                  triggerClassName="btn"
+                  trigger={<><Download aria-hidden /> Download files <ChevronDown aria-hidden /></>}
+                  items={[
+                    { label: "Everything", hint: "ZIP", icon: <Package aria-hidden />, onSelect: () => download(bundleUrl(project.id, run, design.key)) },
+                    { label: "Calculation report", hint: "PDF", icon: <FileText aria-hidden />, separated: true, onSelect: () => download(reportUrl(project.id, run, design.key, true)) },
+                    { label: "3D model", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.step)) },
+                    ...(design.files.stock_step
+                      ? [{ label: "Stock alone, for a Fusion check", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.stock_step!)) }]
+                      : []),
+                    { label: "Cutting profile", hint: "DXF", icon: <Scissors aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.dxf)) },
+                    ...(results.files
+                      ? [
+                          { label: "Engineering log", hint: "JSON", icon: <ListTree aria-hidden />, separated: true, onSelect: () => download(fileUrl(project.id, run, results.files!.engineering_log)) },
+                          { label: "Every design tried", hint: "CSV", icon: <FileSpreadsheet aria-hidden />, onSelect: () => download(fileUrl(project.id, run, results.files!.designs_evaluated)) },
+                        ]
+                      : []),
+                  ]}
+                />
+              </div>
+              <p className="caption">
+                The report has a fabrication drawing, every calculation and the stress results, with a Fusion cross-check sheet.
+                "Everything" puts the report, 3D model, cutting profile and the run's records in one ZIP file, ready to send.
+              </p>
+              {fusionMessage && <Banner kind={fusionMessage.kind}>{fusionMessage.text}</Banner>}
+          </section>
         </div>
       </div>
 
@@ -247,16 +249,18 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
         <div className="fusion-card">
           <h3>Fusion stress cross-check</h3>
           <p className={xc.agrees ? "text-pass" : "text-fail"}>{xc.agrees ? "Agrees with NEMO's stress check." : "Differs from NEMO's stress check. Review the Fusion study set-up."}</p>
-          <table className="data">
-            <thead>
-              <tr><th>Result</th><th className="r">Fusion</th><th className="r">NEMO</th><th className="r">Difference</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Reaction</td><td className="r">{xc.reaction_n !== null ? formatKn(xc.reaction_n) : "-"}</td><td className="r">{xc.nemo_reaction_n ? formatKn(xc.nemo_reaction_n) : "-"}</td><td className="r">{pct(xc.reaction_difference)}</td></tr>
-              <tr><td>Peak stress</td><td className="r">{num(xc.peak_stress_mpa, 1)} MPa</td><td className="r">{num(xc.nemo_peak_stress_mpa, 1)} MPa</td><td className="r">{pct(xc.stress_difference)}</td></tr>
-              <tr><td>Movement</td><td className="r">{num(xc.max_displacement_mm, 3)} mm</td><td className="r">{num(xc.nemo_max_displacement_mm, 3)} mm</td><td className="r">{pct(xc.displacement_difference)}</td></tr>
-            </tbody>
-          </table>
+          <div className="table-wrap">
+            <table className="data">
+              <thead>
+                <tr><th>Result</th><th className="r">Fusion</th><th className="r">NEMO</th><th className="r">Difference</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Reaction</td><td className="r">{xc.reaction_n !== null ? formatKn(xc.reaction_n) : "-"}</td><td className="r">{xc.nemo_reaction_n ? formatKn(xc.nemo_reaction_n) : "-"}</td><td className="r">{pct(xc.reaction_difference)}</td></tr>
+                <tr><td>Peak stress</td><td className="r">{num(xc.peak_stress_mpa, 1)} MPa</td><td className="r">{num(xc.nemo_peak_stress_mpa, 1)} MPa</td><td className="r">{pct(xc.stress_difference)}</td></tr>
+                <tr><td>Movement</td><td className="r">{num(xc.max_displacement_mm, 3)} mm</td><td className="r">{num(xc.nemo_max_displacement_mm, 3)} mm</td><td className="r">{pct(xc.displacement_difference)}</td></tr>
+              </tbody>
+            </table>
+          </div>
           <p className="caption">
             They agree when the reaction is within 2% and the peak stress within 15%. Movement is shown for information only, because it
             depends on how each program models the weld and the support.
@@ -364,14 +368,17 @@ function Summary({ design, part }: { design: DesignResult; part: PartId }) {
           <div className="label">Highest use: {governing?.title.toLowerCase()}</div>
         </div>
       </div>
-      <dl className="kv">
-        {rows.map(([k, v]) => (
-          <div key={k} style={{ display: "contents" }}>
-            <dt>{k}</dt>
-            <dd>{v}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="kv-panel">
+        <h2 className="section-title">Dimensions</h2>
+        <dl className="kv">
+          {rows.map(([k, v]) => (
+            <div key={k} style={{ display: "contents" }}>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
     </section>
   );
 }

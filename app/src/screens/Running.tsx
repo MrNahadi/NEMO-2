@@ -71,7 +71,7 @@ export function Running({ runId, onDone, onBack, title }: { runId: string; onDon
       )}
 
       <div className="run-grid">
-        <div className="stack gap-2">
+        <div className="stack gap-2 sticky">
           <StageList stages={stages} selected={shown} onSelect={(k) => setPinned(k === current && !finished ? null : k)} />
           {pinned && !finished && (
             <button className="btn btn-ghost" onClick={() => setPinned(null)}>
@@ -79,7 +79,7 @@ export function Running({ runId, onDone, onBack, title }: { runId: string; onDon
             </button>
           )}
         </div>
-        <section className="live-panel" aria-live="polite" aria-label={`${shownStage.title}: details`}>
+        <section className="live-panel run-live" aria-live="polite" aria-label={`${shownStage.title}: details`}>
           <div className="live-head">
             <h2 className="section-title">{shownStage.title}</h2>
             <span className="caption">{shownStage.state === "active" ? "Running now" : shownStage.state === "done" ? "Done" : shownStage.state === "failed" ? "Stopped" : "Not started"}</span>

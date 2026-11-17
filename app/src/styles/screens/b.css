@@ -1,0 +1,25 @@
+/* Screen styles owned by helper B: describe + assumptions forms and the live preview panel.
+   Shared primitives (.form, .field, .input-wrap, .chips, .viewer-chip ...) live in nemo.css. */
+
+/* A step's form column: one or more titled hairline groups; the last group holds the footer. */
+.form-stack { display: flex; flex-direction: column; gap: var(--sp-6); min-width: 0; }
+.form-section { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+
+/* Control widths, the same on all six screens:
+   single number input 160, captioned mini number 150, full-row select 440, inline select 260. */
+.w-num { width: 160px; max-width: 100%; }
+.mini-field { width: 150px; max-width: 100%; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mini-field .input-wrap { max-width: none; }
+.w-num .input-wrap { max-width: none; }
+.control-note { margin-top: var(--sp-2); }
+
+/* Live preview panel: quiet chips with readout numbers, calm caption. */
+.preview-panel .viewer-chip b { font-weight: 580; font-stretch: var(--readout-width); }
+.preview-panel > .caption { max-width: 60ch; }
+
+/* Line the preview up with the first group (below its section title) on wide screens. */
+@media (min-width: 1101px) { .form-stack:has(> .form-section:first-child > .section-title) ~ .preview-panel { margin-top: 30px; } }
+/* The "takes about a minute" note sits in the footer beside the run button. */
+.actions-note { flex: 1 1 240px; min-width: 0; margin-left: var(--sp-2); color: var(--text-3); }
+@media (max-width: 520px) { .actions-note { margin-left: 0; } }
+.labelled-select { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

@@ -158,21 +158,23 @@ export function StatusBadge({ check }: { check: Pick<Check, "passed" | "severity
   );
 }
 
-export function Banner({ kind, children }: { kind: "info" | "error"; children: ReactNode }) {
+export function Banner({ kind, children, className }: { kind: "info" | "error"; children: ReactNode; className?: string }) {
   return (
-    <div className={`banner banner-${kind}`} role={kind === "error" ? "alert" : undefined}>
+    <div className={`banner banner-${kind}${className ? ` ${className}` : ""}`} role={kind === "error" ? "alert" : undefined}>
       {kind === "error" ? <AlertCircle aria-hidden /> : <Info aria-hidden />}
       <div>{children}</div>
     </div>
   );
 }
 
+/** Utilisation gauge. The track runs to 120 %; the tick marks the 100 % limit. */
 export function UseBar({ utilization, advice }: { utilization: number; advice?: boolean }) {
   const pct = Math.min(utilization, 1.2) / 1.2;
   const cls = utilization > 1 ? (advice ? " advice" : " over") : "";
   return (
     <div className={`bar${cls}`} aria-hidden>
       <span style={{ width: `${pct * 100}%` }} />
+      <i className="bar-limit" />
     </div>
   );
 }
@@ -210,8 +212,10 @@ export function CheckList({
                 </span>
                 {!compact && <span className="check-detail">{c.source}</span>}
               </span>
-              <UseBar utilization={c.utilization} advice={c.severity === "advice"} />
-              <span className="num">{Math.round(c.utilization * 100)}%</span>
+              <span className="check-gauge">
+                <UseBar utilization={c.utilization} advice={c.severity === "advice"} />
+              </span>
+              <span className={`num${c.utilization > 1 ? (c.severity === "advice" ? " num-advice" : " num-over") : ""}`}>{Math.round(c.utilization * 100)}%</span>
               <span className="check-badge">
                 <StatusBadge check={c} />
               </span>

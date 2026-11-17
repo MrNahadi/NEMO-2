@@ -1,4 +1,4 @@
-import { Loader2, Play } from "lucide-react";
+import { CheckCircle2, ChevronRight, Loader2, Play, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../api";
 import { Formula, Working } from "../components/Formula";
@@ -61,13 +61,13 @@ export function Verification() {
   const done = Object.keys(live).length;
 
   return (
-    <div className="page page-wide">
+    <div className="page page-narrow">
       <h1 className="title">Verification</h1>
       <p className="lead">
         NEMO is checked against problems whose answers are known from theory or were worked out by hand. Run them here to see
         NEMO's calculation engine and stress solver reproduce those answers on this computer.
       </p>
-      <div className="actions" style={{ marginTop: 32 }}>
+      <div className="actions">
         <button className="btn btn-primary" onClick={runNow} disabled={busy}>
           {busy ? <Loader2 className="spin" aria-hidden /> : <Play aria-hidden />}
           {busy ? `Running ${done + 1} of ${listed.length}` : "Run verification now"}
@@ -98,10 +98,14 @@ export function Verification() {
                   {isRunning ? (
                     <span className="badge badge-neutral"><Loader2 className="spin" aria-hidden /> Running</span>
                   ) : r ? (
-                    <span className={`badge ${r.passed ? "badge-pass" : "badge-fail"}`}>{r.passed ? "Pass" : "Fail"}</span>
+                    <span className={`badge ${r.passed ? "badge-pass" : "badge-fail"}`}>
+                      {r.passed ? <CheckCircle2 aria-hidden /> : <XCircle aria-hidden />}
+                      {r.passed ? "Pass" : "Fail"}
+                    </span>
                   ) : (
                     <span className="badge badge-neutral">Not run</span>
                   )}
+                  {r && <ChevronRight aria-hidden className="bench-chevron" />}
                 </span>
               </button>
               {r && (
@@ -132,7 +136,8 @@ export function Verification() {
 function ComparisonTable({ rows }: { rows: Comparison[] }) {
   const fmt = (v: number) => (Math.abs(v) >= 1000 ? v.toLocaleString(undefined, { maximumFractionDigits: 1 }) : v.toLocaleString(undefined, { maximumSignificantDigits: 6 }));
   return (
-    <table className="data">
+    <div className="table-wrap">
+      <table className="data">
       <thead>
         <tr><th>Quantity</th><th className="r">Known answer</th><th className="r">NEMO</th><th className="r">Difference</th><th className="r">Allowed</th><th className="r">Result</th></tr>
       </thead>
@@ -148,6 +153,7 @@ function ComparisonTable({ rows }: { rows: Comparison[] }) {
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   );
 }

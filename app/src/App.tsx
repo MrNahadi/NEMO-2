@@ -1,4 +1,4 @@
-import { Moon, ShieldCheck, Sun } from "lucide-react";
+import { FolderClosed, Moon, Plus, ShieldCheck, Sun } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "./api";
 import { FusionLight, FusionProvider } from "./components/Fusion";
@@ -162,34 +162,77 @@ export function App() {
     body = <Results project={project} onEdit={() => setScreen({ name: "describe" })} onRunAgain={startRun} />;
   }
 
+  const inDesign = !!project && !["home", "new", "verification"].includes(screen.name);
+  const stepIndex = screen.name === "describe" ? 0 : screen.name === "assumptions" ? 1 : 2;
+  const steps = ["Describe", "Assumptions", screen.name === "running" ? "Running" : "Results"];
+  const crumbs: string[] =
+    screen.name === "new" ? ["New design"]
+    : screen.name === "verification" ? ["Verification"]
+    : inDesign && project ? [project.name, steps[stepIndex]]
+    : [];
+  const go = (s: Screen) => setScreen(s);
+
   return (
     <FusionProvider>
-    <div className="shell">
-      <header className="topbar">
-        <button className="brand" onClick={() => setScreen({ name: "home" })} aria-label="NEMO home">
-          <span className="brand-mark"><Logo /></span> NEMO
+    <div className="app">
+      <aside className="sidebar" aria-label="NEMO">
+        <div className="sidebar-inner">
+        <button className="brand" onClick={() => go({ name: "home" })} aria-label="NEMO home">
+          <span className="brand-mark"><Logo size={16} /></span>
+          <span className="brand-name">NEMO</span>
         </button>
-        <div className="topbar-meta">
-          {project && !["home", "new", "verification"].includes(screen.name) && <span>{project.name}</span>}
-          <FusionLight />
-          <button
-            className="btn btn-ghost nav-btn"
-            aria-pressed={screen.name === "verification"}
-            onClick={() => setScreen({ name: "verification" })}
-          >
-            <ShieldCheck aria-hidden /> Verification
+        <nav className="side-nav" aria-label="Main">
+          <button className="side-item side-new" onClick={() => go({ name: "new" })} aria-current={screen.name === "new" ? "page" : undefined}>
+            <Plus aria-hidden /> <span>New design</span>
           </button>
+          <button className="side-item" onClick={() => go({ name: "home" })} aria-current={screen.name === "home" ? "page" : undefined}>
+            <FolderClosed aria-hidden /> <span>Designs</span>
+          </button>
+          <button className="side-item" onClick={() => go({ name: "verification" })} aria-current={screen.name === "verification" ? "page" : undefined}>
+            <ShieldCheck aria-hidden /> <span>Verification</span>
+          </button>
+        </nav>
+        {inDesign && project && (
+          <div className="side-group">
+            <div className="side-label">Open design</div>
+            <div className="side-project" title={project.name}>{project.name}</div>
+            <ol className="side-steps" aria-label="Steps for this design">
+              {steps.map((label, i) => (
+                <li key={label} className={i < stepIndex ? "done" : i === stepIndex ? "current" : ""} aria-current={i === stepIndex ? "step" : undefined}>
+                  <span className="side-step-mark" aria-hidden>{i + 1}</span>
+                  {label}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        <div className="side-foot">
           <button
-            className="btn btn-ghost"
-            style={{ height: 36, padding: "0 10px" }}
+            className="side-item"
             aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           >
             {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
+            <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
           </button>
         </div>
-      </header>
-      <main className="panel">{body}</main>
+        </div>
+      </aside>
+      <div className="main">
+        <header className="main-header">
+          <nav className="crumbs" aria-label="Where you are">
+            <button className="crumb" onClick={() => go({ name: "home" })} aria-current={crumbs.length === 0 ? "page" : undefined}>Designs</button>
+            {crumbs.map((c, i) => (
+              <span key={i} className={i === crumbs.length - 1 ? "crumb current" : "crumb"} aria-current={i === crumbs.length - 1 ? "page" : undefined}>
+                <span className="crumb-sep" aria-hidden>/</span>
+                <span className="crumb-text">{c}</span>
+              </span>
+            ))}
+          </nav>
+          <FusionLight />
+        </header>
+        <main className="panel">{body}</main>
+      </div>
     </div>
     </FusionProvider>
   );

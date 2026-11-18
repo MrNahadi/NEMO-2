@@ -10,3 +10,7 @@
 
 /* A grid item that spans the whole row (a lone segmented under two minis). */
 .grid-span { grid-column: 1 / -1; }
+
+/* Reserved readout values (PreviewPanel): the skeleton fills the 20 px value line (12 px bar + 4 px
+   margins) so the strip keeps its exact height between sizing and sized. */
+.viewer-chip b .skeleton { display: block; height: 12px; margin: 4px 0; }

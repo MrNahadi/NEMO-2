@@ -1,4 +1,4 @@
-import { Loader2, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "./api";
 import { FusionLight, FusionProvider } from "./components/Fusion";
@@ -230,7 +230,7 @@ export function App() {
             <nav className="crumbs" aria-label="Breadcrumb">
               <button className="brand" onClick={() => go({ name: "home" })} aria-label="NEMO, go to Designs">
                 <span className="brand-mark" aria-hidden>
-                  <Logo size={16} />
+                  <Logo size={20} />
                 </span>
                 <span>NEMO</span>
               </button>
@@ -275,13 +275,14 @@ export function App() {
                 {tabs.map((t) => {
                   const button = (
                     <button
-                      className="tab"
+                      className={t.busy ? "tab busy" : "tab"}
                       aria-current={t.current ? "page" : undefined}
                       aria-disabled={!t.enabled || undefined}
                       onClick={() => t.enabled && !t.current && t.open()}
                     >
-                      {t.busy && <Loader2 className="spin" aria-hidden />}
                       <span>{t.label}</span>
+                      {/* While a run is going the tab's underline becomes an indeterminate bar: it takes no width,
+                          so the tabs never shift. */}
                       {t.busy && <span className="sr-only">(running)</span>}
                     </button>
                   );

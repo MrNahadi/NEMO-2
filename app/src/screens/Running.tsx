@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../api";
 import { activeStage, StageList, stagesFrom, StageView, type StageKey } from "../components/Engineering";
-import { Page, PageHeader } from "../components/Page";
+import { Page, PageHeader, StickyAside } from "../components/Page";
 import { Note, Progress } from "../components/ui";
 import type { EngEvent, RunStatus } from "../types";
 
@@ -92,17 +92,13 @@ export function Running({ runId, onDone, onBack, title }: { runId: string; onDon
             </button>
           )}
         </div>
-        <aside
-          className="workspace-aside workspace-aside-scroll run-panel"
-          aria-live="polite"
-          aria-label={`${shownStage.title}: details`}
-        >
+        <StickyAside className="workspace-aside-scroll run-panel" live="polite" label={`${shownStage.title}: details`}>
           <div className="run-panel-head">
             <h2 className="section-title">{shownStage.title}</h2>
             <span className="caption">{stateWord}</span>
           </div>
-          <StageView stage={shown} events={events} />
-        </aside>
+          <StageView stage={shown} events={events} state={shownStage.state} />
+        </StickyAside>
       </div>
     </Page>
   );

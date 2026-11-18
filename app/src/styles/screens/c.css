@@ -1,173 +1,44 @@
-/* Screen styles for helper c (round 2): Results, Run log, Running, the engineering stage list and
-   stage views, charts, the calculation working and the report viewer.
+/* Screen styles for Results (round 3: helper A). Run log, Running, stage list, charts and working are in
+   d.css; the report viewer is in nemo.css.
    Geist tokens (--ds-*) and shared classes from nemo.css; see DESIGN-NOTES.md. */
 
 /* ================================================================ Results (Template B with the
    page header carrying the actions) */
 /* The .workspace grid (520px left, sticky aside right) sits below the full-width choicebox row. */
-.results-grid { margin-top: 24px; }
+.results-grid { margin-top: 16px; }
+
+/* Tighter rhythm inside the Results sections, so the first checks sit higher on the page. */
+.results-grid .workspace-main > .section { gap: 8px; }
+
+/* Keyboard order: the aside comes first in the DOM so the Model/Mesh/Stress toggle precedes the check
+   rows; on desktop it is placed back in the second (right) column. Below 901px nemo.css stacks the
+   workspace and already orders the aside first. */
+@media (min-width: 901px) {
+  .results-grid > .workspace-main { order: 1; }
+  .results-grid > .workspace-aside { order: 2; }
+}
+
+/* Tighter vertical rhythm between the Results sections (20px instead of the default 32), so two full
+   check rows fit in a 1280x800 window. */
+.results-grid .workspace-main > .section + .section { margin-top: 20px; }
+
+/* Advisory / failure notes between the summary and the checks. */
+.results-attention { display: flex; flex-direction: column; gap: 8px; margin: 20px 0 24px; }
 
 /* The check count badge next to the "Design checks" section title. */
 .section-title .badge { margin-left: 8px; vertical-align: 2px; }
 
-/* Key/value values that are phrases mixing words and numbers: Sans with tabular figures, not mono. */
-/* Description lists (.kv rows, .kv-grid) are Sans with tabular figures (nemo.css); mono is for numbers in columns. */
+/* Stress check and Fusion prose: numbers are Sans with tabular figures (never mono inside prose),
+   emphasis at weight 600; one space between a number and its unit. */
+.stress-summary p, .fusion-block p { font-variant-numeric: tabular-nums; }
+.stress-summary b { font-weight: 600; }
 
 /* Fusion open result message, directly under the page header it came from. */
 .results-flash { margin-bottom: 16px; }
 
 /* The design-aid note at the end of the left column. */
-.results-note { margin-top: 32px; }
+.results-note { margin-top: 24px; }
 
 /* Fusion records: quiet sub-sections with hairlines, no cards. */
 .fusion-block { display: flex; flex-direction: column; gap: 8px; }
 .fusion-block + .fusion-block { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--ds-gray-alpha-400); }
-
-/* ================================================================ Run log tab (full container width:
-   stage list left 320px, the selected stage's chart and tables right) */
-.runlog-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); column-gap: 32px; align-items: start; }
-.runlog-side { position: sticky; top: calc(var(--chrome-h) + 32px); min-width: 0; }
-.runlog-detail { min-width: 0; }
-.runlog-caption { margin-top: 24px; }
-
-/* ================================================================ Running */
-.run-progress { margin-bottom: 24px; }
-.run-fail { margin-bottom: 24px; }
-.run-elapsed { color: var(--ds-gray-900); font-variant-numeric: tabular-nums; line-height: 32px; }
-.run-follow { margin-top: 8px; }
-
-/* The sticky live-detail panel on the right; scrolls internally when taller than the window. */
-.run-panel {
-  border: 1px solid var(--ds-gray-alpha-400); border-radius: var(--radius-medium);
-  background: var(--ds-background-100); padding: 20px; gap: 16px;
-}
-.run-panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
-
-/* ================================================================ Stage list (Geist vertical steps):
-   16px status icon, title label-14 500, one-line summary label-13 gray-900. Selected = gray-alpha-100. */
-.stage-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-.stage-row {
-  display: flex; align-items: flex-start; gap: 10px; width: 100%;
-  padding: 8px 10px; border-radius: var(--radius-small); text-align: left;
-  transition: background var(--dur-fast);
-}
-.stage-row:hover { background: var(--ds-gray-alpha-100); }
-.stage-row[aria-pressed="true"] { background: var(--ds-gray-alpha-100); }
-.stage-icon { width: 16px; height: 16px; margin-top: 2px; flex: none; display: grid; place-items: center; }
-.stage-icon svg { width: 16px; height: 16px; stroke-width: 1.75; }
-.stage-icon.done { color: var(--ds-gray-1000); }
-.stage-icon.active { color: var(--ds-gray-1000); }
-.stage-icon.failed { color: var(--ds-red-900); }
-.stage-icon.waiting { color: var(--ds-gray-600); }
-.stage-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.stage-title { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ds-gray-1000); }
-.stage-summary {
-  font-size: 13px; line-height: 16px; color: var(--ds-gray-900); font-variant-numeric: tabular-nums;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-/* Forces stage: the diagram left, the explanation right. */
-.view-split { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
-.view-split .svg-chart { max-width: 300px; }
-
-/* ================================================================ Charts (colours from the Geist tokens;
-   axis labels Geist Mono 12px gray-900, gridlines gray-400) */
-.chart { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.chart canvas { display: block; }
-.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; line-height: 16px; color: var(--ds-gray-900); }
-.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.chart-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
-.dot-pass { background: var(--ds-gray-700); }
-.dot-fail { background: var(--ds-red-700); }
-.dot-chosen { background: var(--ds-blue-700); }
-
-.svg-chart { display: block; width: 100%; max-width: 680px; height: auto; }
-.svg-chart .grid { stroke: var(--ds-gray-400); stroke-width: 1; }
-.svg-chart .tick { font-family: var(--font-mono); font-size: 12px; fill: var(--ds-gray-900); }
-.svg-chart .tick.strong { font-weight: 600; fill: var(--ds-gray-1000); }
-.svg-chart .tick.danger { fill: var(--ds-red-900); font-weight: 500; }
-.svg-chart .line { fill: none; stroke: var(--ds-gray-1000); stroke-width: 1.5; }
-.svg-chart .muted-line { fill: none; stroke: var(--ds-gray-700); stroke-width: 1.5; }
-.svg-chart .point { fill: var(--ds-gray-1000); }
-.svg-chart .label { font-family: var(--font-mono); font-size: 12px; fill: var(--ds-gray-900); }
-.svg-chart .label.accent { fill: var(--ds-gray-1000); font-weight: 600; }
-.svg-chart .danger-line { stroke: var(--ds-red-700); stroke-width: 1.5; }
-.svg-chart .danger-line.dashed { stroke-dasharray: 5 4; }
-.svg-chart .band { fill: var(--ds-red-200); }
-
-/* Force diagram (padeye outline, sling force and its parts). Grayscale; weight carries the meaning. */
-.svg-chart .part { fill: var(--ds-gray-100); stroke: var(--ds-gray-1000); stroke-width: 1.5; }
-.svg-chart .hole { fill: var(--ds-background-100); stroke: var(--ds-gray-1000); stroke-width: 1.25; }
-.svg-chart .ground { stroke: var(--ds-gray-900); stroke-width: 1.25; }
-.svg-chart .hatch { stroke: var(--ds-gray-600); stroke-width: 1; }
-.svg-chart .component { stroke: var(--ds-gray-600); stroke-width: 1.25; stroke-dasharray: 4 3; }
-.svg-chart .force-line { stroke: var(--ds-gray-1000); stroke-width: 2; fill: none; }
-.svg-chart .arrowhead-accent { fill: var(--ds-gray-1000); }
-.svg-chart .arrowhead-muted { fill: var(--ds-gray-600); }
-
-/* ================================================================ Working (the step-by-step calculation
-   inside an open check or a stage view): a numbered list on background-200, formulas in Geist Mono 13. */
-.working {
-  background: var(--ds-background-200); border: 1px solid var(--ds-gray-alpha-400);
-  border-radius: var(--radius-small); padding: 10px 16px;
-}
-.working-steps { list-style: none; margin: 0; padding: 0; }
-.working-step {
-  display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 2px 12px;
-  padding: 8px 0; border-top: 1px solid var(--ds-gray-alpha-400);
-}
-.working-step:first-child { border-top: 0; padding-top: 2px; }
-.working-step:last-child { padding-bottom: 2px; }
-.working-num { grid-row: 1 / 3; font-family: var(--font-mono); font-size: 13px; line-height: 18px; color: var(--ds-gray-900); }
-.working-label { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ds-gray-1000); }
-.working-note { margin-left: 6px; font-weight: 400; color: var(--ds-gray-900); }
-.working-formula {
-  font-family: var(--font-mono); font-size: 13px; line-height: 18px;
-  color: var(--ds-gray-1000); overflow-wrap: anywhere;
-}
-.working-formula .working-result { font-weight: 600; }
-.working-verdict {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px;
-  margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--ds-gray-alpha-400);
-  font-size: 13px; line-height: 18px; color: var(--ds-gray-1000); font-variant-numeric: tabular-nums;
-}
-.formula sub, .formula sup { font-size: 0.75em; }
-
-/* ================================================================ Report viewer (Geist fullscreen
-   material: radius 16, 24px inset, --shadow-modal) */
-.report-overlay {
-  position: fixed; inset: 0; z-index: 50; padding: 24px;
-  background: var(--overlay); animation: fade-in var(--dur-base) var(--ease-out);
-}
-.report-viewer {
-  display: flex; flex-direction: column; height: 100%; overflow: hidden;
-  background: var(--ds-background-100); border-radius: var(--radius-full-screen);
-  box-shadow: var(--shadow-modal); animation: modal-in var(--dur-base) var(--ease-out);
-}
-.report-bar {
-  display: flex; align-items: center; gap: 8px; flex: none;
-  padding: 10px 12px 10px 20px; border-bottom: 1px solid var(--ds-gray-alpha-400);
-}
-.report-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.report-name {
-  font-size: 14px; line-height: 20px; font-weight: 600;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.report-subtitle {
-  font-size: 13px; line-height: 16px; color: var(--ds-gray-900);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.report-body { position: relative; flex: 1; min-height: 0; background: var(--ds-background-200); }
-.report-loading {
-  position: absolute; inset: 0; z-index: 1; display: grid; place-items: center;
-  background: var(--ds-background-200); color: var(--ds-gray-900); font-size: 14px;
-}
-.report-loading .row { gap: 8px; }
-.report-frame { display: block; width: 100%; height: 100%; border: 0; background: var(--ds-background-200); }
-
-/* ================================================================ Narrow windows (phone out of scope) */
-@media (max-width: 900px) {
-  .runlog-grid { grid-template-columns: minmax(0, 1fr); }
-  .runlog-side { position: static; }
-  .view-split { grid-template-columns: minmax(0, 1fr); }
-}

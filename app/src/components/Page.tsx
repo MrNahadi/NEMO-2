@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
 /** The page header used on every screen: heading-24 title, one line of copy-14, actions on the right
  *  (primary action last). */
@@ -41,9 +41,7 @@ export function Workspace({
         <div className="workspace-body">{children}</div>
         {footer && <div className="footer-bar">{footer}</div>}
       </div>
-      <aside className="workspace-aside" aria-label={asideLabel}>
-        {aside}
-      </aside>
+      <StickyAside label={asideLabel}>{aside}</StickyAside>
     </div>
   );
 }
@@ -75,5 +73,59 @@ export function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+/** The workspace's right panel: sticky below the header, and sized from where it actually is on screen,
+ *  so it never runs past the window bottom (24 px clearance). On Results it starts lower down (below the
+ *  design choices) and grows to the full height once it sticks. Sets --aside-h on the element; CSS uses it
+ *  as the height (or as a max-height for panels that fit their content, such as Running). */
+export function StickyAside({
+  children,
+  label,
+  className,
+  live,
+}: {
+  children: ReactNode;
+  label?: string;
+  className?: string;
+  /** aria-live for panels whose content updates on its own (Running). */
+  live?: "polite";
+}) {
+  const ref = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let frame = 0;
+    let last = "";
+    const fit = () => {
+      const top = el.getBoundingClientRect().top;
+      const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
+      const h = `${Math.max(280, Math.floor(window.innerHeight - Math.max(top, stickyTop) - 24))}px`;
+      if (h !== last) {
+        last = h;
+        el.style.setProperty("--aside-h", h);
+      }
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(fit);
+    };
+    fit();
+    const ro = new ResizeObserver(schedule);
+    ro.observe(document.body);
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+  return (
+    <aside ref={ref} className={`workspace-aside${className ? ` ${className}` : ""}`} aria-label={label} aria-live={live}>
+      {children}
+    </aside>
   );
 }

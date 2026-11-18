@@ -1,5 +1,7 @@
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { typeahead, usePopoverPlacement } from "./popover";
+import { useControlA11y } from "./ui";
 
 export interface Option<T extends string | number> {
   value: T;
@@ -24,9 +26,12 @@ export function Select<T extends string | number>({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const id = useId();
   const selected = options.find((o) => o.value === value);
+  const a11y = useControlA11y(label);
+  usePopoverPlacement(open, trigger, list, { align: "stretch" });
 
   useEffect(() => {
     if (!open) return;
@@ -63,18 +68,23 @@ export function Select<T extends string | number>({
     else if (e.key === "Escape" || e.key === "Tab") {
       setOpen(false);
       return;
-    } else return;
+    } else {
+      const next = typeahead(options.map((o) => o.label), active, e.key);
+      if (next < 0) return;
+      setActive(next);
+    }
     e.preventDefault();
   }
 
   return (
     <div className="select-root" ref={root} style={{ maxWidth: width }}>
       <button
+        ref={trigger}
         type="button"
         className="select-trigger"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={label}
+        {...a11y.props}
         aria-controls={id}
         aria-activedescendant={open ? `${id}-${active}` : undefined}
         onClick={() => setOpen((o) => !o)}
@@ -83,6 +93,7 @@ export function Select<T extends string | number>({
         <span className="select-value">{selected?.label ?? "Choose"}</span>
         <ChevronDown aria-hidden className={open ? "select-chevron open" : "select-chevron"} />
       </button>
+      {a11y.own}
       {open && (
         <ul className="select-menu" role="listbox" id={id} ref={list} aria-label={label}>
           {options.map((o, i) => (

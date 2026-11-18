@@ -3,16 +3,16 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { api, bundleUrl, fileUrl, reportUrl } from "../api";
 import { useFusion, useFusionRecords } from "../components/Fusion";
 import { MoreMenu } from "../components/Menu";
-import { Page, PageHeader, Section } from "../components/Page";
+import { Page, PageHeader, Section, StickyAside } from "../components/Page";
 import { ReportViewer } from "../components/ReportViewer";
 import { StageList, stagesFrom, StageView, type StageKey } from "../components/Engineering";
-import { Badge, CheckList, Choicebox, Note, Segmented, Skeleton, formatKg, formatKn } from "../components/ui";
+import { Badge, CheckList, Choicebox, Note, Segmented, Skeleton, checkStatus, formatKg, formatKgSet, formatKn, formatValue } from "../components/ui";
 import { MeshModel } from "../three/MeshModel";
 import { frameOf } from "../three/frame";
 import { StressModel } from "../three/StressModel";
 import { Viewer } from "../three/Viewer";
 import { PART_NAMES, PartModel, partFrame } from "../three/PartModel";
-import type { BracketDesign, FinDesign, Job, PartId, DesignResult, EngEvent, FusionRecords, Project, StressSurface, SurfaceMesh } from "../types";
+import type { BracketDesign, Check, FinDesign, Job, PartId, DesignResult, EngEvent, FusionRecords, Project, StressSurface, SurfaceMesh } from "../types";
 
 type View = "model" | "stress" | "mesh";
 
@@ -71,6 +71,24 @@ export function Results({
   const names = PART_NAMES[part];
   const mesh = log?.find((e) => e.kind === "mesh" && e.target === design.key && e.surface)?.surface as SurfaceMesh | undefined;
   const allPass = results.designs.every((d) => d.check_report.passed);
+  // Masses of the designs shown side by side get one more decimal when two would read the same (0.305/0.308/0.313).
+  const massLabels = formatKgSet(results.designs.map((d) => d.check_report.mass_kg));
+  // Checks on the selected design that need attention: advisories (amber) and failures (red) surface above the checks.
+  const checks = design.check_report.checks;
+  const advice = checks.filter((c) => checkStatus(c) === "advice");
+  const fails = checks.filter((c) => checkStatus(c) === "fail");
+
+  /** Selects a check (opening its working) and scrolls it into view. Used by the advisory/failure notes. */
+  function showCheck(id: string) {
+    setCheck(id);
+    setView("model");
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.querySelector(".check.open")?.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+      }),
+    );
+  }
 
   if (tab === "log") {
     return (
@@ -126,7 +144,9 @@ export function Results({
       <PageHeader
         title={`Your ${names.noun} designs`}
         description={`${results.designs.length} design${results.designs.length === 1 ? "" : "s"} ${jobSummary(results.job)}. ${
-          allPass ? "Each passes every required check." : "Read the failing checks below."
+          allPass
+            ? `Each passes every required check${advice.length ? `; ${advice.length} advisor${advice.length === 1 ? "y" : "ies"}` : ""}.`
+            : "Read the failing checks below."
         }`}
         actions={
           <>
@@ -187,42 +207,18 @@ export function Results({
         legend="Choose a design"
         value={key}
         onChange={setKey}
-        options={results.designs.map((d) => ({
+        options={results.designs.map((d, i) => ({
           value: d.key as string,
           title: d.label.split(" (")[0],
-          meta: formatKg(d.check_report.mass_kg),
+          meta: massLabels[i],
           description: choiceCaption(part, d),
         }))}
       />
 
       <div className="workspace results-grid">
-        <div className="workspace-main">
-          <Summary design={design} part={part} />
-          <Section
-            title={
-              <>
-                Design checks <Badge tone="gray">{design.check_report.checks.length}</Badge>
-              </>
-            }
-            description={`Select a check to see its calculation, step by step${part === "padeye" ? ", and where it acts on the padeye in the 3D view" : ""}.`}
-          >
-            <CheckList
-              checks={design.check_report.checks}
-              selected={check}
-              onSelect={(id) => {
-                setCheck(id);
-                if (id) setView("model");
-              }}
-            />
-          </Section>
-          {design.fea && <FeaSummary design={design} part={part} />}
-          {part === "padeye" && <FusionSection records={records} />}
-          <Note size="small" className="results-note">
-            A competent engineer must review this design{part === "padeye" ? ", the structure it is welded to and the lifting arrangement" : " and the structure it is fitted to"} before it is made or used.
-          </Note>
-        </div>
-
-        <aside className="workspace-aside" aria-label="3D view">
+        {/* The aside comes first in the DOM so the Model/Mesh/Stress toggle precedes the check rows in
+            keyboard order; c.css places it back in the right column on desktop. */}
+        <StickyAside label="3D view">
           <ResultViewer
             projectId={project.id}
             run={run}
@@ -256,7 +252,61 @@ export function Results({
             The report has a fabrication drawing, every calculation and the stress results, with a Fusion cross-check sheet.
             &quot;Everything&quot; in the Download menu puts the report, 3D model, cutting profile and the run&#39;s records in one ZIP file, ready to send.
           </p>
-        </aside>
+        </StickyAside>
+
+        <div className="workspace-main">
+          <Summary design={design} part={part} />
+          {(fails.length > 0 || advice.length > 0) && (
+            <div className="results-attention">
+              {fails.length > 0 && (
+                <Note
+                  kind="error"
+                  action={
+                    <button className="btn btn-sm" onClick={() => showCheck(fails[0].id)}>
+                      Show check
+                    </button>
+                  }
+                >
+                  {attentionLine("fail", fails)}
+                </Note>
+              )}
+              {advice.length > 0 && (
+                <Note
+                  kind="warning"
+                  action={
+                    <button className="btn btn-sm" onClick={() => showCheck(advice[0].id)}>
+                      Show check
+                    </button>
+                  }
+                >
+                  {attentionLine("advice", advice)}
+                </Note>
+              )}
+            </div>
+          )}
+          <Section
+            title={
+              <>
+                Design checks <Badge tone="gray">{design.check_report.checks.length}</Badge>
+              </>
+            }
+            description={`Select a check to see its working${part === "padeye" ? " and where it acts on the padeye" : ""}. Bars show the share of each limit used; 100% is the limit.`}
+          >
+            <CheckList
+              checks={design.check_report.checks}
+              selected={check}
+              onSelect={(id) => {
+                setCheck(id);
+                if (id) setView("model");
+              }}
+            />
+          </Section>
+          {design.fea && <FeaSummary design={design} part={part} />}
+          {part === "padeye" && <FusionSection records={records} />}
+          <Note size="small" className="results-note">
+            A competent engineer must review this design{part === "padeye" ? ", the structure it is welded to and the lifting arrangement" : " and the structure it is fitted to"} before it is made or used.
+          </Note>
+        </div>
       </div>
 
       {showReport && (
@@ -277,6 +327,7 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
   const pct = (d: number | null | undefined, digits = 1) => (d === null || d === undefined ? "-" : `${d >= 0 ? "+" : ""}${(d * 100).toFixed(digits)}%`);
   const num = (v: number | null | undefined, digits: number) => (v === null || v === undefined ? "-" : v.toFixed(digits));
   const last = records.checks[records.checks.length - 1];
+  const lastMasses = last ? formatKgSet([last.mass_kg, last.nemo_mass_kg]) : null;
   const xc = records.crosscheck;
   return (
     <Section title="Fusion">
@@ -307,7 +358,7 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
           <h3 className="text-heading-14">Last check from Fusion</h3>
           <p>
             {last.passed ? <span className="text-pass">Passes every required check.</span> : <span className="text-fail">Does not pass every required check.</span>}{" "}
-            Highest use: {last.governing.title.toLowerCase()}, {Math.round(last.governing.use * 100)}%. Plate mass {formatKg(last.mass_kg)} (NEMO design {formatKg(last.nemo_mass_kg)}).
+            Highest use: {last.governing.title.toLowerCase()}, {Math.round(last.governing.use * 100)}%. Plate mass {lastMasses![0]} (NEMO design {lastMasses![1]}).
           </p>
           {Object.keys(last.changed).length > 0 && (
             <p className="caption">
@@ -385,77 +436,90 @@ function choiceCaption(part: PartId, d: DesignResult): string {
   return spare ? `${base}. ${spare[0].toUpperCase()}${spare.slice(1)}.` : base;
 }
 
+/** One line for an advisory or failure Note, built from the check data: "1 advisory: Support spacing
+ *  within NEMO's recommended maximum — 3 m against NEMO's recommended 2.3 m." */
+function attentionLine(kind: "fail" | "advice", list: Check[]): string {
+  const head = kind === "fail" ? (list.length === 1 ? "1 check fails." : `${list.length} checks fail.`) : `${list.length} advisor${list.length === 1 ? "y" : "ies"}.`;
+  const detail = list
+    .map((c) => {
+      const demand = formatValue(c.demand, c.unit);
+      const capacity = formatValue(c.capacity, c.unit);
+      // Support spacing reads better in its own words than as a generic demand/capacity pair.
+      if (c.id === "span_limit") return `Supports are ${demand} apart; NEMO recommends at most ${capacity}`;
+      return kind === "fail" ? `${c.title}: ${demand} against a limit of ${capacity}` : `${c.title}: ${demand} against a recommended ${capacity}`;
+    })
+    .join(". ");
+  return `${head} ${detail}.`;
+}
+
+/** Summary and dimensions as compact key/value pairs: "num" is a pure number + unit (Geist Mono),
+ *  "phrase" mixes words and numbers (Sans tabular); "wide" rows span both columns. The force row and an
+ *  even run of two-column pairs keep the grid free of half-empty rows. */
 function Summary({ design, part }: { design: DesignResult; part: PartId }) {
   const r = design.check_report;
-  const governing = r.checks.find((c) => c.id === r.governing);
-  /** [label, value, value is a phrase (Sans tabular) rather than a number (Geist Mono)] */
-  let rows: [string, string, boolean?][];
+  type Row = [label: string, value: string, kind: "num" | "phrase", wide?: boolean];
+  let rows: Row[];
   let force: [string, string];
   if (part === "pipe-bracket") {
     const b = r.design as unknown as BracketDesign;
-    force = [formatKn(r.loads.sling_force_n), "Downward design force"];
+    force = ["Design force", formatKn(r.loads.sling_force_n)];
     rows = [
-      ["Pipe", r.pipe?.label ?? "", true],
-      ["Seat plate", `${b.seat_length_mm} × ${b.seat_width_mm} × ${b.seat_thickness_mm} mm`],
-      ["Knees (2)", `${b.knee_thickness_mm} mm, ${b.knee_depth_mm} mm deep at the bulkhead`, true],
-      ["Pipe centre from the bulkhead", `${Math.round(b.pipe_offset_mm)} mm`],
-      ["U-bolt", r.ubolt?.label ?? "", true],
-      ["Welds", `${b.root_weld_mm} mm to the bulkhead, ${b.knee_weld_mm} mm knees to seat`, true],
+      ["Pipe", r.pipe?.label ?? "", "phrase", true],
+      ["Seat plate", `${b.seat_length_mm} × ${b.seat_width_mm} × ${b.seat_thickness_mm} mm`, "num", true],
+      ["Knees (2)", `${b.knee_thickness_mm} mm, ${b.knee_depth_mm} mm deep at the bulkhead`, "phrase", true],
+      ["Pipe centre from the bulkhead", `${Math.round(b.pipe_offset_mm)} mm`, "num", true],
+      ["U-bolt", r.ubolt?.label ?? "", "phrase", true],
+      ["Welds", `${b.root_weld_mm} mm to the bulkhead, ${b.knee_weld_mm} mm knees to seat`, "phrase", true],
     ];
     if (r.span) {
-      rows.push(["Pipe span frequency", `${r.span.natural_hz.toFixed(1)} Hz, ${Math.round(r.span.separation * 100)}% from ${r.span.nearest.name.toLowerCase()} (${r.span.nearest.hz.toFixed(1)} Hz)`, true]);
-      rows.push(["Longest support spacing", `${r.span.recommended_m.toFixed(1)} m (stress ${r.span.spans_m.stress.toFixed(1)}, sag ${r.span.spans_m.sag.toFixed(1)}, vibration ${r.span.spans_m.frequency.toFixed(1)} m)`, true]);
+      rows.push(["Pipe span frequency", `${r.span.natural_hz.toFixed(1)} Hz, ${Math.round(r.span.separation * 100)}% from ${r.span.nearest.name.toLowerCase()} (${r.span.nearest.hz.toFixed(1)} Hz)`, "phrase", true]);
+      rows.push(["Longest support spacing", `${r.span.recommended_m.toFixed(1)} m (stress ${r.span.spans_m.stress.toFixed(1)}, sag ${r.span.spans_m.sag.toFixed(1)}, vibration ${r.span.spans_m.frequency.toFixed(1)} m)`, "phrase", true]);
     }
   } else if (part === "stabilizer") {
     const f = r.design as unknown as FinDesign;
     const m = r.masses_kg ?? {};
-    force = [formatKn(r.loads.sling_force_n), "Design force on the fin"];
+    force = ["Design force on the fin", formatKn(r.loads.sling_force_n)];
     rows = [
-      ["Foil", `${f.span_mm} mm span × ${f.chord_mm} mm chord, NACA 00${Math.round(f.thickness_ratio * 100)}`, true],
-      ["Skin", `${f.skin_mm} mm`],
-      ["Spars and ribs", `${f.web_mm} mm; spars at ${Math.round(f.front_spar * 100)}% and ${Math.round(f.rear_spar * 100)}% chord`, true],
-      ["Ribs", `${r.ribs} at ${Math.round(r.rib_pitch_mm ?? 0)} mm`, true],
-      ["Stock", `Ø${f.stock_diameter_mm} mm ${r.stock_material?.name ?? ""}`, true],
-      ["Mass", `structure ${formatKg((m.total ?? 0) - (m.stock ?? 0))}, stock ${formatKg(m.stock ?? 0)}`, true],
+      ["Foil", `${f.span_mm} mm span × ${f.chord_mm} mm chord, NACA 00${Math.round(f.thickness_ratio * 100)}`, "phrase", true],
+      ["Skin", `${f.skin_mm} mm`, "num"],
+      ["Ribs", `${r.ribs} at ${Math.round(r.rib_pitch_mm ?? 0)} mm`, "phrase"],
+      ["Spars", `${f.web_mm} mm webs; spars at ${Math.round(f.front_spar * 100)}% and ${Math.round(f.rear_spar * 100)}% chord`, "phrase", true],
+      ["Stock", `Ø${f.stock_diameter_mm} mm ${r.stock_material?.name ?? ""}`, "phrase", true],
+      ["Mass", `structure ${formatKg((m.total ?? 0) - (m.stock ?? 0))}, stock ${formatKg(m.stock ?? 0)}`, "phrase", true],
     ];
   } else {
     const d = r.design;
-    force = [formatKn(r.loads.sling_force_n), "Sling force per padeye"];
+    force = ["Sling force per padeye", formatKn(r.loads.sling_force_n)];
     rows = [
-      ["Main plate", `${d.main_thickness_mm} mm`],
-      ["Head radius", `${d.head_radius_mm} mm`],
-      ["Hole diameter", `${d.hole_diameter_mm} mm`],
-      ["Hole height above base", `${d.hole_height_mm} mm`],
-      ["Base length", `${d.base_length_mm} mm`],
-      ["Base weld", `${d.weld_leg_mm} mm fillet, both sides`, true],
+      ["Main plate", `${d.main_thickness_mm} mm`, "num"],
+      ["Head radius", `${d.head_radius_mm} mm`, "num"],
+      ["Hole diameter", `${d.hole_diameter_mm} mm`, "num"],
+      ["Hole height above base", `${d.hole_height_mm} mm`, "num"],
+      ["Base length", `${d.base_length_mm} mm`, "num"],
+      ["Base weld", `${d.weld_leg_mm} mm fillet, both sides`, "phrase"],
     ];
     if (d.cheek_thickness_mm > 0) {
-      rows.push(["Cheek plates (2)", `${d.cheek_thickness_mm} mm, radius ${d.cheek_radius_mm} mm`, true]);
-      rows.push(["Cheek welds", `${d.cheek_weld_leg_mm} mm fillet all round`, true]);
+      rows.push(["Cheek plates (2)", `${d.cheek_thickness_mm} mm, radius ${d.cheek_radius_mm} mm`, "phrase"]);
+      rows.push(["Cheek welds", `${d.cheek_weld_leg_mm} mm fillet all round`, "phrase"]);
     }
-    rows.push(["Shackle", r.shackle.label, true]);
+    rows.push(["Shackle", r.shackle.label, "phrase", true]);
   }
   return (
-    <>
-      <Section title="Summary">
-        <dl className="kv">
-          <dt>{force[1]}</dt>
-          <dd>{force[0]}</dd>
-          <dt>Closest to its limit</dt>
-          <dd className="kv-words">{governing ? `${governing.title}, ${Math.round(governing.utilization * 100)}%` : "–"}</dd>
-        </dl>
-      </Section>
-      <Section title="Dimensions">
-        <dl className="kv-grid">
-          {rows.map(([k, v, phrase]) => (
-            <div key={k} className="kv-item">
-              <dt>{k}</dt>
-              <dd className={phrase ? "kv-words" : undefined}>{v}</dd>
-            </div>
-          ))}
-        </dl>
-      </Section>
-    </>
+    <Section title="Summary and dimensions">
+      <dl className="kv-pairs">
+        {/* The design force is the headline number: a full-width first row. */}
+        <div className="kv-pair wide">
+          <dt>{force[0]}</dt>
+          <dd className="mono">{force[1]}</dd>
+        </div>
+        {rows.map(([k, v, kind, wide]) => (
+          <div key={k} className={`kv-pair${wide ? " wide" : ""}`}>
+            <dt>{k}</dt>
+            <dd className={kind === "num" ? "mono" : undefined}>{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </Section>
   );
 }
 
@@ -469,10 +533,10 @@ function FeaSummary({ design, part }: { design: DesignResult; part: PartId }) {
         ? "The built-in simulation pushed on the seat where the pipe sits, with the design forces, and held the bracket fixed at the bulkhead. The highest stress away from the bulkhead face is"
         : "The fin body is a thin box checked by hand calculation; the built-in simulation checks the stock, fixed at the outer bearing and loaded with the fin force and twist. Its highest stress is";
   return (
-    <Section title="Stress check">
+    <Section title="Stress check" className="stress-summary">
       <p>
-        {what} <b className="mono">{f.head_von_mises_mpa.toFixed(0)} MPa</b>, against a yield strength of <span className="mono">{f.yield_strength_mpa.toFixed(0)} MPa</span>, so the most
-        stressed point has a safety factor of <b className="mono">{f.factor_of_safety_on_yield.toFixed(2)}</b> before it would start to bend permanently.
+        {what} <b>{f.head_von_mises_mpa.toFixed(0)} MPa</b>, against a yield strength of {f.yield_strength_mpa.toFixed(0)} MPa, so the most
+        stressed point has a safety factor of <b>{f.factor_of_safety_on_yield.toFixed(2)}</b> before it would start to bend permanently.
       </p>
       <p className="caption">
         Checked on {f.levels.length} meshes; the result changed by {(f.convergence_change * 100).toFixed(1)}% on the finest. The support forces

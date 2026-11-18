@@ -1,11 +1,43 @@
 import { AlertCircle, AlertTriangle, CheckCircle2, ChevronRight, CircleHelp, Info } from "lucide-react";
 import { Working } from "./Formula";
-import { cloneElement, isValidElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { cloneElement, createContext, isValidElement, useContext, useId, useState, type ReactElement, type ReactNode } from "react";
 import type { Check } from "../types";
 
 /* ------------------------------------------------------------------ Form fields */
 
-/** A question: label-14 strong with an optional help toggle, the control below, an optional hint and error. */
+/** What a Field tells the controls inside it: the id of its visible question, the ids of its hint, help
+ *  and error (for aria-describedby), and the question text. Controls read it so the visible question is
+ *  their accessible name and the hint, help, unit and error are their description. */
+interface FieldInfo {
+  label: string;
+  labelId: string;
+  describedBy?: string;
+  invalid?: boolean;
+}
+const FieldContext = createContext<FieldInfo | null>(null);
+
+/** Accessible name and description for a control. Inside a Field the visible question names it; when the
+ *  control's own label differs (one of several inputs under one question), that label is added after the
+ *  question through a hidden span, so the name is "How heavy is the load? Load weight". */
+export function useControlA11y(label: string, extraDescribedBy?: string) {
+  const field = useContext(FieldContext);
+  const ownId = useId();
+  const describedBy = [field?.describedBy, extraDescribedBy].filter(Boolean).join(" ") || undefined;
+  if (!field) return { props: { "aria-label": label, "aria-describedby": describedBy }, own: null };
+  const differs = label.trim().toLowerCase() !== field.label.trim().toLowerCase();
+  return {
+    props: { "aria-labelledby": differs ? `${field.labelId} ${ownId}` : field.labelId, "aria-describedby": describedBy },
+    own: differs ? (
+      <span id={ownId} hidden>
+        {label}
+      </span>
+    ) : null,
+  };
+}
+
+/** A question: label-14 strong with an optional help toggle right after the text, the control below, an
+ *  optional hint (8 px under the control) and error. The question, help, hint and error are tied to the
+ *  control inside for assistive technology. */
 export function Field({
   label,
   help,
@@ -20,15 +52,22 @@ export function Field({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const id = useId();
+  const labelId = `${id}-label`;
+  const helpId = `${id}-help`;
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
+  const describedBy = [error ? errorId : null, hint ? hintId : null, open && help ? helpId : null].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="field">
+    <div className="field" role="group" aria-labelledby={labelId}>
       <div className="field-label">
-        <span>{label}</span>
+        <span id={labelId}>{label}</span>
         {help && (
           <button
             type="button"
             className="help-btn"
             aria-expanded={open}
+            aria-controls={open ? helpId : undefined}
             aria-label={`What does "${label}" mean?`}
             onClick={() => setOpen((o) => !o)}
           >
@@ -36,11 +75,21 @@ export function Field({
           </button>
         )}
       </div>
-      {open && help && <div className="help-box">{help}</div>}
-      <div>{children}</div>
-      {hint && <div className="field-hint">{hint}</div>}
+      {open && help && (
+        <div className="help-box" id={helpId}>
+          {help}
+        </div>
+      )}
+      <FieldContext.Provider value={{ label, labelId, describedBy, invalid: !!error }}>
+        <div className="field-control">{children}</div>
+      </FieldContext.Provider>
+      {hint && (
+        <div className="field-hint" id={hintId}>
+          {hint}
+        </div>
+      )}
       {error && (
-        <div className="field-error" role="alert">
+        <div className="field-error" role="alert" id={errorId}>
           <AlertCircle aria-hidden />
           <span>{error}</span>
         </div>
@@ -71,6 +120,8 @@ export function NumberInput({
 }) {
   const [text, setText] = useState(value === null ? "" : String(value));
   const [lastValue, setLastValue] = useState(value);
+  const unitId = useId();
+  const a11y = useControlA11y(label, unit ? unitId : undefined);
   if (value !== lastValue) {
     setLastValue(value);
     if (value !== null && Number(text) !== value) setText(String(value));
@@ -80,7 +131,7 @@ export function NumberInput({
       <input
         className="input input-num"
         inputMode="decimal"
-        aria-label={label}
+        {...a11y.props}
         aria-invalid={invalid || undefined}
         value={text}
         min={min}
@@ -94,7 +145,12 @@ export function NumberInput({
           onChange(Number.isFinite(n) ? n : null);
         }}
       />
-      {unit && <span className="unit">{unit}</span>}
+      {unit && (
+        <span className="unit" id={unitId}>
+          {unit}
+        </span>
+      )}
+      {a11y.own}
     </div>
   );
 }
@@ -116,8 +172,10 @@ export function Segmented<T extends string | number>({
   /** Set for numeric options so they render in Geist Mono. */
   mono?: boolean;
 }) {
+  const a11y = useControlA11y(label);
   return (
-    <div className={`segmented${size === "small" ? " sm" : ""}${mono ? " mono" : ""}`} role="group" aria-label={label}>
+    <div className={`segmented${size === "small" ? " sm" : ""}${mono ? " mono" : ""}`} role="group" {...a11y.props}>
+      {a11y.own}
       {options.map((o) => (
         <button key={String(o.value)} type="button" aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
           {o.label}
@@ -129,10 +187,14 @@ export function Segmented<T extends string | number>({
 
 /** Geist Toggle: an on/off switch. */
 export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  const a11y = useControlA11y(label);
   return (
-    <button type="button" role="switch" aria-checked={checked} aria-label={label} className="switch" onClick={() => onChange(!checked)}>
-      <span />
-    </button>
+    <>
+      <button type="button" role="switch" aria-checked={checked} {...a11y.props} className="switch" onClick={() => onChange(!checked)}>
+        <span />
+      </button>
+      {a11y.own}
+    </>
   );
 }
 
@@ -142,14 +204,24 @@ export function Chips({
   selected,
   onToggle,
   format,
+  label,
 }: {
   options: number[];
   selected: number[];
   onToggle: (value: number) => void;
   format: (value: number) => string;
+  /** Name of the group when the chips are not inside a Field. */
+  label?: string;
 }) {
+  const field = useContext(FieldContext);
   return (
-    <div className="chips">
+    <div
+      className="chips"
+      role="group"
+      aria-labelledby={field?.labelId}
+      aria-label={field ? undefined : label}
+      aria-describedby={field?.describedBy}
+    >
       {options.map((o) => (
         <button key={o} type="button" className="chip" aria-pressed={selected.includes(o)} onClick={() => onToggle(o)}>
           {format(o)}
@@ -209,11 +281,12 @@ export function Badge({ tone = "gray", children, title }: { tone?: Tone; childre
   );
 }
 
-/** Status dot plus words. Colour only when the status needs attention or is a clear pass. */
-export function Status({ tone = "gray", children }: { tone?: Tone; children: ReactNode }) {
+/** Status dot plus words. Colour only when the status needs attention or is a clear pass. `hollow` draws an
+ *  outline dot for "nothing yet" (Not run yet), so it reads differently from a filled dot. */
+export function Status({ tone = "gray", hollow, children }: { tone?: Tone; hollow?: boolean; children: ReactNode }) {
   return (
     <span className="status">
-      <span className={`status-dot ${tone}`} aria-hidden />
+      <span className={`status-dot ${hollow ? "hollow" : tone}`} aria-hidden />
       <span>{children}</span>
     </span>
   );
@@ -304,29 +377,35 @@ export function Tooltip({ text, children, side = "top" }: { text: ReactNode; chi
 
 /* ------------------------------------------------------------------ Design checks */
 
-/** Use of the limit as a 64 px bar. The track end is 100 %. Gray; amber at >= 90 %; red over 100 %. */
-export function UseBar({ utilization }: { utilization: number; advice?: boolean }) {
+export type CheckStatus = "pass" | "advice" | "fail";
+
+export function checkStatus(c: Pick<Check, "passed" | "severity">): CheckStatus {
+  return c.passed ? "pass" : c.severity === "advice" ? "advice" : "fail";
+}
+
+/** Use of the limit as a 64 px bar; the track end is 100 %. The colour follows the check's status, not its
+ *  percentage: gray for a pass (even at 98 %), amber for an advisory, red for a failure. */
+export function UseBar({ utilization, status = "pass" }: { utilization: number; status?: CheckStatus }) {
   const pct = Math.min(Math.max(utilization, 0), 1);
-  const cls = utilization > 1 ? " over" : utilization >= 0.9 ? " near" : "";
   return (
-    <div className={`bar${cls}`} aria-hidden>
+    <div className={`bar${status === "pass" ? "" : ` ${status}`}`} aria-hidden>
       <span style={{ width: `${pct * 100}%` }} />
     </div>
   );
 }
 
-function checkStatus(c: Check): "pass" | "advice" | "fail" {
-  return c.passed ? "pass" : c.severity === "advice" ? "advice" : "fail";
+/** The status word for a check that does not pass (none for a pass: the column says "Use of limit"). */
+export function CheckBadge({ status }: { status: CheckStatus }) {
+  if (status === "pass") return null;
+  return <Badge tone={status === "fail" ? "red" : "amber"}>{status === "fail" ? "Fail" : "Advice"}</Badge>;
 }
 
 export function CheckList({
   checks,
-  compact = false,
   selected,
   onSelect,
 }: {
   checks: Check[];
-  compact?: boolean;
   /** The check whose working is open (and whose region is marked on the 3D model). */
   selected?: string | null;
   onSelect?: (id: string | null) => void;
@@ -334,48 +413,46 @@ export function CheckList({
   const [localOpen, setLocalOpen] = useState<string | null>(null);
   const open = selected === undefined ? localOpen : selected;
   const setOpen = onSelect ?? setLocalOpen;
+  // Anything that needs attention first (fail, then advice), then required strength, required fit and
+  // practice checks, each by use.
   const ordered = [...checks].sort((a, b) => {
+    const attention = (c: Check) => ({ fail: 0, advice: 1, pass: 2 })[checkStatus(c)];
     const rank = (c: Check) => (c.severity === "required" && c.category === "strength" ? 0 : c.severity === "required" ? 1 : 2);
-    return rank(a) - rank(b) || b.utilization - a.utilization;
+    return attention(a) - attention(b) || rank(a) - rank(b) || b.utilization - a.utilization;
   });
   return (
-    <div className={`check-list${compact ? " compact" : ""}`}>
+    <div className="check-list">
       <div className="check-head" aria-hidden>
         <span />
-        <span>Check</span>
-        {!compact && <span>Source</span>}
+        <span>Check and source</span>
         <span className="use-head">Use of limit</span>
       </div>
       {ordered.map((c) => {
         const isOpen = open === c.id;
         const status = checkStatus(c);
         const pct = Math.round(c.utilization * 100);
-        const tone = c.utilization > 1 ? " over" : c.utilization >= 0.9 ? " near" : "";
         return (
-          <div key={c.id} className={isOpen ? "check open" : "check"}>
+          <div key={c.id} className={`check${isOpen ? " open" : ""}${status === "pass" ? "" : ` ${status}`}`}>
             <button
               type="button"
               className="check-row"
               aria-expanded={isOpen}
-              aria-label={`${c.title}, ${pct}% of the limit${status === "pass" ? ", passes" : status === "advice" ? ", advice" : ", fails"}`}
+              aria-label={`${c.title}, ${c.source}. ${pct}% of the limit, ${status === "pass" ? "passes" : status === "advice" ? "advice: over NEMO's recommendation" : "fails"}`}
               onClick={() => setOpen(isOpen ? null : c.id)}
             >
               <ChevronRight aria-hidden className="check-chevron" />
-              <span className="check-title" title={c.title}>{c.title}</span>
-              {!compact ? (
-                <span className="check-detail" title={c.source}>
-                  {status !== "pass" && <Badge tone={status === "fail" ? "red" : "amber"}>{status === "fail" ? "Fail" : "Advice"}</Badge>}
-                  <span className="check-source">{c.source}</span>
+              <span className="check-text">
+                <span className="check-title">
+                  {c.title}
+                  <CheckBadge status={status} />
                 </span>
-              ) : (
-                <span>{status !== "pass" && <Badge tone={status === "fail" ? "red" : "amber"}>{status === "fail" ? "Fail" : "Advice"}</Badge>}</span>
-              )}
-              <UseBar utilization={c.utilization} />
-              <span className={`check-pct${tone}`}>{pct}%</span>
+                <span className="check-source">{c.source}</span>
+              </span>
+              <UseBar utilization={c.utilization} status={status} />
+              <span className={`check-pct${status === "pass" ? "" : ` ${status}`}`}>{pct}%</span>
             </button>
             {isOpen && (
               <div className="check-body">
-                {compact && <p className="caption">{c.source}</p>}
                 <p className="muted">{c.explanation}</p>
                 <Working
                   steps={c.working ?? []}
@@ -407,6 +484,14 @@ export function formatKn(newtons: number): string {
   return `${(newtons / 1000).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} kN`;
 }
 
-export function formatKg(kg: number): string {
-  return kg < 10 ? `${kg.toFixed(2)} kg` : `${kg.toFixed(1)} kg`;
+export function formatKg(kg: number, extraDigit = false): string {
+  return kg < 10 ? `${kg.toFixed(extraDigit ? 3 : 2)} kg` : `${kg.toFixed(extraDigit ? 2 : 1)} kg`;
+}
+
+/** Masses for a set of designs shown side by side: one more decimal for all of them when two would
+ *  otherwise read the same (0.305 / 0.308 / 0.313 kg instead of 0.31 / 0.31 / 0.31 kg). Display only. */
+export function formatKgSet(masses: number[]): string[] {
+  const plain = masses.map((m) => formatKg(m));
+  const clash = new Set(plain).size < plain.length;
+  return clash ? masses.map((m) => formatKg(m, true)) : plain;
 }

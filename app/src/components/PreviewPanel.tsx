@@ -4,7 +4,7 @@ import { api, ApiError } from "../api";
 import { PartModel, partFrame } from "../three/PartModel";
 import { Viewer } from "../three/Viewer";
 import type { BracketDesign, CheckReport, FinDesign, Job, PadeyeDesign, PartId, Preview } from "../types";
-import { formatKg, formatKn, Note } from "./ui";
+import { formatKg, formatKn, Note, Skeleton } from "./ui";
 
 const PADEYE: PadeyeDesign = {
   main_thickness_mm: 20, head_radius_mm: 45, hole_diameter_mm: 24, base_length_mm: 180, hole_height_mm: 90,
@@ -108,6 +108,34 @@ function Chips({ part, report }: { part: PartId; report: CheckReport }) {
   );
 }
 
+/** The readout strip while there is no feasible preview yet: the same cells with the same labels, so the
+ *  panel height never changes between loading and loaded. Quiet skeleton values while sizing, "-" when the
+ *  sizing came back infeasible. */
+function ReservedChips({ part, infeasible }: { part: PartId; infeasible: boolean }) {
+  const labels =
+    part === "padeye"
+      ? ["Plate mass", "Plate", "Shackle"]
+      : part === "pipe-bracket"
+        ? ["Steel mass", "Seat / knees", "U-bolt"]
+        : ["Mass", "Skin / webs", "Stock", "Ribs"];
+  const value = (wide: boolean) =>
+    infeasible ? "-" : <Skeleton width={wide ? 128 : 56} height={12} radius={4} />;
+  return (
+    <>
+      {labels.map((label) => (
+        <div key={label} className="viewer-chip">
+          {label}
+          <b aria-hidden>{value(false)}</b>
+        </div>
+      ))}
+      <div className="viewer-chip wide">
+        Closest to its limit
+        <b aria-hidden>{value(true)}</b>
+      </div>
+    </>
+  );
+}
+
 /** The workspace aside content: the 3D viewer fills the height, then messages and the caption.
  *  Returns a fragment; the Workspace aside is already sticky and a flex column. */
 export function PreviewPanel({ job, preview, error, busy }: { job: Job; preview: Preview | null; error: string | null; busy: boolean }) {
@@ -133,7 +161,7 @@ export function PreviewPanel({ job, preview, error, busy }: { job: Job; preview:
             {busy ? "Sizing…" : "Provisional design"}
           </span>
         }
-        overlay={feasible ? <Chips part={part} report={feasible} /> : null}
+        overlay={feasible ? <Chips part={part} report={feasible} /> : <ReservedChips part={part} infeasible={!!preview && !preview.feasible} />}
       >
         <PartModel part={part} report={{ design, shackle: feasible?.shackle ?? (undefined as never) }}
           slingAngleDeg={job.part === "padeye" ? job.lift.sling_angle_deg : 60} />

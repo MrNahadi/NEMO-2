@@ -8,6 +8,7 @@ import "./styles/nemo.css";
 import "./styles/screens/a.css";
 import "./styles/screens/b.css";
 import "./styles/screens/c.css";
+import "./styles/screens/d.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

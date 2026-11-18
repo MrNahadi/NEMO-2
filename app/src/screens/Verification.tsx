@@ -77,11 +77,13 @@ export function Verification() {
       <PageHeader
         title="Verification"
         description={
-          <>
-            NEMO is checked against problems whose answers are known from theory or were worked out by hand. Run them here to see
-            NEMO's calculation engine and stress solver reproduce those answers on this computer.
-            {lastRun ? ` ${lastRun}` : ""}
-          </>
+          <span className="v-desc">
+            <span className="v-desc-body">
+              NEMO is checked against problems whose answers are known from theory or were worked out by hand. Run them here to see
+              NEMO's calculation engine and stress solver reproduce those answers on this computer.
+            </span>
+            {lastRun && <span className="v-last-run">{lastRun}</span>}
+          </span>
         }
         actions={
           <button className="btn btn-primary" onClick={runNow} disabled={busy}>
@@ -155,10 +157,8 @@ export function Verification() {
                         <span className="v-bench-desc">{b.description}</span>
                       </button>
                     </td>
-                    <td>
-                      <span className="v-ref" title={b.source}>
-                        {b.source}
-                      </span>
+                    <td className="ref">
+                      <span className="v-ref">{b.source}</span>
                     </td>
                     <td className="result">
                       {isRunning ? (

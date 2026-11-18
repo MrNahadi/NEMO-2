@@ -8,10 +8,14 @@
 
 .designs-table .menu-h,
 .designs-table .menu-cell { width: 48px; }
-.designs-table td.part { font-size: 13px; color: var(--ds-gray-900); }
+/* Part, Status and Saved share one face and line-height so their text sits on the same baseline. */
+.designs-table td.part,
+.designs-table td.saved,
+.designs-table td.status-cell .status { font-size: 13px; line-height: 20px; }
+.designs-table td.part { color: var(--ds-gray-900); }
 .designs-table th.saved,
 .designs-table td.saved { text-align: right; }
-.designs-table td.saved { font-size: 13px; color: var(--ds-gray-900); font-variant-numeric: tabular-nums; }
+.designs-table td.saved { color: var(--ds-gray-900); font-variant-numeric: tabular-nums; }
 
 /* Name cell: 28 px part tile + label-14 (500) name, truncated with a title tooltip. */
 .design-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -38,9 +42,18 @@
 .v-progress { margin-bottom: 16px; }
 .v-error { margin-bottom: 16px; }
 
-.v-table th.result,
-.v-table td.result { width: 120px; }
-.v-table .v-chev { width: 28px; }
+/* The page description keeps a readable measure; "Last run ..." is its own copy-13 line under it. */
+.v-desc { display: block; max-width: 72ch; }
+.v-desc-body { display: block; }
+.v-last-run { display: block; margin-top: 8px; font-size: 13px; line-height: 18px; color: var(--ds-gray-900); }
+
+/* Columns: Benchmark 56%, Reference 28%, Result 16%, the chevron a fixed strip (the fixed layout scales
+   the three percentage columns to the width left after the chevron, keeping the 56:28:16 ratio). */
+.v-table { table-layout: fixed; }
+.v-table thead th:nth-child(1) { width: 56%; }
+.v-table thead th:nth-child(2) { width: 28%; }
+.v-table th.result { width: 16%; }
+.v-table .v-chev { width: 40px; }
 .v-table td.name { white-space: normal; }
 
 /* Benchmark cell: title (label-14, 500) + one-line description clamped to two lines. */
@@ -55,13 +68,11 @@
   font-size: 13px; line-height: 18px; color: var(--ds-gray-900);
 }
 
-/* Reference source: single line, truncated with a title tooltip. */
-.v-ref {
-  display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis;
-  font-size: 13px; color: var(--ds-gray-900);
-}
+/* Reference source: never truncated; it wraps to two lines when it has to. */
+.v-table td.ref { white-space: normal; }
+.v-ref { display: block; font-size: 13px; line-height: 18px; color: var(--ds-gray-900); }
 
-.bench-chevron { width: 16px; height: 16px; color: var(--ds-gray-900); transition: transform var(--dur-fast); }
+.bench-chevron { display: block; width: 16px; height: 16px; color: var(--ds-gray-900); transition: transform var(--dur-fast); }
 .v-table tr.open .bench-chevron { transform: rotate(90deg); }
 
 /* Expanded row: detail tables on background-200. */

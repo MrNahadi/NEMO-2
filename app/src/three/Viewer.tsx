@@ -15,8 +15,22 @@ function useDarkTheme(): boolean {
   return dark;
 }
 
-/** Moves the camera smoothly so a part of the given size (mm) fills the view, whenever the size changes. */
-function FitCamera({ size, centreY }: { size: number; centreY: number }) {
+/** True while the system asks for reduced motion; follows changes to the setting. */
+function useReducedMotion(): boolean {
+  const query = "(prefers-reduced-motion: reduce)";
+  const [reduce, setReduce] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const on = () => setReduce(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return reduce;
+}
+
+/** Moves the camera so a part of the given size (mm) fills the view, whenever the size changes: smoothly,
+ *  or in one jump when the system asks for reduced motion. */
+function FitCamera({ size, centreY, reduce }: { size: number; centreY: number; reduce: boolean }) {
   const { camera, size: canvas } = useThree();
   const controls = useThree((s) => s.controls) as OrbitControlsImpl | null;
   const goal = useRef(new THREE.Vector3());
@@ -26,8 +40,9 @@ function FitCamera({ size, centreY }: { size: number; centreY: number }) {
     const key = `${Math.round(size)}:${Math.round(centreY)}:${Math.round(canvas.width)}:${Math.round(canvas.height)}`;
     if (key !== last.current) {
       last.current = key;
-      frames.current = 70;
+      frames.current = reduce ? 3 : 70;
     }
+    const t = reduce ? 1 : 0.1;
     if (frames.current <= 0) return;
     frames.current -= 1;
     const aspect = canvas.width / Math.max(canvas.height, 1);
@@ -36,9 +51,9 @@ function FitCamera({ size, centreY }: { size: number; centreY: number }) {
     const direction = camera.position.clone().sub(controls?.target ?? target).normalize();
     if (direction.lengthSq() < 0.5) direction.set(0.55, 0.35, 0.75).normalize();
     goal.current.copy(target).addScaledVector(direction, distance);
-    camera.position.lerp(goal.current, 0.1);
+    camera.position.lerp(goal.current, t);
     if (controls) {
-      controls.target.lerp(target, 0.1);
+      controls.target.lerp(target, t);
       controls.update();
     }
     const cam = camera as THREE.PerspectiveCamera;
@@ -70,6 +85,7 @@ export function Viewer({
   toolbar?: ReactNode;
 }) {
   const dark = useDarkTheme();
+  const reduce = useReducedMotion();
   const grid = Math.max(50, Math.pow(10, Math.ceil(Math.log10(size))) / 10);
   // Geist background-200 behind the part; grid lines from the gray scale; the floor only catches the shadow.
   const colours = dark
@@ -82,15 +98,17 @@ export function Viewer({
           <color attach="background" args={[colours.bg]} />
           <hemisphereLight args={["#ffffff", dark ? "#3a3a3a" : "#d4d4d4", dark ? 0.9 : 1.1]} />
           <directionalLight position={[size, size * 2, size * 1.5]} intensity={1.6} castShadow />
-          <directionalLight position={[-size, size, -size]} intensity={0.5} />
+          {/* Rim light from behind: gives dark hardware (shackle, stock, U-bolt) an edge against the black dark-theme background. */}
+          <directionalLight position={[-size, size, -size]} intensity={dark ? 1.4 : 0.5} />
+          <directionalLight position={[-size * 1.5, size * 0.4, size * 0.5]} intensity={dark ? 0.6 : 0.2} />
           {children}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.1, 0]} receiveShadow>
             <planeGeometry args={[size * 6, size * 6]} />
             <shadowMaterial transparent opacity={colours.shadow} />
           </mesh>
           <gridHelper key={dark ? "d" : "l"} args={[grid * 40, 40, colours.major, colours.minor]} position={[0, -3, 0]} />
-          <OrbitControls makeDefault enablePan={false} minDistance={size * 0.4} maxDistance={size * 8} />
-          <FitCamera size={size} centreY={centreY} />
+          <OrbitControls makeDefault enablePan={false} enableDamping={!reduce} minDistance={size * 0.4} maxDistance={size * 8} />
+          <FitCamera size={size} centreY={centreY} reduce={reduce} />
         </Canvas>
         {toolbar && <div className="viewer-toolbar">{toolbar}</div>}
         {top && <div className="viewer-top">{top}</div>}

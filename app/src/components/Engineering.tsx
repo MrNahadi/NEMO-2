@@ -6,7 +6,7 @@ import type { EngEvent, PadeyeDesign, WorkingStep } from "../types";
 import { ConvergenceChart, DesignSpaceChart, ForceDiagram, FrequencyChart, pointsFor, PressureChart, ResidualChart } from "./Charts";
 import { frameOf } from "../three/frame";
 import { Working } from "./Formula";
-import { formatKn } from "./ui";
+import { formatKgSet, formatKn } from "./ui";
 
 export type StageKey = "forces" | "shackle" | "search" | "cad" | "mesh" | "solve" | "verify";
 export type StageState = "waiting" | "active" | "done" | "failed";
@@ -163,13 +163,13 @@ const GENERIC: PadeyeDesign = {
 };
 
 // ---------------------------------------------------------------- stage views
-export function StageView({ stage, events, target }: { stage: StageKey; events: EngEvent[]; target?: string }) {
+export function StageView({ stage, events, target, state }: { stage: StageKey; events: EngEvent[]; target?: string; state?: StageState }) {
   const loads = last(events, "loads");
   const designFor = (t?: string) => (last(events, "design_found", t)?.design as PadeyeDesign | undefined);
   const part = partOf(events);
 
   if (part !== "padeye" && stage === "forces") {
-    if (!loads) return <Waiting />;
+    if (!loads) return <Waiting state={state} />;
     return (
       <div className="stack gap-3">
         <p className="muted">
@@ -184,7 +184,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
 
   if (part === "pipe-bracket" && stage === "shackle") {
     const s = last(events, "span");
-    if (!s) return <Waiting />;
+    if (!s) return <Waiting state={state} />;
     return (
       <div className="stack gap-3">
         <p className="muted">
@@ -199,7 +199,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
 
   if (part === "stabilizer" && stage === "shackle") {
     const h = last(events, "hydro");
-    if (!h) return <Waiting />;
+    if (!h) return <Waiting state={state} />;
     return (
       <div className="stack gap-3">
         <p className="muted">
@@ -217,7 +217,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
   }
 
   if (stage === "forces") {
-    if (!loads) return <Waiting />;
+    if (!loads) return <Waiting state={state} />;
     const d = designFor(target) ?? designFor() ?? GENERIC;
     return (
       <div className="stack gap-3">
@@ -236,7 +236,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
 
   if (stage === "shackle") {
     const s = last(events, "shackles");
-    if (!s) return <Waiting />;
+    if (!s) return <Waiting state={state} />;
     return (
       <div className="stack gap-2">
         <p className="muted">{s.rule} The sling force on each padeye is {n1(s.sling_force_t, 2)} t.</p>
@@ -266,10 +266,13 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
   if (stage === "search") {
     const start = target ? last(events, "search_start", target) : last(events, "search_start");
     const key = target ?? start?.target;
-    if (!key) return <Waiting />;
+    if (!key) return <Waiting state={state} />;
     const found = last(events, "design_found", key);
     const combos = events.filter((e) => e.kind === "combination" && e.target === key).slice(-6).reverse();
     const points = pointsFor(events, key);
+    // One decimal more for every mass when two would read the same (0.305 / 0.308 / 0.313 kg).
+    const combosWithMass = combos.filter((c) => typeof c.mass_kg === "number");
+    const massLabels = formatKgSet(combosWithMass.map((c) => c.mass_kg));
     return (
       <div className="stack gap-2">
         <p className="muted">
@@ -279,22 +282,30 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
             : "For each pair of skin and web plates, NEMO tries every rib spacing from 150 to 1000 mm and sizes the stock to the rules."}{" "}
           Each dot is one design it tried.
         </p>
-        <DesignSpaceChart points={points} limit={start?.max_use ?? 1}
-          chosen={found ? [{ mass: found.mass_kg, use: found.max_use, label: `${n1(found.mass_kg, 2)} kg` }] : undefined} />
+        {points.length > 0 || found ? (
+          <DesignSpaceChart points={points} limit={start?.max_use ?? 1}
+            chosen={found ? [{ mass: found.mass_kg, use: found.max_use, label: formatKgSet([...combosWithMass.map((c) => c.mass_kg), found.mass_kg]).at(-1)! }] : undefined} />
+        ) : (
+          <Waiting state={state} />
+        )}
         {combos.length > 0 && (
           <div className="table-wrap">
             <table className="data">
-              <thead><tr><th>Combination</th><th>{part === "padeye" ? "Plate" : part === "pipe-bracket" ? "Seat" : "Skin"}</th><th>{part === "padeye" ? "Cheeks" : part === "pipe-bracket" ? "Knees" : "Webs"}</th>{part === "padeye" && <th className="r">Shackle</th>}<th>Outcome</th></tr></thead>
+              <thead><tr><th>Combination</th><th>{part === "padeye" ? "Plate" : part === "pipe-bracket" ? "Seat" : "Skin"}</th><th>{part === "padeye" ? "Cheeks" : part === "pipe-bracket" ? "Knees" : "Webs"}</th>{part === "padeye" && <th className="r">Shackle</th>}<th className="r">Mass</th><th>Outcome</th></tr></thead>
               <tbody>
-                {combos.map((c) => (
-                  <tr key={c.seq} className={c.outcome === "best" ? "row-strong" : undefined}>
-                    <td>{c.index} of {c.count}</td>
-                    <td>{c.plate_mm} mm</td>
-                    <td>{part !== "padeye" ? `2 × ${c.cheek_mm} mm` : c.cheek_mm ? `2 × ${c.cheek_mm} mm` : "None"}</td>
-                    {part === "padeye" && <td className="r">{c.shackle_wll_t} t</td>}
-                    <td>{c.outcome === "best" ? `Best so far, ${n1(c.mass_kg, 2)} kg` : c.outcome === "passed" ? `${n1(c.mass_kg, 2)} kg, heavier` : c.outcome === "skipped" ? "Skipped: cannot beat the best" : "No design passes"}</td>
-                  </tr>
-                ))}
+                {combos.map((c) => {
+                  const mi = combosWithMass.indexOf(c);
+                  return (
+                    <tr key={c.seq} className={c.outcome === "best" ? "row-strong" : undefined}>
+                      <td>{c.index} of {c.count}</td>
+                      <td>{c.plate_mm} mm</td>
+                      <td>{part !== "padeye" ? `2 × ${c.cheek_mm} mm` : c.cheek_mm ? `2 × ${c.cheek_mm} mm` : "None"}</td>
+                      {part === "padeye" && <td className="r">{c.shackle_wll_t} t</td>}
+                      <td className="r">{mi >= 0 ? massLabels[mi] : "–"}</td>
+                      <td>{c.outcome === "best" ? "Best so far" : c.outcome === "passed" ? "Passed, heavier than the best" : c.outcome === "skipped" ? "Skipped: cannot beat the best" : "No design passes"}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -305,7 +316,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
 
   if (stage === "cad") {
     const cads = all(events, "cad").filter((c) => !target || c.target === target);
-    if (!cads.length) return <Waiting />;
+    if (!cads.length) return <Waiting state={state} />;
     return (
       <div className="stack gap-2">
         <p className="muted">
@@ -335,7 +346,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
   if (stage === "mesh") {
     const meshes = all(events, "mesh").filter((m) => !target || m.target === target);
     const withSurface = [...meshes].reverse().find((m) => m.surface);
-    if (!meshes.length) return <Waiting />;
+    if (!meshes.length) return <Waiting state={state} />;
     const frame = withSurface ? frameOf(withSurface.surface.positions) : null;
     return (
       <div className="stack gap-2">
@@ -355,7 +366,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
     const solves = all(events, "solve").filter((s) => !target || s.target === target);
     const running = last(events, "solve_start", target);
     const s = solves[solves.length - 1];
-    if (!s) return running ? <p className="muted">Solving {n0(running.equations)} equations…</p> : <Waiting />;
+    if (!s) return running ? <p className="muted">Solving {n0(running.equations)} equations…</p> : <Waiting state={state} />;
     return (
       <div className="stack gap-2">
         <p className="muted">
@@ -378,7 +389,7 @@ export function StageView({ stage, events, target }: { stage: StageKey; events: 
   // verify
   const fea = all(events, "fea_done").filter((f) => !target || f.target === target);
   const f = fea[fea.length - 1];
-  if (!f) return <Waiting />;
+  if (!f) return <Waiting state={state} />;
   const lvl = f.levels[f.levels.length - 1];
   const ap = lvl.applied_force_n as number[];
   const re = lvl.reaction_force_n as number[];
@@ -435,8 +446,18 @@ function MeshTable({ events }: { events: EngEvent[] }) {
   );
 }
 
-function Waiting() {
-  return <p className="muted">No numbers from this step yet. They appear here as soon as it starts working.</p>;
+/** One quiet line for a step with no output yet: the words follow the step's state, so a running step
+ *  never says "not started" next to a "Running now" header. */
+function Waiting({ state }: { state?: StageState }) {
+  const text =
+    state === "active"
+      ? "Working. Measurements appear here when this step has them."
+      : state === "failed"
+        ? "Stopped before this step produced any numbers."
+        : state === "waiting"
+          ? "Starts when the step before it finishes."
+          : "This step did not record any numbers.";
+  return <p className="run-empty">{text}</p>;
 }
 
 /** The stage the run is working on now, for the live view to follow. */

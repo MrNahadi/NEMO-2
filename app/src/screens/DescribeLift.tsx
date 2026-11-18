@@ -102,7 +102,7 @@ export function DescribeLift({
                       min={30}
                       max={90}
                       step={1}
-                      aria-label="Sling angle"
+                      aria-label="Sling angle from horizontal"
                       value={Math.min(Math.max(lift.sling_angle_deg, 30), 90)}
                       onChange={(e) => setLift({ sling_angle_deg: Number(e.target.value) })}
                     />
@@ -110,7 +110,7 @@ export function DescribeLift({
                       <NumberInput
                         label="Sling angle in degrees"
                         value={lift.sling_angle_deg}
-                        unit="°"
+                        unit="deg"
                         invalid={!!issues.angle}
                         onChange={(v) => setLift({ sling_angle_deg: v ?? 0 })}
                       />
@@ -166,7 +166,7 @@ export function DescribeLift({
                   <div className="switch-row">
                     <span className="muted">Rings welded around the hole to make it thicker</span>
                     <Switch
-                      label="Allow cheek plates"
+                      label="Rings welded around the hole to make it thicker"
                       checked={job.allow_cheek_plates}
                       onChange={(v) => onChange({ ...job, allow_cheek_plates: v })}
                     />
@@ -205,7 +205,7 @@ export function DescribeLift({
                         <NumberInput
                           label="Out-of-plane sling angle in degrees"
                           value={lift.out_of_plane_angle_deg ?? 0}
-                          unit="°"
+                          unit="deg"
                           invalid={!!issues.oblique}
                           onChange={(v) => setLift({ out_of_plane_angle_deg: v ?? 0 })}
                         />

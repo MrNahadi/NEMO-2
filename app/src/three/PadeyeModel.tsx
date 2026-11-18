@@ -168,7 +168,7 @@ export function PadeyeModel({
       <CheckRegion design={d} pin={pin} angle={angle} check={highlight} />
       <mesh position={[0, -1.5, 0]}>
         <boxGeometry args={[d.base_length_mm + 40, 3, Math.max(d.main_thickness_mm * 6, 40)]} />
-        <meshStandardMaterial color="#a3a9b0" roughness={0.9} />
+        <meshStandardMaterial color="#a3a9b0" roughness={0.9} transparent opacity={0.45} depthWrite={false} />
       </mesh>
       <mesh geometry={main} castShadow receiveShadow>
         <meshStandardMaterial color={STEEL} metalness={0.55} roughness={0.42} />

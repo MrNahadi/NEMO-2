@@ -1,5 +1,7 @@
 import { Download, ExternalLink, Loader2, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useModal } from "./Menu";
 
 /**
  * The calculation report shown inside NEMO, as a Geist fullscreen material (radius 16, 24px inset),
@@ -21,24 +23,14 @@ export function ReportViewer({
 }) {
   const [loaded, setLoaded] = useState(false);
   const closeBtn = useRef<HTMLButtonElement>(null);
+  const box = useRef<HTMLDivElement>(null);
+  // Same modal behaviour as every dialog: inert background, focus kept inside (Shift+Tab never reaches the
+  // page), Escape closes, focus returns to View report.
+  useModal(box, onClose, () => closeBtn.current);
 
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    closeBtn.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = overflow;
-      previous?.focus();
-    };
-  }, [onClose]);
-
-  return (
+  return createPortal(
     <div className="report-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="report-viewer" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="report-viewer" role="dialog" aria-modal="true" aria-label={title} ref={box}>
         <div className="report-bar">
           <div className="report-title">
             <span className="report-name">{title}</span>
@@ -65,6 +57,7 @@ export function ReportViewer({
           <iframe className="report-frame" src={viewUrl} title={title} onLoad={() => setLoaded(true)} />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

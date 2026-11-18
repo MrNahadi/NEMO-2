@@ -180,14 +180,14 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
                         </div>
                       </td>
                       <td className="part">{PART_NAMES[p.part as PartId]?.title ?? "Design"}</td>
-                      <td>
+                      <td className="status-cell">
                         {p.runs.length === 0 ? (
-                          <Status tone="gray">
+                          <Status tone="gray" hollow>
                             <span className="text-secondary">Not run yet</span>
                           </Status>
                         ) : (
                           <Status tone="gray">
-                            {p.runs.length} result{p.runs.length === 1 ? "" : "s"}
+                            {p.runs.length} run{p.runs.length === 1 ? "" : "s"}
                           </Status>
                         )}
                       </td>
@@ -337,7 +337,7 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
           <p className="muted">
             {pending.project.runs.length === 0
               ? "The design and its answers move to the Windows Recycle Bin. You can restore them from there."
-              : `The design, its answers and its ${pending.project.runs.length === 1 ? "result" : `${pending.project.runs.length} results`} (reports, 3D models and cutting files) move to the Windows Recycle Bin. You can restore them from there.`}
+              : `The design, its answers and the results of its ${pending.project.runs.length === 1 ? "run" : `${pending.project.runs.length} runs`} (reports, 3D models and cutting files) move to the Windows Recycle Bin. You can restore them from there.`}
           </p>
         </Dialog>
       )}

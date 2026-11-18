@@ -6,7 +6,7 @@ import type { FinDesign } from "../types";
 const SKIN = new THREE.Color("#b9bec6");
 const INNER = new THREE.Color("#7f8894");
 const STOCK = new THREE.Color("#4a4f57");
-const HULL = new THREE.Color("#a3a9b0");
+const HULL = new THREE.Color("#a3a9b0"); // context (the hull plating): faint, so the fin structure leads
 
 function halfThickness(x: number, t: number): number {
   return 5 * t * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4);
@@ -63,7 +63,7 @@ export function FinModel({ design: d }: { design: FinDesign }) {
     <group>
       <mesh position={[0, lift, 0]}>
         <boxGeometry args={[c * 1.6, 6, Math.max(c * 0.6, 200)]} />
-        <meshStandardMaterial color={HULL} roughness={0.9} transparent opacity={0.6} />
+        <meshStandardMaterial color={HULL} roughness={0.9} transparent opacity={0.12} depthWrite={false} />
       </mesh>
       <mesh geometry={outer} position={[0, lift, 0]}>
         <meshStandardMaterial color={SKIN} metalness={0.4} roughness={0.45} transparent opacity={0.35} side={THREE.DoubleSide} depthWrite={false} />

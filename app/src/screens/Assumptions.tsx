@@ -56,7 +56,10 @@ export function Assumptions({
           {
             content: (
               <>
-                <Field label="Design rules">
+                <Field
+                  label="Design rules"
+                  hint="The vessel's classification society (DNV, Bureau Veritas, Lloyd's Register, ABS) or your lift plan may require different rules. Those will be added as options."
+                >
                   <Select
                     label="Design rules"
                     value={job.rule_set_id}
@@ -64,10 +67,6 @@ export function Assumptions({
                     onChange={(id) => onChange({ ...job, rule_set_id: id })}
                     options={reference.rule_sets.map((r) => ({ value: r.id, label: r.name }))}
                   />
-                  <p className="field-help control-note">
-                    The vessel's classification society (DNV, Bureau Veritas, Lloyd's Register, ABS) or your lift plan may
-                    require different rules. Those will be added as options.
-                  </p>
                 </Field>
 
                 <Field label="How predictable is this lift?" help={HELP.category}>
@@ -113,7 +112,7 @@ export function Assumptions({
                 <Field label="Keep the padeye at least 60% as thick as the shackle jaw" help={HELP.fill}>
                   <div className="switch-row">
                     <span className="muted">Recommended</span>
-                    <Switch label="Fill the shackle jaw" checked={job.fill_shackle_jaw} onChange={(v) => onChange({ ...job, fill_shackle_jaw: v })} />
+                    <Switch label="Recommended: fill the shackle jaw" checked={job.fill_shackle_jaw} onChange={(v) => onChange({ ...job, fill_shackle_jaw: v })} />
                   </div>
                 </Field>
               </>

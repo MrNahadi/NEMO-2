@@ -6,8 +6,10 @@ function cssVar(name: string): string {
 }
 
 const MONO = "'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace";
+const SANS = "'Geist Sans Variable', 'Geist Sans', system-ui, sans-serif";
 const tickFont = `12px ${MONO}`;
 const strongFont = `600 12px ${MONO}`;
+const axisFont = `12px ${SANS}`;
 
 const fmt = (v: number, d = 1) => v.toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
 
@@ -42,30 +44,43 @@ export function DesignSpaceChart({
       ctx.clearRect(0, 0, width, height);
       // Geist tokens: points gray, failures red, the chosen design blue; labels mono gray-900, gridlines gray-400.
       const ink = cssVar("--ds-gray-700");
+      const inkStrong = cssVar("--ds-gray-1000");
       const fail = cssVar("--ds-red-700");
       const failText = cssVar("--ds-red-900");
       const rule = cssVar("--ds-gray-400");
       const label = cssVar("--ds-gray-900");
       const accent = cssVar("--ds-blue-700");
+      const bg = cssVar("--ds-background-100");
       const pad = { l: 68, r: 16, t: 14, b: 40 };
       const plotW = width - pad.l - pad.r;
       const plotH = height - pad.t - pad.b;
       const masses = points.map((p) => p[0]).sort((a, b) => a - b);
       const xRaw = Math.max(masses.length ? masses[Math.floor(masses.length * 0.97)] * 1.15 : 1, ...(chosen ?? []).map((c) => c.mass * 1.3), 0.1);
-      // Autoscale Y so points are not squashed: 0 to 120% when nothing exceeds the limit.
-      const maxUse = Math.max(limit, ...points.map((p) => p[1]), ...(chosen ?? []).map((c) => c.use), 0);
-      const yAxis = niceAxis(maxUse <= 1 ? 1.2 : maxUse * 1.1);
+      // Fit the y range to the data with the limit line always visible: from just below the bulk of the
+      // data (3rd percentile) to just above the larger of the limit and the bulk (97th percentile), on a
+      // nice step. The few outliers outside it clamp to the edge. The axis no longer starts at 0 when the
+      // data sits near the limit, so the dots spread out instead of sitting in one line.
+      const uses = points.map((p) => p[1]).sort((a, b) => a - b);
+      const at = (q: number) => (uses.length ? uses[Math.min(uses.length - 1, Math.max(0, Math.floor(uses.length * q)))] : limit);
+      const chosenUses = (chosen ?? []).map((c) => c.use);
+      const hiRaw = Math.max(limit * 1.05, at(0.97) * 1.03, ...chosenUses.map((u) => u * 1.03));
+      const loRaw = Math.max(0, Math.min(at(0.03), ...chosenUses, limit) * 0.95);
+      const span = hiRaw - loRaw;
+      const yStep = span <= 0.3 ? 0.05 : span <= 0.6 ? 0.1 : span <= 1.2 ? 0.25 : 0.5;
+      const yMin = Math.max(0, Math.floor(loRaw / yStep - 1e-9) * yStep);
+      const yMax = Math.ceil(hiRaw / yStep - 1e-9) * yStep;
+      const yTicks: number[] = [];
+      for (let v = yMin; v <= yMax + yStep / 2; v += yStep) yTicks.push(Math.round(v / yStep) * yStep);
       const xAxis = niceAxis(xRaw);
-      const yMax = yAxis.max;
       const xMax = xAxis.max;
       const X = (m: number) => pad.l + (m / xMax) * plotW;
-      const Y = (u: number) => pad.t + plotH - (Math.min(u, yMax) / yMax) * plotH;
+      const Y = (u: number) => pad.t + plotH - ((Math.min(Math.max(u, yMin), yMax) - yMin) / (yMax - yMin)) * plotH;
 
       ctx.font = tickFont;
       ctx.fillStyle = label;
       ctx.strokeStyle = rule;
       ctx.lineWidth = 1;
-      for (const u of yAxis.ticks) {
+      for (const u of yTicks) {
         const y = Math.round(Y(u)) + 0.5;
         ctx.beginPath();
         ctx.moveTo(pad.l, y);
@@ -78,6 +93,7 @@ export function DesignSpaceChart({
         ctx.textAlign = "center";
         ctx.fillText(fmt(m, xAxis.digits), X(m), height - pad.b + 18);
       }
+      ctx.font = axisFont;
       ctx.fillText("Plate mass (kg)", pad.l + plotW / 2, height - 6);
       ctx.save();
       ctx.translate(13, pad.t + plotH / 2);
@@ -85,14 +101,19 @@ export function DesignSpaceChart({
       ctx.textAlign = "center";
       ctx.fillText("Highest check use", 0, 0);
       ctx.restore();
+      ctx.font = tickFont;
 
+      // 5 px dots with a 1 px background-100 stroke, so overlapping dots stay separate.
+      ctx.lineWidth = 1;
       for (const [m, u, ok] of points) {
         if (m > xMax) continue;
+        ctx.beginPath();
+        ctx.arc(X(m), Y(u), 2.5, 0, Math.PI * 2);
         ctx.fillStyle = ok ? ink : fail;
-        ctx.globalAlpha = ok ? 0.85 : 0.7;
-        ctx.fillRect(X(m) - 1.5, Y(u) - 1.5, 3, 3);
+        ctx.fill();
+        ctx.strokeStyle = bg;
+        ctx.stroke();
       }
-      ctx.globalAlpha = 1;
       ctx.strokeStyle = fail;
       ctx.setLineDash([5, 4]);
       ctx.beginPath();
@@ -114,11 +135,42 @@ export function DesignSpaceChart({
         ctx.beginPath();
         ctx.arc(cx, cy, 7, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.fillStyle = accent;
+        // Offset callout: the label sits at the end of a leader, away from the point, on whichever side
+        // (above or below, right or left) has the fewest dots under it, with a background halo so it
+        // stays readable where dots are dense.
         ctx.font = strongFont;
-        ctx.textAlign = "center";
-        const above = cy - 16 > pad.t + 6 && Math.abs(cy - Y(limit)) > 22;
-        ctx.fillText(c.label, cx, above ? cy - 13 : cy + 24);
+        const labelW = ctx.measureText(c.label).width;
+        const dir = cx + 52 + labelW <= width - pad.r ? 1 : -1;
+        const crowd = (ly: number) => {
+          const x0 = dir === 1 ? cx + 40 : cx - 40 - labelW;
+          let n = 0;
+          for (const [m, u] of points) {
+            const px = X(m);
+            const py = Y(u);
+            if (px >= x0 - 4 && px <= x0 + labelW + 4 && py >= ly - 12 && py <= ly + 8) n += 1;
+          }
+          return n;
+        };
+        const upY = cy - 36;
+        const downY = cy + 36;
+        const upOk = upY - 12 > pad.t;
+        const downOk = downY + 8 < pad.t + plotH;
+        const up = upOk && (!downOk || crowd(upY) <= crowd(downY));
+        const ly = up ? upY : downY;
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx + dir * 5, up ? cy - 5 : cy + 5);
+        ctx.lineTo(cx + dir * 28, ly);
+        ctx.lineTo(cx + dir * 36, ly);
+        ctx.stroke();
+        ctx.textAlign = dir === 1 ? "left" : "right";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = bg;
+        ctx.strokeText(c.label, cx + dir * 40, ly + 4);
+        ctx.fillStyle = inkStrong;
+        ctx.fillText(c.label, cx + dir * 40, ly + 4);
         ctx.font = tickFont;
       }
     };

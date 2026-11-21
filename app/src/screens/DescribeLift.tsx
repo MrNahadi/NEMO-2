@@ -1,9 +1,9 @@
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { PageHeader, Workspace } from "../components/Page";
 import { PreviewPanel, usePreview } from "../components/PreviewPanel";
 import { Select } from "../components/Select";
-import { Chips, Field, NumberInput, Segmented, Switch } from "../components/ui";
+import { Chips, Field, NumberInput, Segmented, Switch, useControlA11y } from "../components/ui";
 import { HELP } from "../help";
 import type { PadeyeJob, Reference } from "../types";
 import { isValid, problems } from "../validate";
@@ -25,7 +25,7 @@ export function DescribeLift({
   const [unit, setUnit] = useState<"kg" | "t">(job.lift.lifted_mass_kg >= 1000 ? "t" : "kg");
   const issues = problems(job);
   const valid = isValid(job);
-  const { preview, error, busy } = usePreview(job, valid);
+  const { preview, error, busy, retry } = usePreview(job, valid);
   const lift = job.lift;
   const setLift = (patch: Partial<PadeyeJob["lift"]>) => onChange({ ...job, lift: { ...lift, ...patch } });
   const material = reference.materials.find((m) => m.id === job.material_id);
@@ -40,7 +40,7 @@ export function DescribeLift({
           description="Answer a few questions. The padeye on the right resizes as you go."
         />
       }
-      aside={<PreviewPanel job={job} preview={preview} error={error} busy={busy} />}
+      aside={<PreviewPanel job={job} preview={preview} error={error} busy={busy} onRetry={retry} />}
       asideLabel="3D preview"
       footer={
         <>
@@ -96,21 +96,12 @@ export function DescribeLift({
 
                 <Field label="Sling angle from horizontal" help={HELP.slingAngle} error={issues.angle}>
                   <div className="row">
-                    <input
-                      className="range"
-                      type="range"
-                      min={30}
-                      max={90}
-                      step={1}
-                      aria-label="Sling angle from horizontal"
-                      value={Math.min(Math.max(lift.sling_angle_deg, 30), 90)}
-                      onChange={(e) => setLift({ sling_angle_deg: Number(e.target.value) })}
-                    />
-                    <div className="w-num">
+                    <AngleSlider value={lift.sling_angle_deg} onChange={(v) => setLift({ sling_angle_deg: v })} />
+                    <div className="w-num deg">
                       <NumberInput
                         label="Sling angle in degrees"
                         value={lift.sling_angle_deg}
-                        unit="deg"
+                        unit="°"
                         invalid={!!issues.angle}
                         onChange={(v) => setLift({ sling_angle_deg: v ?? 0 })}
                       />
@@ -201,11 +192,11 @@ export function DescribeLift({
                       </div>
                     </Field>
                     <Field label="Angle between the sling and the padeye plate, seen from above" help={HELP.oblique} error={issues.oblique}>
-                      <div className="w-num">
+                      <div className="w-num deg">
                         <NumberInput
                           label="Out-of-plane sling angle in degrees"
                           value={lift.out_of_plane_angle_deg ?? 0}
-                          unit="deg"
+                          unit="°"
                           invalid={!!issues.oblique}
                           onChange={(v) => setLift({ out_of_plane_angle_deg: v ?? 0 })}
                         />
@@ -225,4 +216,31 @@ export function DescribeLift({
 function round(value: number, digits: number): number {
   const f = 10 ** digits;
   return Math.round(value * f) / f;
+}
+
+/** The sling-angle slider, wired like the numeric inputs: the Field's visible question names it, its
+ *  description is the field's help and error plus the unit ("degrees"), and the value reads as
+ *  "60 degrees". Rendered inside the Field so the Field context names and describes it. */
+function AngleSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const unitId = useId();
+  const a11y = useControlA11y("Sling angle from horizontal", unitId);
+  return (
+    <>
+      <input
+        className="range"
+        type="range"
+        min={30}
+        max={90}
+        step={1}
+        {...a11y.props}
+        aria-valuetext={`${value} degrees`}
+        value={Math.min(Math.max(value, 30), 90)}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+      <span id={unitId} hidden>
+        degrees
+      </span>
+      {a11y.own}
+    </>
+  );
 }

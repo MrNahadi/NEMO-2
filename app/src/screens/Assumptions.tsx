@@ -27,7 +27,7 @@ export function Assumptions({
 }) {
   const issues = problems(job);
   const valid = isValid(job);
-  const { preview, error: previewError, busy } = usePreview(job, valid);
+  const { preview, error: previewError, busy, retry } = usePreview(job, valid);
 
   return (
     <Workspace
@@ -37,7 +37,7 @@ export function Assumptions({
           description="These are the safety settings NEMO designs to. The defaults suit most lifts at sea or on deck."
         />
       }
-      aside={<PreviewPanel job={job} preview={preview} error={previewError} busy={busy} />}
+      aside={<PreviewPanel job={job} preview={preview} error={previewError} busy={busy} onRetry={retry} />}
       asideLabel="3D preview"
       footer={
         <>
@@ -65,7 +65,7 @@ export function Assumptions({
                     value={job.rule_set_id}
                     width={520}
                     onChange={(id) => onChange({ ...job, rule_set_id: id })}
-                    options={reference.rule_sets.map((r) => ({ value: r.id, label: r.name }))}
+                    options={reference.rule_sets.map((r) => ({ value: r.id, label: r.name, short: r.name.split(",")[0] }))}
                   />
                 </Field>
 

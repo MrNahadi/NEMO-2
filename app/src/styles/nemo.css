@@ -19,6 +19,9 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--chrome-h) + 16px); }
+/* Workspace pages have a sticky footer bar (72 px): anything scrolled into view (focus, find, anchors) stops
+   16 px above it. Page.tsx's useFocusClearOfChrome backs this up for focus paths that ignore it. */
+html:has(.footer-bar) { scroll-padding-bottom: 88px; }
 body {
   margin: 0;
   background: var(--ds-background-100);
@@ -72,7 +75,7 @@ b, strong { font-weight: 600; }
 /* A Geist Mono space is a full 0.6em cell, so "355 MPa" reads as "355  MPa". Every mono run (values,
    inputs, units, table numbers) closes the gap to about a Sans space. */
 .mono, .input-num, .unit, .choicebox-meta, .check-pct, .table .r, table.data .r, .table .num, table.data .num,
-.kv dd.mono, .kv-pair .mono, .viewer-chip b.mono, [class*="-mono"] { word-spacing: -0.3em; }
+[class*="-mono"] { word-spacing: -0.3em; }
 .caption, .muted, .text-secondary { color: var(--ds-gray-900); }
 .text-primary { color: var(--ds-gray-1000); }
 .text-pass, .text-green { color: var(--ds-green-900); }
@@ -127,14 +130,14 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 }
 .tab > *:not(.sr-only) { position: relative; }
 .tab:not([aria-disabled="true"]):hover { color: var(--ds-gray-1000); }
-.tab:not([aria-disabled="true"]):not([aria-current="page"]):hover::before { background: var(--ds-gray-alpha-100); }
-.tab[aria-current="page"] { color: var(--ds-gray-1000); }
-.tab[aria-current="page"]::after {
+.tab:not([aria-disabled="true"]):not([aria-selected="true"]):hover::before { background: var(--ds-gray-alpha-100); }
+.tab[aria-selected="true"] { color: var(--ds-gray-1000); }
+.tab[aria-selected="true"]::after {
   content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px;
   background: var(--ds-gray-1000); border-radius: 1px;
 }
 /* While a run is going the Results tab's underline is an indeterminate bar (takes no width: tabs never shift). */
-.tab.busy[aria-current="page"]::after {
+.tab.busy[aria-selected="true"]::after {
   background: linear-gradient(90deg, var(--ds-gray-alpha-400) 0 30%, var(--ds-gray-1000) 30% 70%, var(--ds-gray-alpha-400) 70%) 0 0 / 300% 100%;
   animation: tab-busy 1.4s linear infinite;
 }
@@ -280,13 +283,16 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 .input-wrap {
   display: flex; align-items: center; height: var(--control-md); width: 100%;
   background: var(--ds-background-100); border-radius: var(--radius-small);
-  box-shadow: var(--shadow-border); transition: box-shadow var(--dur-fast);
+  box-shadow: var(--shadow-control); transition: box-shadow var(--dur-fast);
 }
-.input-wrap:hover { box-shadow: 0 0 0 1px var(--ds-gray-alpha-500); }
-.input-wrap:focus-within { box-shadow: 0 0 0 1px var(--ds-gray-alpha-600), var(--focus-ring); }
+.input-wrap:hover { box-shadow: var(--shadow-control-hover); }
+.input-wrap:focus-within { box-shadow: 0 0 0 1px var(--control-border-hover), var(--focus-ring); }
 .input-wrap.invalid { box-shadow: 0 0 0 1px var(--ds-red-800); }
 .input-wrap.invalid:focus-within { box-shadow: 0 0 0 1px var(--ds-red-800), var(--focus-ring); }
 .input-wrap.sm { height: var(--control-sm); }
+/* Disabled input: gray-100 fill, no control edge, gray-700 text (Geist disabled). */
+.input-wrap:has(.input:disabled) { background: var(--ds-gray-100); box-shadow: 0 0 0 1px var(--ds-gray-alpha-400); }
+.input-wrap:has(.input:disabled) .input, .input-wrap:has(.input:disabled) .input-prefix { color: var(--ds-gray-700); cursor: not-allowed; }
 .input-prefix { display: grid; place-items: center; padding-left: 12px; color: var(--ds-gray-900); }
 .input-prefix svg { width: 16px; height: 16px; }
 .input {
@@ -301,17 +307,22 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 
 /* Select (custom listbox, Geist Select look) */
 .select-root { position: relative; width: 100%; }
+/* The trigger shows the option's short name when it has one; a value that is still too long wraps to a
+   second line (never cut mid-word). */
 .select-trigger {
-  width: 100%; height: var(--control-md); display: flex; align-items: center; gap: 8px;
-  padding: 0 12px; border-radius: var(--radius-small);
-  background: var(--ds-background-100); box-shadow: var(--shadow-border);
-  font-size: 14px; color: var(--ds-gray-1000); text-align: left;
+  width: 100%; min-height: var(--control-md); display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border-radius: var(--radius-small);
+  background: var(--ds-background-100); box-shadow: var(--shadow-control);
+  font-size: 14px; line-height: 20px; color: var(--ds-gray-1000); text-align: left;
   transition: box-shadow var(--dur-fast);
 }
-.select-trigger:hover { box-shadow: 0 0 0 1px var(--ds-gray-alpha-500); }
-.select-trigger[aria-expanded="true"] { box-shadow: var(--input-ring); }
-.select-trigger:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--ds-gray-alpha-600), var(--focus-ring); }
-.select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-trigger:hover { box-shadow: var(--shadow-control-hover); }
+.select-trigger[aria-expanded="true"] { box-shadow: 0 0 0 1px var(--control-border-hover), 0 0 0 4px var(--ds-gray-alpha-200); }
+.select-trigger:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--control-border-hover), var(--focus-ring); }
+.select-value {
+  flex: 1; min-width: 0; overflow: hidden; overflow-wrap: break-word;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+}
 .select-chevron { width: 16px; height: 16px; color: var(--ds-gray-900); transition: transform var(--dur-fast); }
 .select-chevron.open { transform: rotate(180deg); }
 /* Placement (flip above, height cap, 8 px window clearance) is set by usePopoverPlacement. */
@@ -328,10 +339,11 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 .select-option.active { background: var(--ds-gray-alpha-100); }
 .select-tick { width: 16px; height: 16px; color: var(--ds-gray-1000); }
 
-/* Switch (Geist "Switch" = segmented control for 2-6 mutually exclusive options) */
+/* Switch (Geist "Switch" = segmented control for 2-6 mutually exclusive options). A radio group: the track
+   carries the 3:1 control edge, the selected segment is raised (switch-active fill + small shadow). */
 .segmented {
   display: inline-flex; align-items: center; gap: 2px; height: var(--control-md); padding: 4px;
-  background: var(--ds-gray-100); border-radius: var(--radius-small); box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-200);
+  background: var(--ds-gray-100); border-radius: var(--radius-small); box-shadow: inset 0 0 0 1px var(--control-border);
   max-width: 100%;
 }
 .segmented button {
@@ -340,7 +352,10 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
   transition: color var(--dur-fast), background var(--dur-fast);
 }
 .segmented button:hover { color: var(--ds-gray-1000); }
-.segmented button[aria-pressed="true"] { background: var(--switch-active); color: var(--ds-gray-1000); box-shadow: var(--shadow-small); }
+.segmented button[aria-checked="true"] {
+  background: var(--switch-active); color: var(--ds-gray-1000);
+  box-shadow: 0 0 0 1px var(--ds-gray-alpha-400), var(--shadow-small);
+}
 .segmented button:focus-visible { outline-offset: 1px; }
 .segmented.sm { height: var(--control-sm); padding: 3px; }
 .segmented.sm button { font-size: 13px; padding: 0 10px; min-width: 32px; }
@@ -349,7 +364,7 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 /* Toggle (Geist Toggle = on/off switch). Kept as role="switch" button named .switch */
 .switch {
   position: relative; width: 32px; height: 18px; flex: none; border-radius: 9999px;
-  background: var(--ds-gray-300); box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+  background: var(--ds-gray-300); box-shadow: inset 0 0 0 1px var(--control-border);
   transition: background var(--dur-base);
 }
 .switch span {
@@ -362,27 +377,34 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .switch-row .muted, .switch-row .caption { font-size: 13px; line-height: 18px; }
 
-/* Chips: multi-select toggles for stock lists (plate thicknesses). Selected = high-contrast fill. */
+/* Chips: multi-select toggles for stock lists (plate thicknesses), a checkbox group. Unselected = secondary
+   look with the 3:1 control edge; selected = background-100, 1 px gray-1000 edge, a 12 px check before the
+   value and gray-1000 text (never a solid fill: a long list must not outweigh the primary button). The
+   min-width fits the check plus the value, so selecting a chip never changes its width. */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
-  height: var(--control-sm); min-width: 52px; padding: 0 10px; border-radius: var(--radius-small);
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  height: var(--control-sm); min-width: 72px; padding: 0 10px; border-radius: var(--radius-small);
   font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ds-gray-900);
-  background: var(--ds-background-100); box-shadow: var(--shadow-border);
-  transition: background var(--dur-fast), color var(--dur-fast);
+  background: var(--ds-background-100); box-shadow: var(--shadow-control);
+  transition: background var(--dur-fast), color var(--dur-fast), box-shadow var(--dur-fast);
+  scroll-margin-bottom: 88px;
 }
 .chip:hover { background: var(--ds-gray-100); color: var(--ds-gray-1000); }
-.chip[aria-pressed="true"] { background: var(--ds-gray-1000); color: var(--ds-background-100); box-shadow: none; }
-.chip[aria-pressed="true"]:hover { background: var(--primary-hover); }
+.chip[aria-checked="true"] { color: var(--ds-gray-1000); box-shadow: 0 0 0 1px var(--ds-gray-1000); }
+.chip[aria-checked="true"]:hover { background: var(--ds-gray-100); }
+.chip:focus-visible { outline-offset: 2px; }
+.chip-check { width: 12px; height: 12px; stroke-width: 2.25; margin-left: -2px; }
 
-/* Range (slider) */
+/* Range (slider): the track carries the 3:1 control edge colour; the thumb has the same edge plus a lift. */
 .range { -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px; height: 20px; background: transparent; }
-.range::-webkit-slider-runnable-track { height: 4px; border-radius: 9999px; background: var(--ds-gray-300); }
-.range::-moz-range-track { height: 4px; border-radius: 9999px; background: var(--ds-gray-300); }
+.range::-webkit-slider-runnable-track { height: 4px; border-radius: 9999px; background: var(--control-border); }
+.range::-moz-range-track { height: 4px; border-radius: 9999px; background: var(--control-border); }
 .range::-webkit-slider-thumb {
   -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 9999px;
-  background: var(--ds-background-100); box-shadow: 0 0 0 1px var(--ds-gray-alpha-600), 0 1px 2px rgba(0, 0, 0, 0.16);
+  background: var(--ds-background-100); box-shadow: 0 0 0 1px var(--control-border-hover), 0 1px 2px rgba(0, 0, 0, 0.16);
 }
-.range::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 9999px; background: var(--ds-background-100); box-shadow: 0 0 0 1px var(--ds-gray-alpha-600); }
+.range::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 9999px; background: var(--ds-background-100); box-shadow: 0 0 0 1px var(--control-border-hover); }
 .range:focus-visible { outline: none; }
 .range:focus-visible::-webkit-slider-thumb { box-shadow: var(--focus-ring); }
 
@@ -426,6 +448,9 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
 .note-success { background: var(--ds-green-100); border-color: var(--ds-green-400); color: var(--ds-green-900); }
 .note-success > svg { color: var(--ds-green-900); }
 .note-action { margin-left: auto; flex: none; align-self: center; }
+/* A note with an action button: the icon and text centre on the button's line. */
+.note:has(> .note-action) { align-items: center; }
+.note:has(> .note-action) > svg { margin-top: 0; }
 
 .progress { position: relative; height: 6px; border-radius: 9999px; background: var(--ds-gray-alpha-200); overflow: hidden; }
 .progress > span { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--ds-gray-1000); transition: width 400ms var(--ease-out); }
@@ -449,9 +474,14 @@ button.crumb:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha
   border-radius: var(--radius-small); box-shadow: var(--shadow-border); color: var(--ds-gray-900); background: var(--ds-background-100);
 }
 .empty-state-icon svg { width: 20px; height: 20px; stroke-width: 1.5; }
-.empty-state-title { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.32px; }
+.empty-state-title { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.32px; color: var(--ds-gray-1000); }
 .empty-state-description { color: var(--ds-gray-900); max-width: 44ch; }
 .empty-state .actions { margin-top: 16px; justify-content: center; }
+/* Failure variant: same layout, the icon tile carries the only colour (red-900 icon on red-100). */
+.empty-state.error .empty-state-icon { color: var(--ds-red-900); background: var(--ds-red-100); box-shadow: inset 0 0 0 1px var(--ds-red-400); }
+/* Compact: inside another surface (a table row, the 3D viewer, the report body): no border of its own. */
+.empty-state.compact { border: 0; border-radius: 0; padding: 32px 24px; }
+.empty-state.compact .empty-state-description { font-size: 13px; line-height: 18px; }
 
 /* Tooltip (dark material-tooltip with a stem; opens on hover and keyboard focus after 150 ms) */
 .tooltip-root { position: relative; display: inline-flex; }
@@ -510,7 +540,13 @@ table.data td.r { font-size: 13px; }
 .kv dt, .kv dd { padding: 6px 0; line-height: 20px; border-bottom: 1px solid var(--ds-gray-alpha-400); }
 .kv dt { color: var(--ds-gray-900); }
 .kv dd { text-align: right; padding-left: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.kv dd.mono { font-family: var(--font-mono); font-size: 13px; }
+/* Value-face rule (round 4, H2): every value in a key/value row or the viewer readout strip is Geist Sans
+   with tabular figures, whether it is "6 mm" or "4 mm fillet, both sides", so the value column reads as one
+   face. A stray .mono class on those values is neutralised here. Mono stays for table numeric columns,
+   inputs, the check %, chart ticks and the timer. */
+.kv dd.mono, .kv-pair dd.mono, .kv-item dd.mono, .viewer-chip b.mono {
+  font-family: var(--font-sans); font-size: 14px; font-weight: 500; word-spacing: normal;
+}
 .kv dt:last-of-type, .kv dd:last-of-type { border-bottom: 0; }
 /* .kv-pairs: compact 32 px label/value rows in two columns of pairs (Results Summary and Dimensions).
    <dl class="kv-pairs"><div class="kv-pair"><dt>Main plate</dt><dd class="mono">6 mm</dd></div>...</dl>
@@ -523,7 +559,6 @@ table.data td.r { font-size: 13px; }
 .kv-pair.wide { grid-column: 1 / -1; }
 .kv-pair dt { color: var(--ds-gray-900); flex: none; max-width: 72%; }
 .kv-pair dd { margin: 0; text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; min-width: 0; }
-.kv-pair dd.mono { font-family: var(--font-mono); font-weight: 500; font-size: 13px; }
 .kv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
 .kv-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .kv-item dt { color: var(--ds-gray-900); font-size: 13px; line-height: 16px; }
@@ -549,7 +584,7 @@ table.data td.r { font-size: 13px; }
 .choicebox-description { color: var(--ds-gray-900); font-size: 13px; line-height: 18px; }
 .choicebox-radio {
   width: 16px; height: 16px; flex: none; margin-top: 2px; border-radius: 9999px;
-  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-600); background: var(--ds-background-100);
+  box-shadow: inset 0 0 0 1px var(--control-border); background: var(--ds-background-100);
   display: grid; place-items: center;
 }
 .choicebox-radio::after { content: ""; width: 6px; height: 6px; border-radius: 9999px; background: var(--ds-background-100); transform: scale(0); transition: transform var(--dur-fast); }
@@ -614,7 +649,7 @@ table.data td.r { font-size: 13px; }
 .viewer-toolbar { position: absolute; top: 12px; left: 12px; z-index: 2; display: flex; gap: 8px; align-items: center; }
 .viewer-top { position: absolute; top: 12px; right: 12px; z-index: 2; display: flex; gap: 8px; align-items: center; max-width: calc(100% - 24px); }
 .viewer-toolbar + .viewer-top { max-width: 50%; }
-.viewer-toolbar .segmented { background: var(--ds-background-100); box-shadow: var(--shadow-border); }
+.viewer-toolbar .segmented { background: var(--ds-background-100); box-shadow: inset 0 0 0 1px var(--control-border), var(--shadow-small); }
 .legend {
   display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; max-width: 100%;
   border-radius: var(--radius-small); background: var(--ds-background-100); box-shadow: var(--shadow-border);
@@ -637,7 +672,6 @@ table.data td.r { font-size: 13px; }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 .viewer-chip.wide { flex: 2 1 auto; }
-.viewer-chip b.mono { font-family: var(--font-mono); font-weight: 400; }
 
 /* Check list: one row per check. Line 1 the name (label-14) with a status word when it is not a pass,
    line 2 the source (label-13 gray-900, wraps, never cut). Use bar (64 px, track end = 100 %) and use % on
@@ -648,17 +682,29 @@ table.data td.r { font-size: 13px; }
   column-gap: 12px; align-items: center; padding: 0 16px 0 12px;
 }
 .check-head { height: 32px; font-size: 13px; font-weight: 500; color: var(--ds-gray-900); background: var(--ds-background-200); border-bottom: 1px solid var(--ds-gray-alpha-400); border-radius: 11px 11px 0 0; }
-.check-head .use-head { grid-column: -3 / -1; text-align: right; }
+/* "Use of limit" is also the sort toggle (LAYOUT.md "sort: use"): attention first (default) or by use. */
+.check-head .use-head {
+  grid-column: -3 / -1; justify-self: end; display: inline-flex; align-items: center; gap: 4px;
+  height: 24px; margin-right: -6px; padding: 0 6px; border-radius: var(--radius-small);
+  font-size: 13px; font-weight: 500; color: var(--ds-gray-900); transition: color var(--dur-fast), background var(--dur-fast);
+}
+.check-head .use-head:hover { color: var(--ds-gray-1000); background: var(--ds-gray-alpha-100); }
+.check-head .use-head[aria-pressed="true"] { color: var(--ds-gray-1000); }
+.check-head .use-head svg { width: 14px; height: 14px; stroke-width: 1.75; }
 .check + .check { border-top: 1px solid var(--ds-gray-alpha-400); }
-.check-row { width: 100%; min-height: 56px; padding-top: 8px; padding-bottom: 8px; text-align: left; transition: background var(--dur-fast); }
+/* Two lines per row, every row the same height: the name with its status badge inline after it, then the
+   source on one line (ellipsis; full text in the title and in the opened working). */
+.check-row { width: 100%; min-height: 56px; padding-top: 8px; padding-bottom: 8px; text-align: left; transition: background var(--dur-fast); scroll-margin-top: calc(var(--chrome-h) + 16px); }
 .check-row:hover { background: var(--ds-gray-alpha-100); }
 .check-row:focus-visible { outline-offset: -2px; border-radius: 0; }
 .check:last-child .check-row { border-radius: 0 0 11px 11px; }
 .check-chevron { width: 16px; height: 16px; color: var(--ds-gray-900); transition: transform var(--dur-fast); align-self: start; margin-top: 2px; }
 .check.open .check-chevron { transform: rotate(90deg); }
 .check-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.check-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ds-gray-1000); }
-.check-source { font-size: 13px; line-height: 18px; color: var(--ds-gray-900); overflow-wrap: anywhere; }
+.check-title { display: block; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ds-gray-1000); }
+.check-title .badge { margin-left: 4px; vertical-align: 0; height: 18px; padding: 0 6px; }
+.check-source { font-size: 13px; line-height: 18px; color: var(--ds-gray-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.check-source-full { font-size: 13px; line-height: 18px; color: var(--ds-gray-1000); }
 .check-pct { text-align: right; font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ds-gray-1000); }
 .check-pct.advice { color: var(--ds-amber-900); }
 .check-pct.fail { color: var(--ds-red-900); }
@@ -778,10 +824,25 @@ details.more > .form, details.more > div { padding: 4px 0 8px; }
   font-size: 13px; line-height: 16px; color: var(--ds-gray-900);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.report-body { position: relative; flex: 1; min-height: 0; background: var(--ds-background-200); }
-.report-loading {
-  position: absolute; inset: 0; z-index: 1; display: grid; place-items: center;
-  background: var(--ds-background-200); color: var(--ds-gray-900); font-size: 14px;
+.report-body {
+  position: relative; flex: 1; min-height: 0; display: flex; padding: 12px;
+  background: var(--ds-background-200);
 }
-.report-loading .row { gap: 8px; }
-.report-frame { display: block; width: 100%; height: 100%; border: 0; background: var(--ds-background-200); }
+/* Loading and failure are NEMO's own states, centred in the document area. */
+.report-state {
+  position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; align-content: center; gap: 8px;
+  padding: 24px; text-align: center; background: var(--ds-background-200); color: var(--ds-gray-900); font-size: 14px;
+}
+.report-state > .row { gap: 8px; color: var(--ds-gray-1000); font-weight: 500; }
+.report-state .caption { max-width: 44ch; }
+.report-state .empty-state { max-width: 520px; }
+/* The PDF is a framed document inside the modal (radius 6, hairline), so the browser's own PDF toolbar
+   reads as part of the document and NEMO's header above it carries the title, actions and close. It fades
+   in once the browser has drawn it, so there is no white flash. */
+.report-frame {
+  display: block; flex: 1; width: 100%; height: 100%; border: 0; border-radius: var(--radius-small);
+  background: var(--ds-background-100); box-shadow: 0 0 0 1px var(--ds-gray-alpha-400);
+  opacity: 0; transition: opacity var(--dur-base);
+}
+.report-frame.shown { opacity: 1; }
+.report-bar-sep { width: 1px; height: 20px; margin: 0 4px; background: var(--ds-gray-alpha-400); flex: none; }

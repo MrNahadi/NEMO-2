@@ -1,8 +1,8 @@
-/** NEMO mark: a padeye (lifting lug) seen side-on: a flared plate rising to a round head with the pin hole,
- *  welded to a base plate. The sides are tangent to the head, so it reads as a lug, not a padlock or a
- *  tombstone. Drawn in currentColor on a 24-unit grid; the hole is a cut-out. Same path as public/favicon.svg. */
-export const LOGO_PATH =
-  "M2 17.5L6.97 6.28A5.5 5.5 0 0 1 17.03 6.28L22 17.5ZM15 8.5a3 3 0 1 0 -6 0a3 3 0 1 0 6 0ZM0.5 17.5h23v2.75h-23z";
+/** NEMO mark: a padeye (lifting lug) seen side-on: a round head with the pin hole, near-vertical sides
+ *  tangent to the head, welded to a base plate. The head dominates and the hole is about a third of the
+ *  head, so at 20 px it reads as a lug with a hole (round 3's flared version read as a tent). Drawn in
+ *  currentColor on a 24-unit grid; the hole is a cut-out. Same path as public/favicon.svg. */
+export const LOGO_PATH = "M4.5 19L5.01 8.66A7 7 0 1 1 18.99 8.66L19.5 19ZM15.2 9a3.2 3.2 0 1 0 -6.4 0a3.2 3.2 0 1 0 6.4 0ZM1 19h22v2.5h-22z";
 
 export function Logo({ size = 20 }: { size?: number }) {
   return (

@@ -73,6 +73,8 @@
   --ds-teal-900: #007A6E;
   --ds-teal-1000: #003D34;
   --ds-focus-color: #0070F7;
+  --control-border: rgba(0, 0, 0, 0.46);
+  --control-border-hover: rgba(0, 0, 0, 0.62);
   --primary-hover: #383838;
   --switch-active: #FFFFFF;
   --viewer-bg: #FAFAFA;
@@ -82,6 +84,8 @@
   --shadow-tooltip: 0 0 0 1px rgba(0, 0, 0, 0.08), 0px 1px 1px rgba(0, 0, 0, 0.02), 0px 4px 8px rgba(0, 0, 0, 0.04);
   --shadow-menu: 0 0 0 1px rgba(0, 0, 0, 0.08), 0px 1px 1px rgba(0, 0, 0, 0.02), 0px 4px 8px -4px rgba(0, 0, 0, 0.04), 0px 16px 24px -8px rgba(0, 0, 0, 0.06);
   --shadow-modal: 0 0 0 1px rgba(0, 0, 0, 0.08), 0px 1px 1px rgba(0, 0, 0, 0.02), 0px 8px 16px -4px rgba(0, 0, 0, 0.04), 0px 24px 32px -8px rgba(0, 0, 0, 0.06);
+  --shadow-control: 0 0 0 1px rgba(0, 0, 0, 0.46);
+  --shadow-control-hover: 0 0 0 1px rgba(0, 0, 0, 0.62);
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -187,6 +191,8 @@
   --ds-teal-900: #00C9B5;
   --ds-teal-1000: #CEFFF5;
   --ds-focus-color: #50A8FF;
+  --control-border: rgba(255, 255, 255, 0.4);
+  --control-border-hover: rgba(255, 255, 255, 0.56);
   --primary-hover: #CCCCCC;
   --switch-active: #292929;
   --viewer-bg: #000000;
@@ -196,5 +202,7 @@
   --shadow-tooltip: 0 0 0 1px rgba(255, 255, 255, 0.145), 0px 1px 1px rgba(0, 0, 0, 0.2), 0px 4px 8px rgba(0, 0, 0, 0.32);
   --shadow-menu: 0 0 0 1px rgba(255, 255, 255, 0.145), 0px 1px 1px rgba(0, 0, 0, 0.2), 0px 4px 8px -4px rgba(0, 0, 0, 0.4), 0px 16px 24px -8px rgba(0, 0, 0, 0.5);
   --shadow-modal: 0 0 0 1px rgba(255, 255, 255, 0.145), 0px 1px 1px rgba(0, 0, 0, 0.2), 0px 8px 16px -4px rgba(0, 0, 0, 0.4), 0px 24px 32px -8px rgba(0, 0, 0, 0.5);
+  --shadow-control: 0 0 0 1px rgba(255, 255, 255, 0.4);
+  --shadow-control-hover: 0 0 0 1px rgba(255, 255, 255, 0.56);
   color-scheme: dark;
 }

@@ -1,12 +1,12 @@
 import { Box, ChevronDown, Download, FileSpreadsheet, FileText, ListTree, Loader2, Package, Pencil, RotateCcw, Scissors } from "lucide-react";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, bundleUrl, fileUrl, reportUrl } from "../api";
 import { useFusion, useFusionRecords } from "../components/Fusion";
 import { MoreMenu } from "../components/Menu";
 import { Page, PageHeader, Section, StickyAside } from "../components/Page";
 import { ReportViewer } from "../components/ReportViewer";
 import { StageList, stagesFrom, StageView, type StageKey } from "../components/Engineering";
-import { Badge, CheckList, Choicebox, Note, Segmented, Skeleton, checkStatus, formatKg, formatKgSet, formatKn, formatValue } from "../components/ui";
+import { CheckList, Choicebox, ErrorState, Note, Segmented, Skeleton, checkStatus, focusCheck, formatKg, formatKgSet, formatKn, formatValue } from "../components/ui";
 import { MeshModel } from "../three/MeshModel";
 import { frameOf } from "../three/frame";
 import { StressModel } from "../three/StressModel";
@@ -61,11 +61,25 @@ export function Results({
     }
   }
 
-  useEffect(() => {
+  const [logError, setLogError] = useState<string | null>(null);
+  // The engineering log carries the run log and the mesh for the 3D view; a failure gets a "Try again"
+  // that re-requests the same file (F4).
+  const loadLog = useCallback(() => {
     setLog(null);
-    if (results.files?.engineering_log) api.engineeringLog(project.id, run).then(setLog).catch(() => setLog([]));
-    else setLog([]);
+    setLogError(null);
+    if (!results.files?.engineering_log) {
+      setLog([]);
+      return;
+    }
+    api
+      .engineeringLog(project.id, run)
+      .then(setLog)
+      .catch((e) => {
+        setLog([]);
+        setLogError(e instanceof Error ? e.message : String(e));
+      });
   }, [project.id, run, results.files?.engineering_log]);
+  useEffect(loadLog, [loadLog]);
 
   const part = (results.part ?? "padeye") as PartId;
   const names = PART_NAMES[part];
@@ -78,16 +92,12 @@ export function Results({
   const advice = checks.filter((c) => checkStatus(c) === "advice");
   const fails = checks.filter((c) => checkStatus(c) === "fail");
 
-  /** Selects a check (opening its working) and scrolls it into view. Used by the advisory/failure notes. */
+  /** Selects a check (opening its working), then moves keyboard focus to the expanded row, scrolled clear
+   *  of the sticky header (G4). Used by the advisory/failure notes. */
   function showCheck(id: string) {
     setCheck(id);
     setView("model");
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        document.querySelector(".check.open")?.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
-      }),
-    );
+    focusCheck(id);
   }
 
   if (tab === "log") {
@@ -117,6 +127,8 @@ export function Results({
               <Skeleton height={220} radius={12} />
             </div>
           </div>
+        ) : logError ? (
+          <ErrorState size="compact" title="The run log didn't load" message={logError} onRetry={loadLog} />
         ) : log.length === 0 ? (
           <p className="muted">This run did not record an engineering log.</p>
         ) : (
@@ -195,6 +207,35 @@ export function Results({
           </>
         }
       />
+      {/* Advisories and failures sit directly under the page header (H1), above the design choices. */}
+      {(fails.length > 0 || advice.length > 0) && (
+        <div className="results-attention">
+          {fails.length > 0 && (
+            <Note
+              kind="error"
+              action={
+                <button className="btn btn-sm" onClick={() => showCheck(fails[0].id)}>
+                  Show check
+                </button>
+              }
+            >
+              {attentionLine("fail", fails)}
+            </Note>
+          )}
+          {advice.length > 0 && (
+            <Note
+              kind="warning"
+              action={
+                <button className="btn btn-sm" onClick={() => showCheck(advice[0].id)}>
+                  Show check
+                </button>
+              }
+            >
+              {attentionLine("advice", advice)}
+            </Note>
+          )}
+        </div>
+      )}
       {fusionMessage && (
         <Note kind={fusionMessage.kind} className="results-flash">
           {fusionMessage.text}
@@ -226,6 +267,9 @@ export function Results({
             view={view}
             check={check}
             mesh={mesh}
+            meshLoading={log === null && !logError}
+            meshError={logError}
+            onMeshRetry={loadLog}
             part={part}
             slingAngle={results.job.part === "padeye" ? results.job.lift.sling_angle_deg : 60}
             toolbar={
@@ -256,41 +300,13 @@ export function Results({
 
         <div className="workspace-main">
           <Summary design={design} part={part} />
-          {(fails.length > 0 || advice.length > 0) && (
-            <div className="results-attention">
-              {fails.length > 0 && (
-                <Note
-                  kind="error"
-                  action={
-                    <button className="btn btn-sm" onClick={() => showCheck(fails[0].id)}>
-                      Show check
-                    </button>
-                  }
-                >
-                  {attentionLine("fail", fails)}
-                </Note>
-              )}
-              {advice.length > 0 && (
-                <Note
-                  kind="warning"
-                  action={
-                    <button className="btn btn-sm" onClick={() => showCheck(advice[0].id)}>
-                      Show check
-                    </button>
-                  }
-                >
-                  {attentionLine("advice", advice)}
-                </Note>
-              )}
-            </div>
-          )}
           <Section
             title={
               <>
-                Design checks <Badge tone="gray">{design.check_report.checks.length}</Badge>
+                Design checks <span className="section-count">{design.check_report.checks.length}</span>
               </>
             }
-            description={`Select a check to see its working${part === "padeye" ? " and where it acts on the padeye" : ""}. Bars show the share of each limit used; 100% is the limit.`}
+            description="Select a check to see its working. A bar at 100% is the limit."
           >
             <CheckList
               checks={design.check_report.checks}
@@ -452,73 +468,85 @@ function attentionLine(kind: "fail" | "advice", list: Check[]): string {
   return `${head} ${detail}.`;
 }
 
-/** Summary and dimensions as compact key/value pairs: "num" is a pure number + unit (Geist Mono),
- *  "phrase" mixes words and numbers (Sans tabular); "wide" rows span both columns. The force row and an
- *  even run of two-column pairs keep the grid free of half-empty rows. */
+/** Summary and dimensions as compact key/value pairs: the design force full width, then the 4-5
+ *  dimensions that matter; secondary dimensions sit behind a "Show all dimensions" disclosure so the
+ *  checks reach the first viewport (H1). Values are Sans with tabular figures, one face for the whole
+ *  column (H2); "wide" rows span both columns. Masses shown together use formatKgSet (H5). */
 function Summary({ design, part }: { design: DesignResult; part: PartId }) {
   const r = design.check_report;
-  type Row = [label: string, value: string, kind: "num" | "phrase", wide?: boolean];
-  let rows: Row[];
+  type Row = [label: string, value: string, wide?: boolean];
+  let main: Row[];
+  let more: Row[];
   let force: [string, string];
   if (part === "pipe-bracket") {
     const b = r.design as unknown as BracketDesign;
     force = ["Design force", formatKn(r.loads.sling_force_n)];
-    rows = [
-      ["Pipe", r.pipe?.label ?? "", "phrase", true],
-      ["Seat plate", `${b.seat_length_mm} × ${b.seat_width_mm} × ${b.seat_thickness_mm} mm`, "num", true],
-      ["Knees (2)", `${b.knee_thickness_mm} mm, ${b.knee_depth_mm} mm deep at the bulkhead`, "phrase", true],
-      ["Pipe centre from the bulkhead", `${Math.round(b.pipe_offset_mm)} mm`, "num", true],
-      ["U-bolt", r.ubolt?.label ?? "", "phrase", true],
-      ["Welds", `${b.root_weld_mm} mm to the bulkhead, ${b.knee_weld_mm} mm knees to seat`, "phrase", true],
+    main = [
+      ["Pipe", r.pipe?.label ?? "", true],
+      ["Seat plate", `${b.seat_length_mm} × ${b.seat_width_mm} × ${b.seat_thickness_mm} mm`, true],
+      ["Knees (2)", `${b.knee_thickness_mm} mm, ${b.knee_depth_mm} mm deep at the bulkhead`, true],
+      ["U-bolt", r.ubolt?.label ?? "", true],
+    ];
+    more = [
+      ["Welds", `${b.root_weld_mm} mm to the bulkhead, ${b.knee_weld_mm} mm knees to seat`, true],
+      ["Pipe centre from the bulkhead", `${Math.round(b.pipe_offset_mm)} mm`, true],
     ];
     if (r.span) {
-      rows.push(["Pipe span frequency", `${r.span.natural_hz.toFixed(1)} Hz, ${Math.round(r.span.separation * 100)}% from ${r.span.nearest.name.toLowerCase()} (${r.span.nearest.hz.toFixed(1)} Hz)`, "phrase", true]);
-      rows.push(["Longest support spacing", `${r.span.recommended_m.toFixed(1)} m (stress ${r.span.spans_m.stress.toFixed(1)}, sag ${r.span.spans_m.sag.toFixed(1)}, vibration ${r.span.spans_m.frequency.toFixed(1)} m)`, "phrase", true]);
+      more.push(["Pipe span frequency", `${r.span.natural_hz.toFixed(1)} Hz, ${Math.round(r.span.separation * 100)}% from ${r.span.nearest.name.toLowerCase()} (${r.span.nearest.hz.toFixed(1)} Hz)`, true]);
+      more.push(["Longest support spacing", `${r.span.recommended_m.toFixed(1)} m (stress ${r.span.spans_m.stress.toFixed(1)}, sag ${r.span.spans_m.sag.toFixed(1)}, vibration ${r.span.spans_m.frequency.toFixed(1)} m)`, true]);
     }
   } else if (part === "stabilizer") {
     const f = r.design as unknown as FinDesign;
     const m = r.masses_kg ?? {};
+    const masses = formatKgSet([(m.total ?? 0) - (m.stock ?? 0), m.stock ?? 0]);
     force = ["Design force on the fin", formatKn(r.loads.sling_force_n)];
-    rows = [
-      ["Foil", `${f.span_mm} mm span × ${f.chord_mm} mm chord, NACA 00${Math.round(f.thickness_ratio * 100)}`, "phrase", true],
-      ["Skin", `${f.skin_mm} mm`, "num"],
-      ["Ribs", `${r.ribs} at ${Math.round(r.rib_pitch_mm ?? 0)} mm`, "phrase"],
-      ["Spars", `${f.web_mm} mm webs; spars at ${Math.round(f.front_spar * 100)}% and ${Math.round(f.rear_spar * 100)}% chord`, "phrase", true],
-      ["Stock", `Ø${f.stock_diameter_mm} mm ${r.stock_material?.name ?? ""}`, "phrase", true],
-      ["Mass", `structure ${formatKg((m.total ?? 0) - (m.stock ?? 0))}, stock ${formatKg(m.stock ?? 0)}`, "phrase", true],
+    main = [
+      ["Foil", `${f.span_mm} mm span × ${f.chord_mm} mm chord, NACA 00${Math.round(f.thickness_ratio * 100)}`, true],
+      ["Skin", `${f.skin_mm} mm`],
+      ["Ribs", `${r.ribs} at ${Math.round(r.rib_pitch_mm ?? 0)} mm`],
+      ["Stock", `Ø${f.stock_diameter_mm} mm ${r.stock_material?.name ?? ""}`, true],
+      ["Mass", `structure ${masses[0]}, stock ${masses[1]}`, true],
     ];
+    more = [["Spars", `${f.web_mm} mm webs; spars at ${Math.round(f.front_spar * 100)}% and ${Math.round(f.rear_spar * 100)}% chord`, true]];
   } else {
     const d = r.design;
     force = ["Sling force per padeye", formatKn(r.loads.sling_force_n)];
-    rows = [
-      ["Main plate", `${d.main_thickness_mm} mm`, "num"],
-      ["Head radius", `${d.head_radius_mm} mm`, "num"],
-      ["Hole diameter", `${d.hole_diameter_mm} mm`, "num"],
-      ["Hole height above base", `${d.hole_height_mm} mm`, "num"],
-      ["Base length", `${d.base_length_mm} mm`, "num"],
-      ["Base weld", `${d.weld_leg_mm} mm fillet, both sides`, "phrase"],
+    main = [
+      ["Main plate", `${d.main_thickness_mm} mm`],
+      ["Head radius", `${d.head_radius_mm} mm`],
+      ["Hole diameter", `${d.hole_diameter_mm} mm`],
+      ["Hole height above base", `${d.hole_height_mm} mm`],
+      ["Shackle", r.shackle.label, true],
+    ];
+    more = [
+      ["Base length", `${d.base_length_mm} mm`],
+      ["Base weld", `${d.weld_leg_mm} mm fillet, both sides`],
     ];
     if (d.cheek_thickness_mm > 0) {
-      rows.push(["Cheek plates (2)", `${d.cheek_thickness_mm} mm, radius ${d.cheek_radius_mm} mm`, "phrase"]);
-      rows.push(["Cheek welds", `${d.cheek_weld_leg_mm} mm fillet all round`, "phrase"]);
+      more.push(["Cheek plates (2)", `${d.cheek_thickness_mm} mm, radius ${d.cheek_radius_mm} mm`]);
+      more.push(["Cheek welds", `${d.cheek_weld_leg_mm} mm fillet all round`]);
     }
-    rows.push(["Shackle", r.shackle.label, "phrase", true]);
   }
+  const pair = ([k, v, wide]: Row) => (
+    <div key={k} className={`kv-pair${wide ? " wide" : ""}`}>
+      <dt>{k}</dt>
+      <dd>{v}</dd>
+    </div>
+  );
   return (
     <Section title="Summary and dimensions">
       <dl className="kv-pairs">
         {/* The design force is the headline number: a full-width first row. */}
         <div className="kv-pair wide">
           <dt>{force[0]}</dt>
-          <dd className="mono">{force[1]}</dd>
+          <dd>{force[1]}</dd>
         </div>
-        {rows.map(([k, v, kind, wide]) => (
-          <div key={k} className={`kv-pair${wide ? " wide" : ""}`}>
-            <dt>{k}</dt>
-            <dd className={kind === "num" ? "mono" : undefined}>{v}</dd>
-          </div>
-        ))}
+        {main.map(pair)}
       </dl>
+      <details className="more dims-more">
+        <summary>Show all dimensions</summary>
+        <dl className="kv-pairs">{more.map(pair)}</dl>
+      </details>
     </Section>
   );
 }
@@ -555,6 +583,9 @@ function ResultViewer({
   view,
   check,
   mesh,
+  meshLoading,
+  meshError,
+  onMeshRetry,
   part,
   slingAngle,
   toolbar,
@@ -565,31 +596,96 @@ function ResultViewer({
   view: View;
   check: string | null;
   mesh?: SurfaceMesh;
+  /** True while the engineering log (which carries the mesh) is being fetched. */
+  meshLoading: boolean;
+  /** The log's error message, when it failed to load; the retry re-requests the same file (F4). */
+  meshError: string | null;
+  onMeshRetry: () => void;
   part: PartId;
   slingAngle: number;
   toolbar?: ReactNode;
 }) {
-  const [surface, setSurface] = useState<StressSurface | null>(null);
   const path = design.files.stress_surface;
+  // Stress surface state machine (F4): loading shows a stable overlay in the viewer, an error shows the
+  // engine's message with a 32 px "Try again" that re-requests the same file. A surface that has loaded
+  // once is kept, so switching between Model, Mesh and Stress does not flash the loading state again.
+  const [stress, setStress] = useState<{ status: "loading" | "ready" | "error"; surface: StressSurface | null; message: string | null }>({
+    status: "loading",
+    surface: null,
+    message: null,
+  });
+  const stressCache = useRef<{ path: string | null; surface: StressSurface | null }>({ path: null, surface: null });
+  const [stressTry, setStressTry] = useState(0);
   useEffect(() => {
-    setSurface(null);
-    if (view === "stress" && path) api.stressSurface(projectId, run, path).then(setSurface).catch(() => setSurface(null));
-  }, [projectId, run, path, view]);
+    if (view !== "stress" || !path) return;
+    if (stressCache.current.path === path && stressCache.current.surface) {
+      setStress({ status: "ready", surface: stressCache.current.surface, message: null });
+      return;
+    }
+    let live = true;
+    setStress({ status: "loading", surface: null, message: null });
+    api
+      .stressSurface(projectId, run, path)
+      .then((s) => {
+        stressCache.current = { path, surface: s };
+        if (live) setStress({ status: "ready", surface: s, message: null });
+      })
+      .catch((e) => {
+        if (live) setStress({ status: "error", surface: null, message: e instanceof Error ? e.message : String(e) });
+      });
+    return () => {
+      live = false;
+    };
+  }, [projectId, run, path, view, stressTry]);
+  function retryStress() {
+    stressCache.current = { path: null, surface: null };
+    setStressTry((t) => t + 1);
+  }
+  const surface = stress.surface;
   const yieldMpa = design.fea?.yield_strength_mpa ?? 1;
   const checkTitle = check && part === "padeye" ? design.check_report.checks.find((c) => c.id === check)?.title : null;
   const frame = view === "stress" && surface ? frameOf(surface.positions) : view === "mesh" && mesh ? frameOf(mesh.positions) : partFrame(part, design.check_report.design);
+  // Status overlay inside the viewer (F4): a quiet chip while data loads, the error with a retry when a
+  // file fails. The panel frame never changes size, and no legend is shown over the plain model.
+  const status =
+    view === "stress" && path ? (
+      stress.status === "loading" ? (
+        <span className="viewer-loading" role="status">
+          <Loader2 className="spin" aria-hidden /> Loading stress results
+        </span>
+      ) : stress.status === "error" ? (
+        <div className="viewer-cover">
+          <ErrorState size="compact" title="The stress results didn't load" message={stress.message} onRetry={retryStress} />
+        </div>
+      ) : undefined
+    ) : view === "mesh" ? (
+      meshLoading ? (
+        <span className="viewer-loading" role="status">
+          <Loader2 className="spin" aria-hidden /> Loading the mesh
+        </span>
+      ) : meshError ? (
+        <div className="viewer-cover">
+          <ErrorState size="compact" title="The mesh didn't load" message={meshError} onRetry={onMeshRetry} />
+        </div>
+      ) : !mesh ? (
+        <span className="viewer-loading">This run did not record a mesh for this design.</span>
+      ) : undefined
+    ) : undefined;
   return (
     <Viewer
       size={frame.size}
       centreY={frame.centreY}
       toolbar={toolbar}
+      status={status}
       top={
         view === "stress" ? (
-          <span className="legend">
-            0 <span className="ramp" /> {yieldMpa.toFixed(0)} MPa (yield){part === "stabilizer" ? ", stock" : ""}
-          </span>
+          surface ? (
+            <span className="legend">
+              0 <span className="ramp" /> {yieldMpa.toFixed(0)} MPa (yield){part === "stabilizer" ? ", stock" : ""}
+            </span>
+          ) : undefined
         ) : view === "mesh" ? (
-          <span className="legend">Coarsest of the 3 meshes solved{part === "stabilizer" ? " (stock)" : ""}</span>
+          mesh ? <span className="legend">Coarsest of the 3 meshes solved{part === "stabilizer" ? " (stock)" : ""}</span> : undefined
         ) : checkTitle ? (
           <span className="legend legend-accent">{checkTitle}</span>
         ) : undefined

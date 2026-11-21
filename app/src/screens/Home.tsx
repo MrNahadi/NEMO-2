@@ -1,10 +1,10 @@
 import { Anchor, Box, Copy, FileText, FolderOpen, FolderSearch, Pencil, Plus, Search, Ship, Trash2, Wrench, type LucideIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, reportUrl } from "../api";
 import { useFusion } from "../components/Fusion";
 import { Dialog, MoreMenu } from "../components/Menu";
 import { Page, PageHeader } from "../components/Page";
-import { EmptyState, Note, Skeleton, Status } from "../components/ui";
+import { EmptyState, ErrorState, Note, Skeleton, Status } from "../components/ui";
 import { PART_NAMES } from "../three/PartModel";
 import type { PartId, Project } from "../types";
 
@@ -14,15 +14,35 @@ const PART_ICONS: Record<string, LucideIcon> = { padeye: Anchor, "pipe-bracket":
 
 export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project) => void }) {
   const [projects, setProjects] = useState<Project[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState<Pending>(null);
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const haveData = useRef(false);
   const fusion = useFusion();
 
+  // One list request for the first paint, "Try again" after a failure, and the refresh after a row action.
+  // A failure before any data arrives fills the table frame with an ErrorState; a failed refresh with data
+  // on screen is a Note, so the list stays put.
   const load = useCallback(() => {
-    api.projects().then(setProjects).catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
+    setLoading(true);
+    api
+      .projects()
+      .then((p) => {
+        haveData.current = true;
+        setProjects(p);
+        setListError(null);
+      })
+      .catch((e) => {
+        const message = e instanceof ApiError ? e.message : String(e);
+        if (haveData.current) setError(message);
+        else setListError(message);
+      })
+      .finally(() => setLoading(false));
   }, []);
   useEffect(load, [load]);
 
@@ -50,6 +70,15 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
       ? `${filtered.length} of ${projects!.length} design${projects!.length === 1 ? "" : "s"}`
       : `${filtered.length} design${filtered.length === 1 ? "" : "s"}`
     : "";
+  // True empty list: the EmptyState carries the only primary New design button, so the page header's is hidden.
+  const empty = projects !== null && projects.length === 0;
+  // Load failed before any data arrived: the ErrorState replaces the rows inside the same table frame.
+  const failed = listError !== null && projects === null;
+
+  function clearSearch() {
+    setQuery("");
+    searchRef.current?.focus();
+  }
 
   return (
     <Page>
@@ -57,9 +86,11 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
         title="Designs"
         description="Each design keeps its own inputs, results and files."
         actions={
-          <button className="btn btn-primary" onClick={onNew}>
-            <Plus aria-hidden /> New design
-          </button>
+          empty ? null : (
+            <button className="btn btn-primary" onClick={onNew}>
+              <Plus aria-hidden /> New design
+            </button>
+          )
         }
       />
 
@@ -81,7 +112,7 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
         </div>
       )}
 
-      {projects && projects.length === 0 ? (
+      {empty ? (
         <>
           <EmptyState
             icon={<FolderOpen aria-hidden />}
@@ -108,6 +139,7 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
                 <Search aria-hidden />
               </span>
               <input
+                ref={searchRef}
                 className="input"
                 aria-label="Search designs"
                 placeholder="Search designs"
@@ -116,11 +148,18 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            {filtered ? <span className="list-count">{count}</span> : <Skeleton width={72} height={14} />}
+            {filtered ? <span className="list-count">{count}</span> : failed ? null : <Skeleton width={72} height={14} />}
           </div>
 
-          <div className="table-wrap menus">
+          <div className="table-wrap menus" role="region" aria-label="Saved designs" aria-busy={loading || undefined}>
             <table className="table designs-table">
+              <colgroup>
+                <col className="col-name" />
+                <col className="col-part" />
+                <col className="col-status" />
+                <col className="col-saved" />
+                <col className="col-menu" />
+              </colgroup>
               <thead>
                 <tr>
                   <th>Name</th>
@@ -133,7 +172,20 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
                 </tr>
               </thead>
               <tbody>
-                {!filtered &&
+                {failed && (
+                  <tr className="designs-state">
+                    <td colSpan={5}>
+                      <ErrorState
+                        size="compact"
+                        title="We couldn't load your designs"
+                        message={listError}
+                        onRetry={load}
+                        busy={loading}
+                      />
+                    </td>
+                  </tr>
+                )}
+                {!failed && !filtered &&
                   [0, 1, 2, 3].map((i) => (
                     <tr key={i} aria-hidden>
                       <td>
@@ -247,7 +299,14 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
                 })}
                 {filtered && filtered.length === 0 && (
                   <tr className="designs-empty">
-                    <td colSpan={5}>No designs match “{query.trim()}”.</td>
+                    <td colSpan={5}>
+                      <div className="designs-nomatch">
+                        <span>No designs match “{query.trim()}”.</span>
+                        <button type="button" className="btn btn-sm" onClick={clearSearch}>
+                          Clear search
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )}
               </tbody>

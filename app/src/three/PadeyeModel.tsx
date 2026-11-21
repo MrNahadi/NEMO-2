@@ -166,20 +166,22 @@ export function PadeyeModel({
   return (
     <group>
       <CheckRegion design={d} pin={pin} angle={angle} check={highlight} />
-      <mesh position={[0, -1.5, 0]}>
+      {/* Context: the deck plate the padeye is welded to, kept faint (about 0.2) so the part leads (I2). */}
+      <mesh position={[0, -1.5, 0]} userData={{ excludeFit: true }}>
         <boxGeometry args={[d.base_length_mm + 40, 3, Math.max(d.main_thickness_mm * 6, 40)]} />
-        <meshStandardMaterial color="#a3a9b0" roughness={0.9} transparent opacity={0.45} depthWrite={false} />
+        <meshStandardMaterial color="#a3a9b0" roughness={0.9} transparent opacity={0.22} depthWrite={false} />
       </mesh>
+      {/* Steel: metalness and roughness capped so no face blows out to white under the lights (I3). */}
       <mesh geometry={main} castShadow receiveShadow>
-        <meshStandardMaterial color={STEEL} metalness={0.55} roughness={0.42} />
+        <meshStandardMaterial color={STEEL} metalness={0.35} roughness={0.5} />
       </mesh>
       {cheek && (
         <>
           <mesh geometry={cheek} position={[0, d.hole_height_mm, t / 2]} castShadow>
-            <meshStandardMaterial color={CHEEK} metalness={0.55} roughness={0.45} />
+            <meshStandardMaterial color={CHEEK} metalness={0.35} roughness={0.5} />
           </mesh>
           <mesh geometry={cheek} position={[0, d.hole_height_mm, -t / 2]} rotation={[0, Math.PI, 0]} castShadow>
-            <meshStandardMaterial color={CHEEK} metalness={0.55} roughness={0.45} />
+            <meshStandardMaterial color={CHEEK} metalness={0.35} roughness={0.5} />
           </mesh>
         </>
       )}
@@ -212,8 +214,16 @@ export function PadeyeModel({
   );
 }
 
-export function modelSize(design: PadeyeDesign): number {
-  return Math.max(design.base_length_mm, design.hole_height_mm + design.head_radius_mm, 60);
+/** Frame for the padeye with its shackle and sling: the sling rises at about 60 degrees from the hole,
+ *  so the frame reaches the end of the sling arrow and the sling never leaves the view abruptly (I2). */
+export function padeyeFrame(design: PadeyeDesign): { size: number; centreY: number } {
+  const pin = design.hole_diameter_mm * 0.9;
+  const bowLength = Math.max(pin * 3.2, design.head_radius_mm * 2.2);
+  const sling = bowLength * 2.3 + pin; // sling line and arrow past the bow (see the shackle group below)
+  const top = design.hole_height_mm + sling * Math.sin(Math.PI / 3);
+  const across = Math.max(design.base_length_mm, 2 * sling * Math.cos(Math.PI / 3) + pin);
+  const height = Math.max(top, design.hole_height_mm + design.head_radius_mm);
+  return { size: Math.max(across, height, 60), centreY: height / 2 };
 }
 
 // ------------------------------------------------------------ check regions

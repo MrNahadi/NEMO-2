@@ -1,6 +1,17 @@
-import { AlertCircle, AlertTriangle, CheckCircle2, ChevronRight, CircleHelp, Info } from "lucide-react";
+import { AlertCircle, AlertTriangle, ArrowDown, ArrowUpDown, Check as CheckIcon, CheckCircle2, ChevronRight, CircleHelp, Info, Loader2, RotateCw } from "lucide-react";
 import { Working } from "./Formula";
-import { cloneElement, createContext, isValidElement, useContext, useId, useState, type ReactElement, type ReactNode } from "react";
+import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  useContext,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import type { Check } from "../types";
 
 /* ------------------------------------------------------------------ Form fields */
@@ -155,7 +166,20 @@ export function NumberInput({
   );
 }
 
-/** Geist Switch: a segmented control for a few mutually exclusive options. */
+/** Roving focus for a group of buttons: one tab stop for the whole group, arrow keys (and Home/End) move
+ *  between the items. Returns the index the key lands on, or -1 when the key is not a move. */
+export function rovingIndex(e: KeyboardEvent, current: number, count: number): number {
+  const prev = e.key === "ArrowLeft" || e.key === "ArrowUp";
+  const next = e.key === "ArrowRight" || e.key === "ArrowDown";
+  if (!prev && !next && e.key !== "Home" && e.key !== "End") return -1;
+  e.preventDefault();
+  if (e.key === "Home") return 0;
+  if (e.key === "End") return count - 1;
+  return (current + (next ? 1 : -1) + count) % count;
+}
+
+/** Geist Switch: a segmented control for a few mutually exclusive options. A radio group: one tab stop
+ *  (the selected option), arrow keys move and select, as Geist's Switch does. */
 export function Segmented<T extends string | number>({
   options,
   value,
@@ -173,11 +197,31 @@ export function Segmented<T extends string | number>({
   mono?: boolean;
 }) {
   const a11y = useControlA11y(label);
+  const root = useRef<HTMLDivElement>(null);
+  const selected = Math.max(0, options.findIndex((o) => o.value === value));
   return (
-    <div className={`segmented${size === "small" ? " sm" : ""}${mono ? " mono" : ""}`} role="group" {...a11y.props}>
+    <div
+      ref={root}
+      className={`segmented${size === "small" ? " sm" : ""}${mono ? " mono" : ""}`}
+      role="radiogroup"
+      {...a11y.props}
+      onKeyDown={(e) => {
+        const i = rovingIndex(e, selected, options.length);
+        if (i < 0) return;
+        onChange(options[i].value);
+        root.current?.querySelectorAll<HTMLButtonElement>("[role=radio]")[i]?.focus();
+      }}
+    >
       {a11y.own}
-      {options.map((o) => (
-        <button key={String(o.value)} type="button" aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
+      {options.map((o, i) => (
+        <button
+          key={String(o.value)}
+          type="button"
+          role="radio"
+          aria-checked={i === selected}
+          tabIndex={i === selected ? 0 : -1}
+          onClick={() => onChange(o.value)}
+        >
           {o.label}
         </button>
       ))}
@@ -198,7 +242,9 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
   );
 }
 
-/** Multi-select toggles for stock lists (plate thicknesses). */
+/** Multi-select toggles for stock lists (plate thicknesses): a group of checkboxes with one tab stop.
+ *  Arrow keys (and Home/End) move between chips, Space or Enter toggles the focused one. Selected chips have
+ *  a gray-1000 edge and a check mark, not a solid fill, so a long list never outweighs the primary button. */
 export function Chips({
   options,
   selected,
@@ -214,19 +260,42 @@ export function Chips({
   label?: string;
 }) {
   const field = useContext(FieldContext);
+  const [focus, setFocus] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  const current = Math.min(focus, options.length - 1);
   return (
     <div
+      ref={root}
       className="chips"
       role="group"
       aria-labelledby={field?.labelId}
       aria-label={field ? undefined : label}
       aria-describedby={field?.describedBy}
+      onKeyDown={(e) => {
+        const i = rovingIndex(e, current, options.length);
+        if (i < 0) return;
+        setFocus(i);
+        root.current?.querySelectorAll<HTMLButtonElement>("[role=checkbox]")[i]?.focus();
+      }}
     >
-      {options.map((o) => (
-        <button key={o} type="button" className="chip" aria-pressed={selected.includes(o)} onClick={() => onToggle(o)}>
-          {format(o)}
-        </button>
-      ))}
+      {options.map((o, i) => {
+        const on = selected.includes(o);
+        return (
+          <button
+            key={o}
+            type="button"
+            role="checkbox"
+            className="chip"
+            aria-checked={on}
+            tabIndex={i === current ? 0 : -1}
+            onFocus={() => setFocus(i)}
+            onClick={() => onToggle(o)}
+          >
+            {on && <CheckIcon aria-hidden className="chip-check" />}
+            <span>{format(o)}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -350,15 +419,71 @@ export function Skeleton({ width = "100%", height = 20, radius }: { width?: numb
   return <span className="skeleton" aria-hidden style={{ width, height, borderRadius: radius }} />;
 }
 
-/** Geist Empty State. */
-export function EmptyState({ icon, title, description, action }: { icon: ReactNode; title: string; description: ReactNode; action?: ReactNode }) {
+/** Geist Empty State. `kind="error"` is the failure variant (red-tinted icon tile, announced as an alert);
+ *  `size="compact"` drops the border and padding for use inside another surface (a table cell, a viewer). */
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  kind,
+  size,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: ReactNode;
+  action?: ReactNode;
+  kind?: "error";
+  size?: "compact";
+}) {
   return (
-    <div className="empty-state">
+    <div
+      className={`empty-state${kind === "error" ? " error" : ""}${size === "compact" ? " compact" : ""}`}
+      role={kind === "error" ? "alert" : undefined}
+    >
       <span className="empty-state-icon" aria-hidden>{icon}</span>
       <h2 className="empty-state-title">{title}</h2>
       <p className="empty-state-description">{description}</p>
       {action && <div className="actions">{action}</div>}
     </div>
+  );
+}
+
+/** Failure state with a way forward: the engine's message and a "Try again" button that repeats the same
+ *  request. Use it wherever a load fails (Designs list, stress surface, report, preview). `busy` shows a
+ *  spinner on the button while the retry is pending. */
+export function ErrorState({
+  title,
+  message,
+  onRetry,
+  busy,
+  size,
+  extra,
+}: {
+  title: string;
+  message: ReactNode;
+  onRetry: () => void;
+  busy?: boolean;
+  size?: "compact";
+  /** A second, quieter action after Try again (for example Download PDF). */
+  extra?: ReactNode;
+}) {
+  return (
+    <EmptyState
+      kind="error"
+      size={size}
+      icon={<AlertCircle />}
+      title={title}
+      description={message}
+      action={
+        <>
+          <button type="button" className="btn btn-sm" onClick={onRetry} disabled={busy} aria-busy={busy || undefined}>
+            {busy ? <Loader2 className="spin" aria-hidden /> : <RotateCw aria-hidden />} Try again
+          </button>
+          {extra}
+        </>
+      }
+    />
   );
 }
 
@@ -400,6 +525,20 @@ export function CheckBadge({ status }: { status: CheckStatus }) {
   return <Badge tone={status === "fail" ? "red" : "amber"}>{status === "fail" ? "Fail" : "Advice"}</Badge>;
 }
 
+/** Moves keyboard focus to a check row (after "Show check" opens it) and scrolls it to the top of the view,
+ *  clear of the sticky header (the page's scroll-padding-top). */
+export function focusCheck(id: string) {
+  requestAnimationFrame(() => {
+    const row = document.querySelector<HTMLElement>(`.check-row[data-check-id="${CSS.escape(id)}"]`);
+    if (!row) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    row.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+    row.focus({ preventScroll: true });
+  });
+}
+
+export type CheckOrder = "attention" | "use";
+
 export function CheckList({
   checks,
   selected,
@@ -411,21 +550,34 @@ export function CheckList({
   onSelect?: (id: string | null) => void;
 }) {
   const [localOpen, setLocalOpen] = useState<string | null>(null);
+  const [order, setOrder] = useState<CheckOrder>("attention");
   const open = selected === undefined ? localOpen : selected;
   const setOpen = onSelect ?? setLocalOpen;
-  // Anything that needs attention first (fail, then advice), then required strength, required fit and
-  // practice checks, each by use.
+  // Default: anything that needs attention first (fail, then advice), then required strength, required fit
+  // and practice checks, each by use. "Use of limit" header: highest use first. View only.
+  const byUse = order === "use";
   const ordered = [...checks].sort((a, b) => {
+    if (byUse) return b.utilization - a.utilization;
     const attention = (c: Check) => ({ fail: 0, advice: 1, pass: 2 })[checkStatus(c)];
     const rank = (c: Check) => (c.severity === "required" && c.category === "strength" ? 0 : c.severity === "required" ? 1 : 2);
     return attention(a) - attention(b) || rank(a) - rank(b) || b.utilization - a.utilization;
   });
   return (
     <div className="check-list">
-      <div className="check-head" aria-hidden>
-        <span />
+      <div className="check-head">
+        <span aria-hidden />
         <span>Check and source</span>
-        <span className="use-head">Use of limit</span>
+        <button
+          type="button"
+          className="use-head"
+          aria-pressed={byUse}
+          title={byUse ? "Sorted by use of limit. Select to list checks that need attention first." : "Sort by use of limit, highest first"}
+          onClick={() => setOrder(byUse ? "attention" : "use")}
+        >
+          <span>Use of limit</span>
+          {byUse ? <ArrowDown aria-hidden /> : <ArrowUpDown aria-hidden />}
+          <span className="sr-only">{byUse ? ", sorted highest first" : ", sort highest first"}</span>
+        </button>
       </div>
       {ordered.map((c) => {
         const isOpen = open === c.id;
@@ -436,6 +588,7 @@ export function CheckList({
             <button
               type="button"
               className="check-row"
+              data-check-id={c.id}
               aria-expanded={isOpen}
               aria-label={`${c.title}, ${c.source}. ${pct}% of the limit, ${status === "pass" ? "passes" : status === "advice" ? "advice: over NEMO's recommendation" : "fails"}`}
               onClick={() => setOpen(isOpen ? null : c.id)}
@@ -444,15 +597,26 @@ export function CheckList({
               <span className="check-text">
                 <span className="check-title">
                   {c.title}
-                  <CheckBadge status={status} />
+                  {status !== "pass" && (
+                    <>
+                      {" "}
+                      <CheckBadge status={status} />
+                    </>
+                  )}
                 </span>
-                <span className="check-source">{c.source}</span>
+                <span className="check-source" title={c.source}>
+                  {c.source}
+                </span>
               </span>
               <UseBar utilization={c.utilization} status={status} />
               <span className={`check-pct${status === "pass" ? "" : ` ${status}`}`}>{pct}%</span>
             </button>
             {isOpen && (
               <div className="check-body">
+                <p className="check-source-full">
+                  <span className="muted">Source: </span>
+                  {c.source}
+                </p>
                 <p className="muted">{c.explanation}</p>
                 <Working
                   steps={c.working ?? []}
@@ -485,13 +649,21 @@ export function formatKn(newtons: number): string {
 }
 
 export function formatKg(kg: number, extraDigit = false): string {
-  return kg < 10 ? `${kg.toFixed(extraDigit ? 3 : 2)} kg` : `${kg.toFixed(extraDigit ? 2 : 1)} kg`;
+  return formatKgDigits(kg, (kg < 10 ? 2 : 1) + (extraDigit ? 1 : 0));
+}
+function formatKgDigits(kg: number, digits: number): string {
+  return `${kg.toFixed(digits)} kg`;
 }
 
-/** Masses for a set of designs shown side by side: one more decimal for all of them when two would
- *  otherwise read the same (0.305 / 0.308 / 0.313 kg instead of 0.31 / 0.31 / 0.31 kg). Display only. */
+/** Masses shown side by side (design choices, readouts, tables): decimals are added for all of them until
+ *  masses that differ never share a label (0.305 / 0.308 / 0.313 kg, or 0.3051 / 0.3052 kg). Equal masses
+ *  keep equal labels. Display only. */
 export function formatKgSet(masses: number[]): string[] {
-  const plain = masses.map((m) => formatKg(m));
-  const clash = new Set(plain).size < plain.length;
-  return clash ? masses.map((m) => formatKg(m, true)) : plain;
+  const distinct = new Set(masses.map((m) => m.toFixed(6))).size;
+  const base = masses.some((m) => m < 10) ? 2 : 1;
+  for (let digits = base; digits <= base + 4; digits++) {
+    const labels = masses.map((m) => formatKgDigits(m, digits));
+    if (new Set(labels).size >= distinct) return labels;
+  }
+  return masses.map((m) => formatKgDigits(m, base + 4));
 }

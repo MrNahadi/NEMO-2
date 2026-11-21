@@ -50,27 +50,30 @@ export function BracketModel({ design: d, showPipe = true }: { design: BracketDe
   useEffect(() => () => bolt.dispose(), [bolt]);
 
   const zKnee = d.seat_width_mm / 2 - d.knee_thickness_mm / 2;
-  const pipeLength = Math.max(d.seat_width_mm * 4, d.pipe_od_mm * 3);
+  // The pipe is context: long enough to read as a pipe run, short and faint enough that the bracket leads (I2).
+  const pipeLength = Math.max(d.seat_width_mm * 2.4, d.pipe_od_mm * 2.2);
   return (
     <group>
-      <mesh position={[x0 - 4, lift / 2 + d.pipe_od_mm / 2, 0]}>
+      <mesh position={[x0 - 4, lift / 2 + d.pipe_od_mm / 2, 0]} userData={{ excludeFit: true }}>
         <boxGeometry args={[8, lift + d.pipe_od_mm + 60, pipeLength]} />
         <meshStandardMaterial color={BULKHEAD} roughness={0.9} transparent opacity={0.22} depthWrite={false} />
       </mesh>
+      {/* Seat and knees: metalness and roughness capped so the flat seat never blows out to a white
+          patch under the lights, dark theme included (I3). */}
       <mesh position={[x0 + L / 2, lift - ts / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[L, ts, d.seat_width_mm]} />
-        <meshStandardMaterial color={STEEL} metalness={0.55} roughness={0.42} />
+        <meshStandardMaterial color={STEEL} metalness={0.35} roughness={0.52} />
       </mesh>
       {[-1, 1].map((side) => (
         <mesh key={side} geometry={knee} position={[x0, lift - ts, side * zKnee]} castShadow>
-          <meshStandardMaterial color={KNEE} metalness={0.55} roughness={0.45} />
+          <meshStandardMaterial color={KNEE} metalness={0.35} roughness={0.52} />
         </mesh>
       ))}
       {showPipe && (
         <group position={[x0 + d.pipe_offset_mm, lift + d.pipe_od_mm / 2, 0]}>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]} userData={{ excludeFit: true }}>
             <cylinderGeometry args={[d.pipe_od_mm / 2, d.pipe_od_mm / 2, pipeLength, 40, 1, true]} />
-            <meshStandardMaterial color={PIPE} metalness={0.2} roughness={0.6} transparent opacity={0.28} side={THREE.DoubleSide} depthWrite={false} />
+            <meshStandardMaterial color={PIPE} metalness={0.2} roughness={0.6} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} />
           </mesh>
           <mesh geometry={bolt}>
             <meshStandardMaterial color={BOLT} metalness={0.3} roughness={0.5} />

@@ -64,7 +64,8 @@
 .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .chart-legend .dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
 .dot-pass { background: var(--ds-gray-700); }
-.dot-fail { background: var(--ds-red-700); }
+/* Matches the canvas: failing candidates are faint red dots, and only above the 100% limit. */
+.dot-fail { background: var(--ds-red-700); opacity: 0.45; }
 .dot-chosen { background: var(--ds-blue-700); }
 
 .svg-chart { display: block; width: 100%; max-width: 680px; height: auto; }

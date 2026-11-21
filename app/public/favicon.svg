@@ -3,5 +3,5 @@
     .mark { fill: #171717; }
     @media (prefers-color-scheme: dark) { .mark { fill: #ededed; } }
   </style>
-  <path class="mark" fill-rule="evenodd" d="M2 17.5L6.97 6.28A5.5 5.5 0 0 1 17.03 6.28L22 17.5ZM15 8.5a3 3 0 1 0 -6 0a3 3 0 1 0 6 0ZM0.5 17.5h23v2.75h-23z"/>
+  <path class="mark" fill-rule="evenodd" d="M4.5 19L5.01 8.66A7 7 0 1 1 18.99 8.66L19.5 19ZM15.2 9a3.2 3.2 0 1 0 -6.4 0a3.2 3.2 0 1 0 6.4 0ZM1 19h22v2.5h-22z"/>
 </svg>

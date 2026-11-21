@@ -1,9 +1,9 @@
 import { ChevronRight, Loader2, Play } from "lucide-react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "../api";
 import { Formula, Working } from "../components/Formula";
 import { Page, PageHeader } from "../components/Page";
-import { Note, Progress, Skeleton, Status } from "../components/ui";
+import { ErrorState, Note, Progress, Skeleton, Status } from "../components/ui";
 import type { Benchmark, Comparison, VerificationResult } from "../types";
 
 interface Listed {
@@ -19,15 +19,25 @@ export function Verification() {
   const [live, setLive] = useState<Record<string, Benchmark>>({});
   const [running, setRunning] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
 
-  useEffect(() => {
-    api.verification().then((v) => {
-      setListed(v.benchmarks);
-      setLatest(v.latest);
-    }).catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
+  // One request for the benchmark list and the last run, first paint and "Try again" after a failure.
+  const loadList = useCallback(() => {
+    setLoading(true);
+    api
+      .verification()
+      .then((v) => {
+        setListed(v.benchmarks);
+        setLatest(v.latest);
+        setLoadError(null);
+      })
+      .catch((e) => setLoadError(e instanceof ApiError ? e.message : String(e)))
+      .finally(() => setLoading(false));
   }, []);
+  useEffect(loadList, [loadList]);
 
   async function runNow() {
     setBusy(true);
@@ -60,7 +70,9 @@ export function Verification() {
 
   const resultFor = (id: string): Benchmark | undefined => live[id] ?? (busy ? undefined : latest?.benchmarks.find((b) => b.id === id));
   const done = Object.keys(live).length;
-  const loading = listed.length === 0 && !error;
+  // First paint (or a retry) without data yet: skeleton rows. A failed first load fills the table frame.
+  const skeleton = listed.length === 0 && !loadError;
+  const failed = loadError !== null && listed.length === 0;
 
   const lastRun = busy
     ? null
@@ -68,7 +80,7 @@ export function Verification() {
       ? `Last run ${new Date(latest.ran_at).toLocaleString()} with NEMO ${latest.nemo_version}: ${
           latest.passed ? "every benchmark passed." : "one or more benchmarks failed."
         }`
-      : loading
+      : skeleton || failed
         ? null
         : "Not run on this computer yet. It takes about half a minute.";
 
@@ -79,14 +91,14 @@ export function Verification() {
         description={
           <span className="v-desc">
             <span className="v-desc-body">
-              NEMO is checked against problems whose answers are known from theory or were worked out by hand. Run them here to see
-              NEMO's calculation engine and stress solver reproduce those answers on this computer.
+              NEMO is checked against problems whose answers are known from theory or worked out by hand, so you can see the engine
+              reproduce those answers on this computer.
             </span>
             {lastRun && <span className="v-last-run">{lastRun}</span>}
           </span>
         }
         actions={
-          <button className="btn btn-primary" onClick={runNow} disabled={busy}>
+          <button className="btn btn-primary" onClick={runNow} disabled={busy || listed.length === 0}>
             {busy ? <Loader2 className="spin" aria-hidden /> : <Play aria-hidden />}
             {busy ? `Running ${done + 1} of ${listed.length}` : "Run verification"}
           </button>
@@ -100,11 +112,20 @@ export function Verification() {
       )}
       {error && (
         <div className="v-error">
-          <Note kind="error">{error}</Note>
+          <Note
+            kind="error"
+            action={
+              <button className="btn btn-tertiary btn-sm" onClick={runNow}>
+                Try again
+              </button>
+            }
+          >
+            {error}
+          </Note>
         </div>
       )}
 
-      <div className="table-wrap">
+      <div className="table-wrap" role="region" aria-label="Benchmarks" aria-busy={loading || undefined}>
         <table className="table v-table">
           <thead>
             <tr>
@@ -117,7 +138,20 @@ export function Verification() {
             </tr>
           </thead>
           <tbody>
-            {loading &&
+            {failed && (
+              <tr className="v-state">
+                <td colSpan={4}>
+                  <ErrorState
+                    size="compact"
+                    title="We couldn't load the benchmarks"
+                    message={loadError}
+                    onRetry={loadList}
+                    busy={loading}
+                  />
+                </td>
+              </tr>
+            )}
+            {skeleton &&
               [0, 1, 2].map((i) => (
                 <tr key={i} aria-hidden>
                   <td className="name">

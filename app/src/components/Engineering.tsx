@@ -283,7 +283,7 @@ export function StageView({ stage, events, target, state }: { stage: StageKey; e
           Each dot is one design it tried.
         </p>
         {points.length > 0 || found ? (
-          <DesignSpaceChart points={points} limit={start?.max_use ?? 1}
+          <DesignSpaceChart points={points} limit={1} target={start?.max_use}
             chosen={found ? [{ mass: found.mass_kg, use: found.max_use, label: formatKgSet([...combosWithMass.map((c) => c.mass_kg), found.mass_kg]).at(-1)! }] : undefined} />
         ) : (
           <Waiting state={state} />
@@ -317,6 +317,8 @@ export function StageView({ stage, events, target, state }: { stage: StageKey; e
   if (stage === "cad") {
     const cads = all(events, "cad").filter((c) => !target || c.target === target);
     if (!cads.length) return <Waiting state={state} />;
+    // The designs' masses sit side by side, so they get enough decimals to never share a label.
+    const cadMasses = formatKgSet(cads.map((c) => c.mass_kg));
     return (
       <div className="stack gap-2">
         <p className="muted">
@@ -327,13 +329,13 @@ export function StageView({ stage, events, target, state }: { stage: StageKey; e
           <table className="data">
             <thead><tr><th>Design</th><th className="r">Solid volume</th><th className="r">Formula volume</th><th className="r">Difference</th><th className="r">Mass</th></tr></thead>
             <tbody>
-              {cads.map((c) => (
+              {cads.map((c, i) => (
                 <tr key={c.seq}>
                   <td>{TARGET_NAMES[c.target]}</td>
                   <td className="r">{n0(c.volume_mm3)} mm³</td>
                   <td className="r">{n0(c.formula_volume_mm3)} mm³</td>
                   <td className="r">{Math.abs(c.difference * 100) >= 0.01 ? `${n1(c.difference * 100, 2)}%` : `${(c.difference * 100).toExponential(1)}%`}</td>
-                  <td className="r">{n1(c.mass_kg, 2)} kg</td>
+                  <td className="r">{cadMasses[i]}</td>
                 </tr>
               ))}
             </tbody>

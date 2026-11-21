@@ -1,10 +1,10 @@
 import { Moon, Sun } from "lucide-react";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "./api";
 import { FusionLight, FusionProvider } from "./components/Fusion";
 import { Logo } from "./components/Logo";
 import { Page } from "./components/Page";
-import { Note, Skeleton, Tooltip } from "./components/ui";
+import { Note, rovingIndex, Skeleton, Tooltip } from "./components/ui";
 import { Assumptions } from "./screens/Assumptions";
 import { DescribeLift } from "./screens/DescribeLift";
 import { Home } from "./screens/Home";
@@ -34,6 +34,9 @@ export function App() {
   const [job, setJob] = useState<Job | null>(null);
   const [starting, setStarting] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
+  // The Running screen reports a run that stopped (failed): the tabs stop showing a run in progress.
+  const [runStopped, setRunStopped] = useState(false);
+  const tabList = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("nemo-theme") as "light" | "dark") ?? "light");
 
   useEffect(() => {
@@ -78,6 +81,7 @@ export function App() {
     setRunError(null);
     try {
       const status = await api.startRun(project.id, job);
+      setRunStopped(false);
       setScreen({ name: "running", runId: status.id });
     } catch (e) {
       setRunError(e instanceof ApiError ? e.message : String(e));
@@ -91,6 +95,8 @@ export function App() {
     setProject(await api.project(project.id));
     setScreen({ name: "results" });
   }, [project]);
+
+  const onRunStopped = useCallback(() => setRunStopped(true), []);
 
   let body: React.ReactNode = null;
   if (fatal) {
@@ -169,6 +175,7 @@ export function App() {
         runId={screen.runId}
         onDone={finishRun}
         onBack={() => setScreen({ name: "describe" })}
+        onStopped={onRunStopped}
         title={runTitle(project.name, job)}
       />
     );
@@ -188,7 +195,8 @@ export function App() {
 
   const inDesign = !!project && !["home", "new", "verification"].includes(screen.name);
   const go = (s: Screen) => setScreen(s);
-  const running = screen.name === "running";
+  const onRunning = screen.name === "running";
+  const running = onRunning && !runStopped;
   const hasResults = !!project?.results;
   const answered = !!job && (job.part === "padeye" ? isValid(job) : job.plate_thicknesses_mm.length > 0);
   const whileRunning = "Available when the run finishes.";
@@ -206,7 +214,7 @@ export function App() {
       },
     },
     {
-      key: "results", label: "Results", current: screen.name === "results" || running, enabled: hasResults || running, busy: running,
+      key: "results", label: "Results", current: screen.name === "results" || onRunning, enabled: hasResults || onRunning, busy: running,
       why: "Results appear after you press Find designs.",
       open: () => go({ name: "results" }),
     },
@@ -271,12 +279,32 @@ export function App() {
           </div>
           {inDesign && (
             <div className="frame">
-              <nav className="app-tabs" aria-label="Design steps">
+              {/* Design steps: a tablist (one tab stop; Left/Right/Home/End move, Enter or Space opens). A step
+                  that is not available yet stays focusable (aria-disabled) so its reason, in the tooltip, is
+                  reachable by keyboard and announced. */}
+              <div
+                ref={tabList}
+                className="app-tabs"
+                role="tablist"
+                aria-label="Design steps"
+                onKeyDown={(e) => {
+                  const buttons = [...(tabList.current?.querySelectorAll<HTMLButtonElement>("[role=tab]") ?? [])];
+                  const from = buttons.indexOf(document.activeElement as HTMLButtonElement);
+                  if (from < 0) return;
+                  const i = rovingIndex(e, from, buttons.length);
+                  if (i >= 0) buttons[i].focus();
+                }}
+              >
                 {tabs.map((t) => {
                   const button = (
                     <button
+                      type="button"
+                      role="tab"
+                      id={`tab-${t.key}`}
                       className={t.busy ? "tab busy" : "tab"}
-                      aria-current={t.current ? "page" : undefined}
+                      aria-selected={t.current}
+                      aria-controls="design-panel"
+                      tabIndex={t.current ? 0 : -1}
                       aria-disabled={!t.enabled || undefined}
                       onClick={() => t.enabled && !t.current && t.open()}
                     >
@@ -294,11 +322,17 @@ export function App() {
                     </Tooltip>
                   );
                 })}
-              </nav>
+              </div>
             </div>
           )}
         </header>
-        <main>{body}</main>
+        <main
+          id={inDesign ? "design-panel" : undefined}
+          role={inDesign ? "tabpanel" : undefined}
+          aria-labelledby={inDesign ? `tab-${tabs.find((t) => t.current)?.key ?? "describe"}` : undefined}
+        >
+          {body}
+        </main>
       </div>
     </FusionProvider>
   );

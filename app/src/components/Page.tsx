@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 
 /** The page header used on every screen: heading-24 title, one line of copy-14, actions on the right
  *  (primary action last). */
@@ -34,6 +34,7 @@ export function Workspace({
   aside: ReactNode;
   asideLabel?: string;
 }) {
+  useFocusClearOfChrome();
   return (
     <div className="page workspace">
       <div className="workspace-main">
@@ -44,6 +45,30 @@ export function Workspace({
       <StickyAside label={asideLabel}>{aside}</StickyAside>
     </div>
   );
+}
+
+/** Keeps the focused control clear of the sticky chrome: when keyboard focus lands under the sticky footer
+ *  bar or the sticky header (16 px clearance), the page scrolls just enough to show it. Backs up the
+ *  html scroll-padding (88 px at the bottom on workspace pages), which not every focus path honours. */
+function useFocusClearOfChrome() {
+  useEffect(() => {
+    const onFocus = (e: FocusEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (!el || !el.closest?.(".workspace-main") || el.closest(".footer-bar")) return;
+      requestAnimationFrame(() => {
+        if (!el.matches(":focus-visible")) return;
+        const r = el.getBoundingClientRect();
+        const footer = document.querySelector(".footer-bar")?.getBoundingClientRect();
+        const header = document.querySelector(".app-header")?.getBoundingClientRect();
+        const bottomLimit = (footer ? footer.top : window.innerHeight) - 16;
+        const topLimit = (header ? header.bottom : 0) + 16;
+        if (r.bottom > bottomLimit) window.scrollBy({ top: r.bottom - bottomLimit });
+        else if (r.top < topLimit) window.scrollBy({ top: r.top - topLimit });
+      });
+    };
+    document.addEventListener("focusin", onFocus);
+    return () => document.removeEventListener("focusin", onFocus);
+  }, []);
 }
 
 /** A section inside a page: heading-16 title, optional copy-13 description and actions, then content. */

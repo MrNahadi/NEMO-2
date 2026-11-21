@@ -77,11 +77,11 @@ function Mini({ caption, value, unit, step, onChange }: {
 function Layout({ title, lead, sections, job, footer, error }: {
   title: string; lead: string; sections: FormSection[]; job: BracketJob | FinJob; footer: ReactNode; error?: string | null;
 }) {
-  const { preview, error: previewError, busy } = usePreview(job, true);
+  const { preview, error: previewError, busy, retry } = usePreview(job, true);
   return (
     <Workspace
       header={<PageHeader title={title} description={lead} />}
-      aside={<PreviewPanel job={job} preview={preview} error={previewError} busy={busy} />}
+      aside={<PreviewPanel job={job} preview={preview} error={previewError} busy={busy} onRetry={retry} />}
       asideLabel="3D preview"
       footer={footer}
     >
@@ -280,7 +280,8 @@ export function BracketAssumptions({ job, reference, onChange, onNext, onBack, s
                 label="Design rules"
                 hint="ASME BTH-1 is for lifting devices, so pipe supports use the AISC 360 steel rules. Class rules (DNV, BV, LR, ABS) can be added the same way."
               >
-                <Select label="Design rules" value={job.rule_set_id} width={520} onChange={(v) => set({ rule_set_id: v })} options={rules.map((r) => ({ value: r.id, label: r.name }))} />
+                <Select label="Design rules" value={job.rule_set_id} width={520} onChange={(v) => set({ rule_set_id: v })}
+                  options={rules.map((r) => ({ value: r.id, label: r.name, short: r.name.split(",")[0] }))} />
               </Field>
               <details className="more">
                 <summary>Advanced settings</summary>
@@ -328,7 +329,9 @@ export function DescribeFin({ job, reference, onChange, onNext, onBack }: StepPr
                   options={[12, 15, 18, 20, 25].map((t) => ({ value: t, label: `${t}%` }))} />
               </Field>
               <div className="field-grid">
-                <NumCell label="Largest fin angle" value={job.max_angle_deg} unit="deg" help={HF.angle} onChange={(v) => set({ max_angle_deg: v })} />
+                <div className="deg">
+                  <NumCell label="Largest fin angle" value={job.max_angle_deg} unit="°" help={HF.angle} onChange={(v) => set({ max_angle_deg: v })} />
+                </div>
                 <NumCell label="Stock position" value={Math.round(job.stock_position * 100)} unit="% chord" help={HF.stock}
                   onChange={(v) => set({ stock_position: v / 100 })} />
               </div>
@@ -390,7 +393,8 @@ export function FinAssumptions({ job, reference, onChange, onNext, onBack, start
                 label="Design rules"
                 hint="A stabilizer fin turns on a stock like a spade rudder, so NEMO uses the IACS rudder requirements for its stresses and plating."
               >
-                <Select label="Design rules" value={job.rule_set_id} width={520} onChange={(v) => set({ rule_set_id: v })} options={rules.map((r) => ({ value: r.id, label: r.name }))} />
+                <Select label="Design rules" value={job.rule_set_id} width={520} onChange={(v) => set({ rule_set_id: v })}
+                  options={rules.map((r) => ({ value: r.id, label: r.name, short: r.name.split(",")[0] }))} />
               </Field>
               <details className="more">
                 <summary>Advanced settings: going astern and the stock bearings</summary>

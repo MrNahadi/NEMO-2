@@ -37,7 +37,7 @@ export function MoreMenu({
   const list = useRef<HTMLDivElement>(null);
   const id = useId();
   const enabled = items.map((it, i) => (it.disabled ? -1 : i)).filter((i) => i >= 0);
-  usePopoverPlacement(open, triggerRef, list, { maxHeight: 480, align });
+  usePopoverPlacement(open, triggerRef, list, { maxHeight: 480, align, onLost: () => setOpen(false) });
 
   useEffect(() => {
     if (!open) return;
@@ -136,7 +136,7 @@ export function MoreMenu({
 }
 
 const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), iframe, summary, [tabindex]:not([tabindex="-1"])';
+  'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), input:not([disabled]):not([type="hidden"]):not([tabindex="-1"]), select:not([disabled]), textarea:not([disabled]), iframe:not([tabindex="-1"]), summary, [tabindex]:not([tabindex="-1"])';
 
 let openModals = 0;
 
@@ -149,8 +149,11 @@ let openModals = 0;
 export function useModal(box: React.RefObject<HTMLElement | null>, onClose: () => void, initialFocus?: () => HTMLElement | null | undefined) {
   const close = useRef(onClose);
   close.current = onClose;
+  // The trigger is read during the first render, before the commit: an autoFocus input inside the dialog
+  // takes focus during the commit, so reading it in the effect would return the dialog's own input.
+  const [trigger] = useState(() => (typeof document === "undefined" ? null : (document.activeElement as HTMLElement | null)));
   useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
+    const previous = trigger && trigger !== document.body ? trigger : null;
     const root = document.getElementById("root");
     openModals += 1;
     if (root) root.inert = true;
@@ -197,7 +200,8 @@ export function useModal(box: React.RefObject<HTMLElement | null>, onClose: () =
       openModals -= 1;
       if (root && openModals === 0) root.inert = false;
       document.documentElement.style.overflow = overflow;
-      previous?.focus();
+      // Return focus to the control that opened the dialog (after the app stops being inert).
+      if (previous?.isConnected) previous.focus();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

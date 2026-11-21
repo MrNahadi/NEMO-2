@@ -61,22 +61,23 @@ export function FinModel({ design: d }: { design: FinDesign }) {
   const stockLength = d.bearing_gap_mm + d.span_mm / 2;
   return (
     <group>
-      <mesh position={[0, lift, 0]}>
+      <mesh position={[0, lift, 0]} userData={{ excludeFit: true }}>
         <boxGeometry args={[c * 1.6, 6, Math.max(c * 0.6, 200)]} />
-        <meshStandardMaterial color={HULL} roughness={0.9} transparent opacity={0.12} depthWrite={false} />
+        <meshStandardMaterial color={HULL} roughness={0.9} transparent opacity={0.18} depthWrite={false} />
       </mesh>
+      {/* Skin and inner structure: metalness capped so no face blows out under the lights (I3). */}
       <mesh geometry={outer} position={[0, lift, 0]}>
-        <meshStandardMaterial color={SKIN} metalness={0.4} roughness={0.45} transparent opacity={0.35} side={THREE.DoubleSide} depthWrite={false} />
+        <meshStandardMaterial color={SKIN} metalness={0.3} roughness={0.5} transparent opacity={0.35} side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
       {Array.from({ length: count + 1 }, (_, i) => (
         <mesh key={i} geometry={rib} position={[0, lift + Math.min(Math.max(i * pitch - d.web_mm / 2, 0), d.span_mm - d.web_mm), 0]}>
-          <meshStandardMaterial color={INNER} metalness={0.4} roughness={0.5} />
+          <meshStandardMaterial color={INNER} metalness={0.3} roughness={0.52} />
         </mesh>
       ))}
       {spars.map((s, i) => (
         <mesh key={i} position={[s.x, lift + d.span_mm / 2, 0]}>
           <boxGeometry args={[d.web_mm, d.span_mm, s.h]} />
-          <meshStandardMaterial color={INNER} metalness={0.4} roughness={0.5} />
+          <meshStandardMaterial color={INNER} metalness={0.3} roughness={0.52} />
         </mesh>
       ))}
       <mesh position={[0, lift - d.bearing_gap_mm + stockLength / 2, 0]}>

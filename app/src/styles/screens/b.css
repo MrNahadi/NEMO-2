@@ -1,0 +1,41 @@
+/* Screen styles for helper b (round 2): Describe and Assumptions workspaces for padeye,
+   pipe bracket and stabilizer fin. Geist tokens (--ds-*) and shared classes from nemo.css;
+   see DESIGN-NOTES.md. */
+
+/* Captioned small control used inside .field-grid cells (the fin and bracket number groups,
+   the wall/engine-type companions to selects). The control fills the cell width. */
+.mini-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mini-field > .caption { color: var(--ds-gray-900); }
+.mini-field > .segmented { align-self: flex-start; }
+
+/* A grid item that spans the whole row (a lone segmented under two minis). */
+.grid-span { grid-column: 1 / -1; }
+
+/* Reserved readout values (PreviewPanel): the skeleton fills the 20 px value line (12 px bar + 4 px
+   margins) so the strip keeps its exact height between sizing and sized. */
+.viewer-chip b .skeleton { display: block; height: 12px; margin: 4px 0; }
+
+/* ================================================================ Preview panel (round 4, F7/I5).
+   One fixed readout row for every part: the cells never wrap to two rows (the fin did), and the reserved
+   sizing strip is identical to the sized strip, so the canvas bottom and the strip never move when sizing
+   finishes (the bracket moved 48 px in round 3). Values that do not fit ellipsise; the full text is in
+   the title tooltip. */
+.preview-viewer { position: relative; flex: 1; min-height: 0; display: flex; }
+.preview-viewer .viewer-panel { flex: 1; }
+.preview-viewer .viewer-readouts { flex-wrap: nowrap; height: 59px; }
+.preview-viewer .viewer-chip { flex: 1 1 0; padding: 10px 12px; }
+.preview-viewer .viewer-chip.wide { flex: 2 1 0; }
+/* "Closest to its limit": the % stays visible; the check's name truncates first. */
+.viewer-chip b.clip { display: flex; }
+.viewer-chip b.clip .clip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+/* Preview request failure: a quiet retry panel over the canvas. The readout strip stays put below it
+   (inset bottom = the strip's 59 px). */
+.preview-error {
+  position: absolute; inset: 0 0 59px 0; z-index: 3; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--viewer-bg) 84%, transparent);
+}
+
+/* Degree unit (round 4, G7): the ° sign in Sans at 15 px with a normal weight, so it reads as a degree
+   sign, not as the stray dot Mono drew at 13 px. "degrees" stays in the accessible name/description. */
+.deg .unit { font-family: var(--font-sans); font-size: 15px; font-weight: 500; word-spacing: normal; }

@@ -26,43 +26,41 @@ export function Formula({ text }: { text: string }) {
   return <span className="formula">{parts}</span>;
 }
 
-/** The calculation sheet: quantity, formula, the same formula with numbers, result. */
+/** The step-by-step calculation: a numbered list; each step shows its formula, the same formula
+ *  with the numbers in it, and the result, all in Geist Mono. The verdict line sits at the end. */
 export function Working({ steps, verdict }: { steps: WorkingStep[]; verdict?: ReactNode }) {
   if (!steps.length) return null;
   return (
-    <div className="sheet-wrap">
-    <div className="sheet" role="table" aria-label="Calculation">
-      <div className="sheet-row sheet-head" role="row">
-        <span role="columnheader">Quantity</span>
-        <span role="columnheader">Formula</span>
-        <span role="columnheader">With the numbers</span>
-        <span role="columnheader" className="sheet-result">
-          Result
-        </span>
-      </div>
-      {steps.map((s, i) => (
-        <div className="sheet-row" role="row" key={i}>
-          <span role="cell" className="sheet-label">
-            {s.label}
-            {s.note && (
-              <span className="sheet-note">
-                <Formula text={s.note} />
-              </span>
-            )}
-          </span>
-          <span role="cell">
-            <Formula text={s.formula} />
-          </span>
-          <span role="cell" className="sheet-sub">
-            <Formula text={s.substituted} />
-          </span>
-          <span role="cell" className="sheet-result">
-            <Formula text={s.result} />
-          </span>
-        </div>
-      ))}
-      {verdict && <div className="sheet-verdict">{verdict}</div>}
-    </div>
+    <div className="working">
+      <ol className="working-steps" aria-label="Calculation, step by step">
+        {steps.map((s, i) => (
+          <li className="working-step" key={i}>
+            <span className="working-num" aria-hidden>
+              {i + 1}
+            </span>
+            <span className="working-label">
+              {s.label}
+              {s.note && (
+                <span className="working-note">
+                  <Formula text={s.note} />
+                </span>
+              )}
+            </span>
+            <span className="working-formula">
+              {s.formula && <Formula text={s.formula} />}
+              {s.formula && s.substituted ? " = " : ""}
+              {s.substituted && <Formula text={s.substituted} />}
+              {(s.formula || s.substituted) && s.result ? " = " : ""}
+              {s.result && (
+                <span className="working-result">
+                  <Formula text={s.result} />
+                </span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {verdict && <div className="working-verdict">{verdict}</div>}
     </div>
   );
 }

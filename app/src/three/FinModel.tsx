@@ -5,8 +5,8 @@ import type { FinDesign } from "../types";
 // Viewer axes: x along the chord (stock at x = 0), y up the span from the hull, z across the foil.
 const SKIN = new THREE.Color("#b9bec6");
 const INNER = new THREE.Color("#7f8894");
-const STOCK = new THREE.Color("#d9483b");
-const HULL = new THREE.Color("#8a929c");
+const STOCK = new THREE.Color("#4a4f57");
+const HULL = new THREE.Color("#a3a9b0"); // context (the hull plating): faint, so the fin structure leads
 
 function halfThickness(x: number, t: number): number {
   return 5 * t * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4);
@@ -61,22 +61,23 @@ export function FinModel({ design: d }: { design: FinDesign }) {
   const stockLength = d.bearing_gap_mm + d.span_mm / 2;
   return (
     <group>
-      <mesh position={[0, lift, 0]}>
+      <mesh position={[0, lift, 0]} userData={{ excludeFit: true }}>
         <boxGeometry args={[c * 1.6, 6, Math.max(c * 0.6, 200)]} />
-        <meshStandardMaterial color={HULL} roughness={0.9} transparent opacity={0.6} />
+        <meshStandardMaterial color={HULL} roughness={0.9} transparent opacity={0.18} depthWrite={false} />
       </mesh>
+      {/* Skin and inner structure: metalness capped so no face blows out under the lights (I3). */}
       <mesh geometry={outer} position={[0, lift, 0]}>
-        <meshStandardMaterial color={SKIN} metalness={0.4} roughness={0.45} transparent opacity={0.35} side={THREE.DoubleSide} depthWrite={false} />
+        <meshStandardMaterial color={SKIN} metalness={0.3} roughness={0.5} transparent opacity={0.35} side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
       {Array.from({ length: count + 1 }, (_, i) => (
         <mesh key={i} geometry={rib} position={[0, lift + Math.min(Math.max(i * pitch - d.web_mm / 2, 0), d.span_mm - d.web_mm), 0]}>
-          <meshStandardMaterial color={INNER} metalness={0.4} roughness={0.5} />
+          <meshStandardMaterial color={INNER} metalness={0.3} roughness={0.52} />
         </mesh>
       ))}
       {spars.map((s, i) => (
         <mesh key={i} position={[s.x, lift + d.span_mm / 2, 0]}>
           <boxGeometry args={[d.web_mm, d.span_mm, s.h]} />
-          <meshStandardMaterial color={INNER} metalness={0.4} roughness={0.5} />
+          <meshStandardMaterial color={INNER} metalness={0.3} roughness={0.52} />
         </mesh>
       ))}
       <mesh position={[0, lift - d.bearing_gap_mm + stockLength / 2, 0]}>

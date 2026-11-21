@@ -1,0 +1,105 @@
+/* Screen styles for helper a (round 2). Geist tokens (--ds-*) and shared classes from nemo.css; see DESIGN-NOTES.md.
+   Covers: Designs list (Home), New design modal, Verification. */
+
+/* ================================================================ Designs (Home) */
+
+.home-search { width: 280px; flex: none; }
+/* Disabled while the list request is pending or failed: the Geist disabled fill, no interactive ring. */
+.home-search:has(.input:disabled) { background: var(--ds-gray-100); box-shadow: none; }
+.home-search:has(.input:disabled):hover { box-shadow: none; }
+.home-search:has(.input:disabled) .input-prefix,
+.home-search .input:disabled,
+.home-search .input:disabled::placeholder { color: var(--ds-gray-700); cursor: not-allowed; }
+.home-notices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+/* Fixed layout with one colgroup shared by the skeleton, loaded, load-failure and no-match states, so the
+   columns never move between states (F3). Name takes the width left after the fixed columns. */
+.designs-table { table-layout: fixed; }
+.designs-table col.col-part { width: 190px; }
+.designs-table col.col-status { width: 150px; }
+.designs-table col.col-saved { width: 110px; }
+.designs-table col.col-menu { width: 48px; }
+/* In the fixed layout the colgroup sets the columns; the shared .cell-truncate width must not fight it. */
+.designs-table td.cell-truncate { width: auto; max-width: none; }
+.designs-table .menu-h,
+.designs-table .menu-cell { width: 48px; }
+/* Part, Status and Saved share one face and line-height so their text sits on the same baseline. */
+.designs-table td.part,
+.designs-table td.saved,
+.designs-table td.status-cell .status { font-size: 13px; line-height: 20px; }
+.designs-table td.part { color: var(--ds-gray-900); }
+.designs-table th.saved,
+.designs-table td.saved { text-align: right; }
+.designs-table td.saved { color: var(--ds-gray-900); font-variant-numeric: tabular-nums; }
+
+/* Name cell: 28 px part tile + label-14 (500) name, truncated with a title tooltip. */
+.design-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.part-tile {
+  width: 28px; height: 28px; display: grid; place-items: center; flex: none;
+  border-radius: var(--radius-small); box-shadow: var(--shadow-border);
+  background: var(--ds-background-100); color: var(--ds-gray-1000);
+}
+.part-tile svg { width: 16px; height: 16px; stroke-width: 1.75; }
+.design-name {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left;
+  font-size: 14px; font-weight: 500; color: var(--ds-gray-1000); border-radius: var(--radius-small);
+}
+.design-name:hover { text-decoration: underline; text-decoration-color: var(--ds-gray-alpha-500); text-underline-offset: 3px; }
+
+/* Full-width state rows: the load-failure ErrorState (compact, its own padding) and the no-match line. */
+.designs-state td { height: auto; padding: 0; }
+
+/* Quiet row when the search matches nothing: the line plus a way back to the full list. */
+.designs-empty td { height: auto; padding: 24px 16px; }
+.designs-nomatch {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 13px; color: var(--ds-gray-900);
+}
+
+/* Right-aligned skeleton in the Saved column. */
+.sk-right { display: flex; justify-content: flex-end; }
+
+/* ================================================================ Verification */
+
+.v-progress { margin-bottom: 16px; }
+.v-error { margin-bottom: 16px; }
+
+/* Load-failure row: the compact ErrorState brings its own padding. */
+.v-state td { height: auto; padding: 0; }
+
+/* The page description keeps a readable measure; "Last run ..." is its own copy-13 line under it. */
+.v-desc { display: block; max-width: 72ch; }
+.v-desc-body { display: block; }
+.v-last-run { display: block; margin-top: 8px; font-size: 13px; line-height: 18px; color: var(--ds-gray-900); }
+
+/* Columns: Benchmark 56%, Reference 28%, Result 16%, the chevron a fixed strip (the fixed layout scales
+   the three percentage columns to the width left after the chevron, keeping the 56:28:16 ratio). */
+.v-table { table-layout: fixed; }
+.v-table thead th:nth-child(1) { width: 56%; }
+.v-table thead th:nth-child(2) { width: 28%; }
+.v-table th.result { width: 16%; }
+.v-table .v-chev { width: 40px; }
+.v-table td.name { white-space: normal; }
+
+/* Benchmark cell: title (label-14, 500) + one-line description clamped to two lines. */
+.v-bench {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; min-width: 0; text-align: left; border-radius: var(--radius-small);
+}
+.v-bench:disabled { cursor: default; }
+.v-bench-title { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ds-gray-1000); }
+.v-bench-desc {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 13px; line-height: 18px; color: var(--ds-gray-900);
+}
+
+/* Reference source: never truncated; it wraps to two lines when it has to. */
+.v-table td.ref { white-space: normal; }
+.v-ref { display: block; font-size: 13px; line-height: 18px; color: var(--ds-gray-900); }
+
+.bench-chevron { display: block; width: 16px; height: 16px; color: var(--ds-gray-900); transition: transform var(--dur-fast); }
+.v-table tr.open .bench-chevron { transform: rotate(90deg); }
+
+/* Expanded row: detail tables on background-200. */
+.v-table td.v-detail-cell { height: auto; white-space: normal; padding: 16px; background: var(--ds-background-200); }
+.v-detail-body { display: flex; flex-direction: column; gap: 16px; }

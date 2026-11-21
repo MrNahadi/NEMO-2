@@ -1,8 +1,9 @@
-import { Loader2, Play } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronRight, Loader2, Play } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "../api";
 import { Formula, Working } from "../components/Formula";
-import { Banner } from "../components/ui";
+import { Page, PageHeader } from "../components/Page";
+import { ErrorState, Note, Progress, Skeleton, Status } from "../components/ui";
 import type { Benchmark, Comparison, VerificationResult } from "../types";
 
 interface Listed {
@@ -18,15 +19,25 @@ export function Verification() {
   const [live, setLive] = useState<Record<string, Benchmark>>({});
   const [running, setRunning] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
 
-  useEffect(() => {
-    api.verification().then((v) => {
-      setListed(v.benchmarks);
-      setLatest(v.latest);
-    }).catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
+  // One request for the benchmark list and the last run, first paint and "Try again" after a failure.
+  const loadList = useCallback(() => {
+    setLoading(true);
+    api
+      .verification()
+      .then((v) => {
+        setListed(v.benchmarks);
+        setLatest(v.latest);
+        setLoadError(null);
+      })
+      .catch((e) => setLoadError(e instanceof ApiError ? e.message : String(e)))
+      .finally(() => setLoading(false));
   }, []);
+  useEffect(loadList, [loadList]);
 
   async function runNow() {
     setBusy(true);
@@ -59,80 +70,191 @@ export function Verification() {
 
   const resultFor = (id: string): Benchmark | undefined => live[id] ?? (busy ? undefined : latest?.benchmarks.find((b) => b.id === id));
   const done = Object.keys(live).length;
+  // First paint (or a retry) without data yet: skeleton rows. A failed first load fills the table frame.
+  const skeleton = listed.length === 0 && !loadError;
+  const failed = loadError !== null && listed.length === 0;
+
+  const lastRun = busy
+    ? null
+    : latest
+      ? `Last run ${new Date(latest.ran_at).toLocaleString()} with NEMO ${latest.nemo_version}: ${
+          latest.passed ? "every benchmark passed." : "one or more benchmarks failed."
+        }`
+      : skeleton || failed
+        ? null
+        : "Not run on this computer yet. It takes about half a minute.";
 
   return (
-    <div className="page page-wide">
-      <h1 className="title">Verification</h1>
-      <p className="lead">
-        NEMO is checked against problems whose answers are known from theory or were worked out by hand. Run them here to see
-        NEMO's calculation engine and stress solver reproduce those answers on this computer.
-      </p>
-      <div className="actions" style={{ marginTop: 32 }}>
-        <button className="btn btn-primary" onClick={runNow} disabled={busy}>
-          {busy ? <Loader2 className="spin" aria-hidden /> : <Play aria-hidden />}
-          {busy ? `Running ${done + 1} of ${listed.length}` : "Run verification now"}
-        </button>
-        {latest && !busy && (
-          <span className="caption">
-            Last run {new Date(latest.ran_at).toLocaleString()} with NEMO {latest.nemo_version}:{" "}
-            {latest.passed ? "every benchmark passed." : "one or more benchmarks failed."}
+    <Page>
+      <PageHeader
+        title="Verification"
+        description={
+          <span className="v-desc">
+            <span className="v-desc-body">
+              NEMO is checked against problems whose answers are known from theory or worked out by hand, so you can see the engine
+              reproduce those answers on this computer.
+            </span>
+            {lastRun && <span className="v-last-run">{lastRun}</span>}
           </span>
-        )}
-        {!latest && !busy && <span className="caption">Not run on this computer yet. It takes about half a minute.</span>}
-      </div>
-      {error && <div className="mt-3"><Banner kind="error">{error}</Banner></div>}
+        }
+        actions={
+          <button className="btn btn-primary" onClick={runNow} disabled={busy || listed.length === 0}>
+            {busy ? <Loader2 className="spin" aria-hidden /> : <Play aria-hidden />}
+            {busy ? `Running ${done + 1} of ${listed.length}` : "Run verification"}
+          </button>
+        }
+      />
 
-      <div className="bench-list mt-6">
-        {listed.map((b) => {
-          const r = resultFor(b.id);
-          const isRunning = running === b.id;
-          const expanded = open === b.id;
-          return (
-            <article key={b.id} className="bench">
-              <button type="button" className="bench-head" aria-expanded={expanded} onClick={() => setOpen(expanded ? null : b.id)} disabled={!r}>
-                <span className="stack">
-                  <span className="bench-title">{b.title}</span>
-                  <span className="caption">{b.description} Reference: {b.source}.</span>
-                </span>
-                <span className="bench-state">
-                  {isRunning ? (
-                    <span className="badge badge-neutral"><Loader2 className="spin" aria-hidden /> Running</span>
-                  ) : r ? (
-                    <span className={`badge ${r.passed ? "badge-pass" : "badge-fail"}`}>{r.passed ? "Pass" : "Fail"}</span>
-                  ) : (
-                    <span className="badge badge-neutral">Not run</span>
-                  )}
-                </span>
+      {busy && (
+        <div className="v-progress">
+          <Progress value={done} max={Math.max(listed.length, 1)} label="Benchmarks finished" />
+        </div>
+      )}
+      {error && (
+        <div className="v-error">
+          <Note
+            kind="error"
+            action={
+              <button className="btn btn-tertiary btn-sm" onClick={runNow}>
+                Try again
               </button>
-              {r && (
-                <div className="bench-body">
-                  {r.error && <Banner kind="error">{r.error}</Banner>}
-                  <ComparisonTable rows={r.comparisons} />
-                  {expanded && (
-                    <div className="stack gap-2 mt-3">
-                      <h3 className="view-heading">How the reference answer is worked out</h3>
-                      <Working steps={r.setup.filter((s) => s.value !== 0)} />
-                      {r.setup.filter((s) => s.value === 0).map((s, i) => (
-                        <p key={i} className="caption"><b>{s.label}:</b> <Formula text={`${s.formula}. ${s.substituted}`} /></p>
-                      ))}
-                      {r.mesh && <p className="caption">Mesh: {r.mesh.elements.toLocaleString()} elements, {r.mesh.equations.toLocaleString()} equations. Took {r.seconds.toFixed(1)} s.</p>}
+            }
+          >
+            {error}
+          </Note>
+        </div>
+      )}
+
+      <div className="table-wrap" role="region" aria-label="Benchmarks" aria-busy={loading || undefined}>
+        <table className="table v-table">
+          <thead>
+            <tr>
+              <th>Benchmark</th>
+              <th>Reference</th>
+              <th className="result">Result</th>
+              <th className="v-chev">
+                <span className="sr-only">Show detail</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {failed && (
+              <tr className="v-state">
+                <td colSpan={4}>
+                  <ErrorState
+                    size="compact"
+                    title="We couldn't load the benchmarks"
+                    message={loadError}
+                    onRetry={loadList}
+                    busy={loading}
+                  />
+                </td>
+              </tr>
+            )}
+            {skeleton &&
+              [0, 1, 2].map((i) => (
+                <tr key={i} aria-hidden>
+                  <td className="name">
+                    <div className="stack gap-2">
+                      <Skeleton width={220} height={16} />
+                      <Skeleton width={340} height={14} />
                     </div>
+                  </td>
+                  <td>
+                    <Skeleton width={160} height={14} />
+                  </td>
+                  <td>
+                    <Skeleton width={72} height={14} />
+                  </td>
+                  <td className="v-chev" />
+                </tr>
+              ))}
+            {listed.map((b) => {
+              const r = resultFor(b.id);
+              const isRunning = running === b.id;
+              const expanded = open === b.id && !!r;
+              return (
+                <Fragment key={b.id}>
+                  <tr className={r ? `row-link${expanded ? " open" : ""}` : undefined} onClick={() => r && setOpen(expanded ? null : b.id)}>
+                    <td className="name cell-truncate">
+                      <button
+                        type="button"
+                        className="v-bench"
+                        aria-expanded={expanded}
+                        disabled={!r}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (r) setOpen(expanded ? null : b.id);
+                        }}
+                      >
+                        <span className="v-bench-title">{b.title}</span>
+                        <span className="v-bench-desc">{b.description}</span>
+                      </button>
+                    </td>
+                    <td className="ref">
+                      <span className="v-ref">{b.source}</span>
+                    </td>
+                    <td className="result">
+                      {isRunning ? (
+                        <Status tone="gray">
+                          <span className="text-secondary">Running</span>
+                        </Status>
+                      ) : r ? (
+                        r.passed ? (
+                          <Status tone="green">Pass</Status>
+                        ) : (
+                          <Status tone="red">Fail</Status>
+                        )
+                      ) : (
+                        <Status tone="gray">
+                          <span className="text-secondary">Not run</span>
+                        </Status>
+                      )}
+                    </td>
+                    <td className="v-chev">{r && <ChevronRight aria-hidden className="bench-chevron" />}</td>
+                  </tr>
+                  {expanded && r && (
+                    <tr className="v-detail">
+                      <td colSpan={4} className="v-detail-cell">
+                        <div className="v-detail-body">
+                          {r.error && <Note kind="error">{r.error}</Note>}
+                          <ComparisonTable rows={r.comparisons} />
+                          <div className="stack gap-2">
+                            <h3 className="text-heading-14">How the reference answer is worked out</h3>
+                            <Working steps={r.setup.filter((s) => s.value !== 0)} />
+                            {r.setup
+                              .filter((s) => s.value === 0)
+                              .map((s, i) => (
+                                <p key={i} className="caption">
+                                  <b>{s.label}:</b> <Formula text={`${s.formula}. ${s.substituted}`} />
+                                </p>
+                              ))}
+                            {r.mesh && (
+                              <p className="caption">
+                                Mesh: {r.mesh.elements.toLocaleString()} elements, {r.mesh.equations.toLocaleString()} equations. Took{" "}
+                                {r.seconds.toFixed(1)} s.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
                   )}
-                  {!expanded && <button type="button" className="link" onClick={() => setOpen(b.id)}>Show how the reference is worked out</button>}
-                </div>
-              )}
-            </article>
-          );
-        })}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-    </div>
+    </Page>
   );
 }
 
 function ComparisonTable({ rows }: { rows: Comparison[] }) {
   const fmt = (v: number) => (Math.abs(v) >= 1000 ? v.toLocaleString(undefined, { maximumFractionDigits: 1 }) : v.toLocaleString(undefined, { maximumSignificantDigits: 6 }));
   return (
-    <table className="data">
+    <div className="table-wrap">
+      <table className="data">
       <thead>
         <tr><th>Quantity</th><th className="r">Known answer</th><th className="r">NEMO</th><th className="r">Difference</th><th className="r">Allowed</th><th className="r">Result</th></tr>
       </thead>
@@ -148,6 +270,7 @@ function ComparisonTable({ rows }: { rows: Comparison[] }) {
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   );
 }

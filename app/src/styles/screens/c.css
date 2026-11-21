@@ -1,0 +1,62 @@
+/* Screen styles for Results (round 3: helper A). Run log, Running, stage list, charts and working are in
+   d.css; the report viewer is in nemo.css.
+   Geist tokens (--ds-*) and shared classes from nemo.css; see DESIGN-NOTES.md. */
+
+/* ================================================================ Results (Template B with the
+   page header carrying the actions) */
+/* The .workspace grid (520px left, sticky aside right) sits below the full-width choicebox row. Kept to
+   12px so the bracket checks reach the first viewport at 1280x800 (H1). */
+.results-grid { margin-top: 12px; }
+
+/* Tighter rhythm inside the Results sections, so the first checks sit higher on the page. */
+.results-grid .workspace-main > .section { gap: 6px; }
+
+/* Keyboard order: the aside comes first in the DOM so the Model/Mesh/Stress toggle precedes the check
+   rows; on desktop it is placed back in the second (right) column. Below 901px nemo.css stacks the
+   workspace and already orders the aside first. */
+@media (min-width: 901px) {
+  .results-grid > .workspace-main { order: 1; }
+  .results-grid > .workspace-aside { order: 2; }
+}
+
+/* Tighter vertical rhythm between the Results sections (16px instead of the default 32), so two full
+   check rows fit in a 1280x800 window. */
+.results-grid .workspace-main > .section + .section { margin-top: 16px; }
+
+/* Advisory / failure notes directly under the page header, above the design choices (H1). */
+.results-attention { display: flex; flex-direction: column; gap: 8px; margin: 0 0 12px; }
+
+/* The check count next to the "Design checks" title: plain gray text, not a badge (H4). */
+.section-title .section-count { color: var(--ds-gray-900); font-weight: 400; }
+
+/* "Show all dimensions" disclosure under the Summary pairs (H1): a quiet 32 px row, no extra card. */
+.dims-more { margin-top: 4px; }
+.dims-more > summary { height: 32px; }
+.dims-more > .kv-pairs { padding: 0 0 4px; }
+
+/* Status overlay inside the 3D viewer (F4): a quiet centred chip while the stress surface or the mesh
+   loads, or a full-cover error panel with a 32 px "Try again". The panel frame never changes size. */
+.viewer-status { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.viewer-status > * { pointer-events: auto; }
+.viewer-loading {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 6px 12px;
+  border-radius: var(--radius-small); background: var(--ds-background-100); box-shadow: var(--shadow-border);
+  font-size: 13px; line-height: 18px; color: var(--ds-gray-900);
+}
+.viewer-loading svg { width: 14px; height: 14px; flex: none; }
+.viewer-cover { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--ds-background-100); }
+
+/* Stress check and Fusion prose: numbers are Sans with tabular figures (never mono inside prose),
+   emphasis at weight 600; one space between a number and its unit. */
+.stress-summary p, .fusion-block p { font-variant-numeric: tabular-nums; }
+.stress-summary b { font-weight: 600; }
+
+/* Fusion open result message, directly under the page header it came from. */
+.results-flash { margin-bottom: 16px; }
+
+/* The design-aid note at the end of the left column. */
+.results-note { margin-top: 24px; }
+
+/* Fusion records: quiet sub-sections with hairlines, no cards. */
+.fusion-block { display: flex; flex-direction: column; gap: 8px; }
+.fusion-block + .fusion-block { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--ds-gray-alpha-400); }

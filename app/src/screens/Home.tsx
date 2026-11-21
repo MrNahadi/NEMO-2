@@ -1,24 +1,48 @@
-import { Box, ChevronRight, Copy, FileText, FolderOpen, FolderSearch, Pencil, Plus, Trash2 } from "lucide-react";
-import { useFusion } from "../components/Fusion";
-import { useCallback, useEffect, useState } from "react";
+import { Anchor, Box, Copy, FileText, FolderOpen, FolderSearch, Pencil, Plus, Search, Ship, Trash2, Wrench, type LucideIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, reportUrl } from "../api";
+import { useFusion } from "../components/Fusion";
 import { Dialog, MoreMenu } from "../components/Menu";
-import { Banner } from "../components/ui";
+import { Page, PageHeader } from "../components/Page";
+import { EmptyState, ErrorState, Note, Skeleton, Status } from "../components/ui";
 import { PART_NAMES } from "../three/PartModel";
 import type { PartId, Project } from "../types";
 
 type Pending = { kind: "rename"; project: Project; name: string } | { kind: "delete"; project: Project } | null;
 
+const PART_ICONS: Record<string, LucideIcon> = { padeye: Anchor, "pipe-bracket": Wrench, stabilizer: Ship };
+
 export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project) => void }) {
   const [projects, setProjects] = useState<Project[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState<Pending>(null);
   const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const haveData = useRef(false);
   const fusion = useFusion();
 
+  // One list request for the first paint, "Try again" after a failure, and the refresh after a row action.
+  // A failure before any data arrives fills the table frame with an ErrorState; a failed refresh with data
+  // on screen is a Note, so the list stays put.
   const load = useCallback(() => {
-    api.projects().then(setProjects).catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
+    setLoading(true);
+    api
+      .projects()
+      .then((p) => {
+        haveData.current = true;
+        setProjects(p);
+        setListError(null);
+      })
+      .catch((e) => {
+        const message = e instanceof ApiError ? e.message : String(e);
+        if (haveData.current) setError(message);
+        else setListError(message);
+      })
+      .finally(() => setLoading(false));
   }, []);
   useEffect(load, [load]);
 
@@ -39,135 +63,299 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
 
   const close = useCallback(() => setPending(null), []);
 
+  const q = query.trim().toLowerCase();
+  const filtered = projects ? (q ? projects.filter((p) => p.name.toLowerCase().includes(q)) : projects) : null;
+  const count = filtered
+    ? q
+      ? `${filtered.length} of ${projects!.length} design${projects!.length === 1 ? "" : "s"}`
+      : `${filtered.length} design${filtered.length === 1 ? "" : "s"}`
+    : "";
+  // True empty list: the EmptyState carries the only primary New design button, so the page header's is hidden.
+  const empty = projects !== null && projects.length === 0;
+  // Load failed before any data arrived: the ErrorState replaces the rows inside the same table frame.
+  const failed = listError !== null && projects === null;
+
+  function clearSearch() {
+    setQuery("");
+    searchRef.current?.focus();
+  }
+
   return (
-    <div className="page page-narrow">
-      <h1 className="title">Design marine steelwork</h1>
-      <p className="lead">
-        Lifting padeyes, pipe support brackets and stabilizer fins. Tell NEMO about the job. It picks the sizes from your stock,
-        checks them against the design rules, runs a stress check, and gives you a report, a 3D model and cutting files.
-      </p>
-      <div className="actions">
-        <button className="btn btn-primary" onClick={onNew}>
-          <Plus aria-hidden /> New design
-        </button>
-      </div>
-
-      <div className="mt-6 stack gap-2">
-        <h2 className="section-title">Saved designs</h2>
-        {notice && (
-          <div className="banner banner-info" role="status">
-            <span style={{ flex: 1 }}>{notice}</span>
-            <button className="link" style={{ marginTop: 0 }} onClick={() => setNotice(null)}>
-              Dismiss
+    <Page>
+      <PageHeader
+        title="Designs"
+        description="Each design keeps its own inputs, results and files."
+        actions={
+          empty ? null : (
+            <button className="btn btn-primary" onClick={onNew}>
+              <Plus aria-hidden /> New design
             </button>
-          </div>
-        )}
-        {error && <Banner kind="error">{error}</Banner>}
-        {projects && projects.length === 0 && (
-          <p className="muted">No saved designs yet. Your designs will appear here after you create one.</p>
-        )}
-        {projects && projects.length > 0 && (
-          <ul className="card project-list">
-            {projects.map((p) => {
-              const run = p.runs[p.runs.length - 1];
-              return (
-                <li key={p.id} className="project-item">
-                  <button className="project-row" onClick={() => onOpen(p)}>
-                    <FolderOpen aria-hidden size={20} />
-                    <span className="stack" style={{ flex: 1, minWidth: 0 }}>
-                      <span className="project-name">{p.name}</span>
-                      <span className="caption">
-                        {PART_NAMES[(p.part as PartId)]?.title ?? "Design"}, {p.runs.length > 0 ? `${p.runs.length} result${p.runs.length > 1 ? "s" : ""}` : "not run yet"}, saved{" "}
-                        {relative(p.updated_at ?? p.created_at)}
-                      </span>
-                    </span>
-                    <ChevronRight aria-hidden size={18} />
-                  </button>
-                  <MoreMenu
-                    label={`More options for ${p.name}`}
-                    items={[
-                      { label: "Open", icon: <FolderOpen aria-hidden />, onSelect: () => onOpen(p) },
-                      { label: "Rename", icon: <Pencil aria-hidden />, onSelect: () => setPending({ kind: "rename", project: p, name: p.name }) },
-                      {
-                        label: "Duplicate",
-                        icon: <Copy aria-hidden />,
-                        onSelect: () => act(async () => `Made "${(await api.duplicateProject(p.id)).name}" with the same answers. It has no results until you run it.`),
-                      },
-                      {
-                        label: "Open calculation report",
-                        icon: <FileText aria-hidden />,
-                        disabled: !run,
-                        onSelect: () => window.open(reportUrl(p.id, run, "lightest"), "_blank", "noreferrer"),
-                      },
-                      {
-                        label: "Open in Fusion",
-                        icon: <Box aria-hidden />,
-                        disabled: !run || p.part !== "padeye",
-                        onSelect: () =>
-                          act(async () => {
-                            const model = await fusion.openInFusion(p.id, run, "lightest");
-                            if (model) return `Opened the lightest "${p.name}" design in Fusion.`;
-                          }),
-                      },
-                      {
-                        label: "Show in folder",
-                        icon: <FolderSearch aria-hidden />,
-                        onSelect: () => act(async () => {
-                          await api.revealProject(p.id);
-                        }),
-                      },
-                      {
-                        label: "Delete",
-                        icon: <Trash2 aria-hidden />,
-                        danger: true,
-                        separated: true,
-                        onSelect: () => setPending({ kind: "delete", project: p }),
-                      },
-                    ]}
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+          )
+        }
+      />
 
-      <div className="mt-6">
-        <Banner kind="info">
-          NEMO is a design aid. A competent engineer must review every design, the structure it is welded to and the lifting
-          arrangement before anything is made or used.
-        </Banner>
-      </div>
+      {(notice || error) && (
+        <div className="home-notices">
+          {notice && (
+            <Note
+              kind="success"
+              action={
+                <button className="btn btn-tertiary btn-sm" onClick={() => setNotice(null)}>
+                  Dismiss
+                </button>
+              }
+            >
+              {notice}
+            </Note>
+          )}
+          {error && <Note kind="error">{error}</Note>}
+        </div>
+      )}
+
+      {empty ? (
+        <>
+          <EmptyState
+            icon={<FolderOpen aria-hidden />}
+            title="No designs yet"
+            description="Your designs will appear here after you create one."
+            action={
+              <button className="btn btn-primary" onClick={onNew}>
+                <Plus aria-hidden /> New design
+              </button>
+            }
+          />
+          <div className="mt-4">
+            <Note size="small">
+              NEMO is a design aid. A competent engineer must review every design, the structure it is welded to and the lifting
+              arrangement before anything is made or used.
+            </Note>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="list-toolbar">
+            <div className="input-wrap sm home-search">
+              <span className="input-prefix">
+                <Search aria-hidden />
+              </span>
+              <input
+                ref={searchRef}
+                className="input"
+                aria-label="Search designs"
+                placeholder="Search designs"
+                value={query}
+                disabled={!projects}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            {filtered ? <span className="list-count">{count}</span> : failed ? null : <Skeleton width={72} height={14} />}
+          </div>
+
+          <div className="table-wrap menus" role="region" aria-label="Saved designs" aria-busy={loading || undefined}>
+            <table className="table designs-table">
+              <colgroup>
+                <col className="col-name" />
+                <col className="col-part" />
+                <col className="col-status" />
+                <col className="col-saved" />
+                <col className="col-menu" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Part</th>
+                  <th>Status</th>
+                  <th className="saved">Saved</th>
+                  <th className="menu-h">
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {failed && (
+                  <tr className="designs-state">
+                    <td colSpan={5}>
+                      <ErrorState
+                        size="compact"
+                        title="We couldn't load your designs"
+                        message={listError}
+                        onRetry={load}
+                        busy={loading}
+                      />
+                    </td>
+                  </tr>
+                )}
+                {!failed && !filtered &&
+                  [0, 1, 2, 3].map((i) => (
+                    <tr key={i} aria-hidden>
+                      <td>
+                        <div className="design-cell">
+                          <Skeleton width={28} height={28} radius={6} />
+                          <Skeleton width={200} height={16} />
+                        </div>
+                      </td>
+                      <td>
+                        <Skeleton width={110} height={14} />
+                      </td>
+                      <td>
+                        <Skeleton width={80} height={14} />
+                      </td>
+                      <td className="saved">
+                        <span className="sk-right">
+                          <Skeleton width={56} height={14} />
+                        </span>
+                      </td>
+                      <td className="menu-cell" />
+                    </tr>
+                  ))}
+                {filtered?.map((p) => {
+                  const run = p.runs[p.runs.length - 1];
+                  const PartIcon = PART_ICONS[p.part] ?? FolderOpen;
+                  return (
+                    <tr key={p.id} className="row-link" onClick={() => onOpen(p)}>
+                      <td className="cell-truncate">
+                        <div className="design-cell">
+                          <span className="part-tile" aria-hidden>
+                            <PartIcon />
+                          </span>
+                          <button
+                            type="button"
+                            className="design-name"
+                            title={p.name}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpen(p);
+                            }}
+                          >
+                            {p.name}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="part">{PART_NAMES[p.part as PartId]?.title ?? "Design"}</td>
+                      <td className="status-cell">
+                        {p.runs.length === 0 ? (
+                          <Status tone="gray" hollow>
+                            <span className="text-secondary">Not run yet</span>
+                          </Status>
+                        ) : (
+                          <Status tone="gray">
+                            {p.runs.length} run{p.runs.length === 1 ? "" : "s"}
+                          </Status>
+                        )}
+                      </td>
+                      <td className="saved">{relative(p.updated_at ?? p.created_at)}</td>
+                      <td className="menu-cell">
+                        <MoreMenu
+                          label={`More options for ${p.name}`}
+                          items={[
+                            { label: "Open", icon: <FolderOpen aria-hidden />, onSelect: () => onOpen(p) },
+                            {
+                              label: "Rename…",
+                              icon: <Pencil aria-hidden />,
+                              onSelect: () => setPending({ kind: "rename", project: p, name: p.name }),
+                            },
+                            {
+                              label: "Duplicate",
+                              icon: <Copy aria-hidden />,
+                              onSelect: () =>
+                                act(async () => `Made "${(await api.duplicateProject(p.id)).name}" with the same answers. It has no results until you run it.`),
+                            },
+                            {
+                              label: "View report",
+                              icon: <FileText aria-hidden />,
+                              disabled: !run,
+                              onSelect: () => window.open(reportUrl(p.id, run, "lightest"), "_blank", "noreferrer"),
+                            },
+                            {
+                              label: "Open in Fusion",
+                              icon: <Box aria-hidden />,
+                              disabled: !run || p.part !== "padeye",
+                              onSelect: () =>
+                                act(async () => {
+                                  const model = await fusion.openInFusion(p.id, run, "lightest");
+                                  if (model) return `Opened the lightest "${p.name}" design in Fusion.`;
+                                }),
+                            },
+                            {
+                              label: "Show in folder",
+                              icon: <FolderSearch aria-hidden />,
+                              onSelect: () =>
+                                act(async () => {
+                                  await api.revealProject(p.id);
+                                }),
+                            },
+                            {
+                              label: "Delete…",
+                              icon: <Trash2 aria-hidden />,
+                              danger: true,
+                              separated: true,
+                              onSelect: () => setPending({ kind: "delete", project: p }),
+                            },
+                          ]}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+                {filtered && filtered.length === 0 && (
+                  <tr className="designs-empty">
+                    <td colSpan={5}>
+                      <div className="designs-nomatch">
+                        <span>No designs match “{query.trim()}”.</span>
+                        <button type="button" className="btn btn-sm" onClick={clearSearch}>
+                          Clear search
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {projects && (
+            <div className="mt-4">
+              <Note size="small">
+                NEMO is a design aid. A competent engineer must review every design, the structure it is welded to and the lifting
+                arrangement before anything is made or used.
+              </Note>
+            </div>
+          )}
+        </>
+      )}
 
       {pending?.kind === "rename" && (
         <Dialog
-          title="Rename this design"
+          title="Rename design"
+          description={`Give “${pending.project.name}” a new name.`}
           onClose={close}
           actions={
             <>
-              <button className="btn btn-ghost" onClick={close}>
+              <button className="btn" onClick={close}>
                 Cancel
               </button>
               <button
                 className="btn btn-primary"
                 disabled={busy || !pending.name.trim()}
-                onClick={() => act(async () => {
-                  await api.renameProject(pending.project.id, pending.name.trim());
-                })}
+                onClick={() =>
+                  act(async () => {
+                    await api.renameProject(pending.project.id, pending.name.trim());
+                  })
+                }
               >
                 Rename design
               </button>
             </>
           }
         >
-          <div className="input-wrap" style={{ maxWidth: "none" }}>
+          <div className="input-wrap">
             <input
               className="input"
               aria-label="Design name"
               value={pending.name}
               onChange={(e) => setPending({ ...pending, name: e.target.value })}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && pending.name.trim())
+                if (e.key === "Enter" && !busy && pending.name.trim())
                   act(async () => {
                     await api.renameProject(pending.project.id, pending.name.trim());
                   });
@@ -179,11 +367,13 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
 
       {pending?.kind === "delete" && (
         <Dialog
-          title={`Delete "${pending.project.name}"?`}
+          title="Delete design"
+          description={`You are about to delete “${pending.project.name}”.`}
+          initialFocus="#delete-cancel"
           onClose={close}
           actions={
             <>
-              <button className="btn btn-ghost" onClick={close}>
+              <button id="delete-cancel" className="btn" onClick={close}>
                 Cancel
               </button>
               <button
@@ -206,11 +396,11 @@ export function Home({ onNew, onOpen }: { onNew: () => void; onOpen: (p: Project
           <p className="muted">
             {pending.project.runs.length === 0
               ? "The design and its answers move to the Windows Recycle Bin. You can restore them from there."
-              : `The design, its answers and its ${pending.project.runs.length === 1 ? "result" : `${pending.project.runs.length} results`} (reports, 3D models and cutting files) move to the Windows Recycle Bin. You can restore them from there.`}
+              : `The design, its answers and the results of its ${pending.project.runs.length === 1 ? "run" : `${pending.project.runs.length} runs`} (reports, 3D models and cutting files) move to the Windows Recycle Bin. You can restore them from there.`}
           </p>
         </Dialog>
       )}
-    </div>
+    </Page>
   );
 }
 

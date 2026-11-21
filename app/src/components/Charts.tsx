@@ -5,17 +5,30 @@ function cssVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
 }
 
+const MONO = "'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace";
+const SANS = "'Geist Sans Variable', 'Geist Sans', system-ui, sans-serif";
+const tickFont = `12px ${MONO}`;
+const strongFont = `600 12px ${MONO}`;
+const axisFont = `12px ${SANS}`;
+
 const fmt = (v: number, d = 1) => v.toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
 
-/** Every design the optimizer tried: plate mass against the highest check use. */
+/** Every design the optimizer tried: plate mass against the highest check use. The engineering limit
+ *  (100%) is always drawn and labelled in gray-1000; the search target (70% / 85%), when the engine searched to
+ *  one, is a labelled gray dashed line. Red dots are real limit exceedances only (use over 100%), faint
+ *  4 px dots, so red stays rare and meaningful. */
 export function DesignSpaceChart({
   points,
-  limit,
+  limit = 1,
+  target,
   chosen,
   height = 320,
 }: {
   points: [number, number, boolean][];
-  limit: number;
+  /** The engineering limit as a ratio (1 = 100%). Always drawn and labelled. */
+  limit?: number;
+  /** The search target (0.7 / 0.85) when the engine searched to one: a labelled gray dashed line. */
+  target?: number;
   chosen?: { mass: number; use: number; label: string }[];
   height?: number;
 }) {
@@ -36,26 +49,52 @@ export function DesignSpaceChart({
       const ctx = c.getContext("2d")!;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
-      const ink = cssVar("--color-primary-foreground");
-      const muted = cssVar("--color-tertiary-foreground");
-      const rule = cssVar("--color-border-subtle");
-      const accent = cssVar("--color-brand-solid");
-      const danger = cssVar("--color-danger-foreground");
+      // Geist tokens: points gray, failures faint red, the chosen design blue; labels mono gray-900,
+      // gridlines gray-400. The target line is gray so only the limit is red.
+      const ink = cssVar("--ds-gray-700");
+      const inkStrong = cssVar("--ds-gray-1000");
+      const fail = cssVar("--ds-red-700");
+      const rule = cssVar("--ds-gray-400");
+      const label = cssVar("--ds-gray-900");
+      const targetInk = cssVar("--ds-gray-600");
+      const accent = cssVar("--ds-blue-700");
+      const bg = cssVar("--ds-background-100");
+      const targetLine = target !== undefined && target < limit - 1e-9 ? target : null;
       const pad = { l: 68, r: 16, t: 14, b: 40 };
       const plotW = width - pad.l - pad.r;
       const plotH = height - pad.t - pad.b;
       const masses = points.map((p) => p[0]).sort((a, b) => a - b);
-      const xMax = Math.max(masses.length ? masses[Math.floor(masses.length * 0.97)] * 1.15 : 1, ...(chosen ?? []).map((c) => c.mass * 1.3), 0.1);
-      const yMax = Math.max(Math.ceil((limit * 2) / 0.5) * 0.5, 1.5);
-      const X = (m: number) => pad.l + (m / xMax) * plotW;
-      const Y = (u: number) => pad.t + plotH - (Math.min(u, yMax) / yMax) * plotH;
+      // Fit the x axis to the data (not from 0): just below the bulk of the tried masses (3rd percentile)
+      // to just above the heavy end (97th percentile), on a nice step. The few outlier batches beyond the
+      // edges are left out, as before.
+      const massAt = (q: number) =>
+        masses.length ? masses[Math.min(masses.length - 1, Math.max(0, Math.floor(masses.length * q)))] : 0;
+      const chosenMasses = (chosen ?? []).map((c) => c.mass);
+      const xLo = Math.max(0, Math.min(massAt(0.03), ...chosenMasses) * 0.92);
+      const xHi = Math.max(massAt(0.97) * 1.15, ...chosenMasses.map((m) => m * 1.3), 0.1);
+      const xAxis = niceRange(xLo, xHi);
+      // Fit the y range to the data with the limit and target lines always visible: from just below the
+      // bulk (3rd percentile) to just above the larger of the lines and the bulk (97th percentile), on a
+      // nice step. The few outliers outside it clamp to the edge.
+      const uses = points.map((p) => p[1]).sort((a, b) => a - b);
+      const at = (q: number) => (uses.length ? uses[Math.min(uses.length - 1, Math.max(0, Math.floor(uses.length * q)))] : limit);
+      const chosenUses = (chosen ?? []).map((c) => c.use);
+      const hiRaw = Math.max(limit * 1.05, at(0.97) * 1.03, ...chosenUses.map((u) => u * 1.03), ...(targetLine ? [targetLine * 1.05] : []));
+      const loRaw = Math.max(0, Math.min(at(0.03), ...chosenUses, limit, ...(targetLine ? [targetLine] : [])) * 0.95);
+      const span = hiRaw - loRaw;
+      const yStep = span <= 0.3 ? 0.05 : span <= 0.6 ? 0.1 : span <= 1.2 ? 0.25 : 0.5;
+      const yMin = Math.max(0, Math.floor(loRaw / yStep - 1e-9) * yStep);
+      const yMax = Math.ceil(hiRaw / yStep - 1e-9) * yStep;
+      const yTicks: number[] = [];
+      for (let v = yMin; v <= yMax + yStep / 2; v += yStep) yTicks.push(Math.round(v / yStep) * yStep);
+      const X = (m: number) => pad.l + ((m - xAxis.min) / (xAxis.max - xAxis.min)) * plotW;
+      const Y = (u: number) => pad.t + plotH - ((Math.min(Math.max(u, yMin), yMax) - yMin) / (yMax - yMin)) * plotH;
 
-      ctx.font = "12px Inter, system-ui, sans-serif";
-      ctx.fillStyle = muted;
+      ctx.font = tickFont;
+      ctx.fillStyle = label;
       ctx.strokeStyle = rule;
       ctx.lineWidth = 1;
-      for (let i = 0; i <= 4; i++) {
-        const u = (yMax * i) / 4;
+      for (const u of yTicks) {
         const y = Math.round(Y(u)) + 0.5;
         ctx.beginPath();
         ctx.moveTo(pad.l, y);
@@ -64,45 +103,110 @@ export function DesignSpaceChart({
         ctx.textAlign = "right";
         ctx.fillText(`${Math.round(u * 100)}%`, pad.l - 8, y + 4);
       }
-      for (let i = 0; i <= 4; i++) {
-        const m = (xMax * i) / 4;
+      for (const m of xAxis.ticks) {
         ctx.textAlign = "center";
-        ctx.fillText(m < 10 ? fmt(m, 2) : fmt(m, 0), X(m), height - pad.b + 18);
+        ctx.fillText(fmt(m, xAxis.digits), X(m), height - pad.b + 18);
       }
+      ctx.font = axisFont;
       ctx.fillText("Plate mass (kg)", pad.l + plotW / 2, height - 6);
       ctx.save();
       ctx.translate(13, pad.t + plotH / 2);
       ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
       ctx.fillText("Highest check use", 0, 0);
       ctx.restore();
+      ctx.font = tickFont;
 
-      for (const [m, u, ok] of points) {
-        if (m > xMax) continue;
-        ctx.fillStyle = ok ? ink : muted;
-        ctx.globalAlpha = ok ? 0.75 : 0.35;
-        ctx.fillRect(X(m) - 1.25, Y(u) - 1.25, 2.5, 2.5);
+      // Dots: gray for every candidate at or under the limit (5 px), faint red 4 px dots only for a real
+      // limit exceedance (over 100%). Missing the search target is not a failure, so the engine's flag is
+      // not used for colour. A 1 px background-100 stroke keeps overlapping dots separate.
+      ctx.lineWidth = 1;
+      for (const [m, u] of points) {
+        if (m < xAxis.min || m > xAxis.max) continue;
+        const over = u > limit + 1e-9;
+        ctx.beginPath();
+        ctx.arc(X(m), Y(u), over ? 2 : 2.5, 0, Math.PI * 2);
+        if (over) ctx.globalAlpha = 0.45;
+        ctx.fillStyle = over ? fail : ink;
+        ctx.fill();
+        ctx.strokeStyle = bg;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
       }
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = danger;
+      // The 100% limit: always drawn and labelled, in gray-1000 (red is kept for dots that exceed it).
+      ctx.strokeStyle = inkStrong;
       ctx.setLineDash([5, 4]);
       ctx.beginPath();
-      ctx.moveTo(pad.l, Y(limit));
-      ctx.lineTo(width - pad.r, Y(limit));
+      ctx.moveTo(pad.l, Math.round(Y(limit)) + 0.5);
+      ctx.lineTo(width - pad.r, Math.round(Y(limit)) + 0.5);
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = danger;
+      ctx.fillStyle = inkStrong;
+      ctx.font = strongFont;
       ctx.textAlign = "right";
-      ctx.fillText(`Limit ${Math.round(limit * 100)}%`, width - pad.r, Y(limit) - 6);
+      ctx.fillText(`Limit ${Math.round(limit * 100)}%`, width - pad.r, Y(limit) - 7);
+      ctx.font = tickFont;
+      // The search target, when the engine searched to one: a labelled gray dashed line.
+      if (targetLine) {
+        ctx.strokeStyle = targetInk;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(pad.l, Math.round(Y(targetLine)) + 0.5);
+        ctx.lineTo(width - pad.r, Math.round(Y(targetLine)) + 0.5);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = label;
+        ctx.font = axisFont;
+        ctx.textAlign = "right";
+        ctx.fillText(`Search target ${Math.round(targetLine * 100)}%`, width - pad.r, Y(targetLine) + 15);
+        ctx.font = tickFont;
+      }
 
       for (const c of chosen ?? []) {
+        const cx = X(c.mass);
+        const cy = Y(c.use);
         ctx.strokeStyle = accent;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(X(c.mass), Y(c.use), 7, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.fillStyle = accent;
-        ctx.textAlign = "left";
-        ctx.fillText(c.label, X(c.mass) + 11, Y(c.use) + 18);
+        // Offset callout: the label sits at the end of a leader, away from the point, on whichever side
+        // (above or below, right or left) has the fewest dots under it, with a background halo so it
+        // stays readable where dots are dense.
+        ctx.font = strongFont;
+        const labelW = ctx.measureText(c.label).width;
+        const dir = cx + 52 + labelW <= width - pad.r ? 1 : -1;
+        const crowd = (ly: number) => {
+          const x0 = dir === 1 ? cx + 40 : cx - 40 - labelW;
+          let n = 0;
+          for (const [m, u] of points) {
+            const px = X(m);
+            const py = Y(u);
+            if (px >= x0 - 4 && px <= x0 + labelW + 4 && py >= ly - 12 && py <= ly + 8) n += 1;
+          }
+          return n;
+        };
+        const upY = cy - 36;
+        const downY = cy + 36;
+        const upOk = upY - 12 > pad.t;
+        const downOk = downY + 8 < pad.t + plotH;
+        const up = upOk && (!downOk || crowd(upY) <= crowd(downY));
+        const ly = up ? upY : downY;
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx + dir * 5, up ? cy - 5 : cy + 5);
+        ctx.lineTo(cx + dir * 28, ly);
+        ctx.lineTo(cx + dir * 36, ly);
+        ctx.stroke();
+        ctx.textAlign = dir === 1 ? "left" : "right";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = bg;
+        ctx.strokeText(c.label, cx + dir * 40, ly + 4);
+        ctx.fillStyle = inkStrong;
+        ctx.fillText(c.label, cx + dir * 40, ly + 4);
+        ctx.font = tickFont;
       }
     };
     draw();
@@ -114,16 +218,18 @@ export function DesignSpaceChart({
       ro.disconnect();
       mo.disconnect();
     };
-  }, [points, limit, chosen, height]);
+  }, [points, limit, target, chosen, height]);
 
   return (
     <div ref={wrap} className="chart" role="img"
-      aria-label={`Chart of ${points.length} designs tried, plate mass against highest check use, with the limit at ${Math.round(limit * 100)}%.`}>
+      aria-label={`Chart of ${points.length} designs tried, plate mass against highest check use, with the limit at ${Math.round(limit * 100)}%${
+        target !== undefined && target < limit - 1e-9 ? ` and a search target at ${Math.round(target * 100)}%` : ""
+      }.`}>
       <canvas ref={canvas} />
       <div className="chart-legend">
-        <span><i className="dot dot-ink" /> Passes every check</span>
-        <span><i className="dot dot-muted" /> Fails a check</span>
-        {chosen?.length ? <span><i className="dot dot-accent" /> Design chosen</span> : null}
+        <span><i className="dot dot-pass" /> Within the limit</span>
+        <span><i className="dot dot-fail" /> Over the limit (fails a check)</span>
+        {chosen?.length ? <span><i className="dot dot-chosen" /> Design chosen</span> : null}
       </div>
     </div>
   );
@@ -244,7 +350,7 @@ export function ForceDiagram({
         </pattern>
       </defs>
       <rect x={ox - (span * s) / 2 - 20} y={oy} width={span * s + 40} height={10} fill="url(#hatch)" />
-      <line x1={ox - (span * s) / 2 - 20} x2={ox + (span * s) / 2 + 20} y1={oy} y2={oy} className="ground" />
+      <line x1={ox - (span * s) / 2 - 20} x2={ox + (span * s) / 2 + 40} y1={oy} y2={oy} className="ground" />
       <polygon points={outline.map(([x, y]) => P(x, y)).join(" ")} className="part" />
       <circle cx={cx} cy={cy} r={(holeDiameter / 2) * s} className="hole" />
       <line x1={cx} y1={cy} x2={ex} y2={cy} className="component" markerEnd="url(#arrow-muted)" />
@@ -325,4 +431,20 @@ export function PressureChart({ upper, lower, cavitation, height = 220 }: {
       <text x={(w + pad.l) / 2} y={height - 6} textAnchor="middle" className="tick">Along the chord, leading edge to trailing edge. Upper line: suction side</text>
     </svg>
   );
+}
+
+/** Round axis fitted to a data range: a 1, 2, 2.5 or 5 x 10^n step giving about four intervals. The low
+ *  end snaps down to a half step, so a range that sits away from 0 (plate masses of 0.3 kg and up) never
+ *  restarts the axis at 0; the high end snaps up to a step. Ticks are whole steps inside the range. */
+function niceRange(lo: number, hi: number, count = 4): { min: number; max: number; ticks: number[]; digits: number } {
+  const raw = Math.max(hi - lo, 1e-9) / count;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const norm = raw / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+  const min = lo <= 0 ? 0 : Math.max(0, Math.floor(lo / (step / 2) + 1e-9) * (step / 2));
+  const max = Math.ceil(hi / step - 1e-9) * step;
+  const ticks: number[] = [];
+  for (let v = Math.ceil(min / step - 1e-9) * step; v <= max + step / 2; v += step) ticks.push(Math.round(v / step) * step);
+  const digits = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9) + (norm > 2 && norm <= 2.5 ? 1 : 0));
+  return { min, max, ticks, digits };
 }

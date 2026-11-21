@@ -1,24 +1,38 @@
 import { Box, ChevronDown, Download, FileSpreadsheet, FileText, ListTree, Loader2, Package, Pencil, RotateCcw, Scissors } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, bundleUrl, fileUrl, reportUrl } from "../api";
 import { useFusion, useFusionRecords } from "../components/Fusion";
 import { MoreMenu } from "../components/Menu";
+import { Page, PageHeader, Section, StickyAside } from "../components/Page";
 import { ReportViewer } from "../components/ReportViewer";
 import { StageList, stagesFrom, StageView, type StageKey } from "../components/Engineering";
-import { Banner, CheckList, Segmented, formatKg, formatKn } from "../components/ui";
+import { CheckList, Choicebox, ErrorState, Note, Segmented, Skeleton, checkStatus, focusCheck, formatKg, formatKgSet, formatKn, formatValue } from "../components/ui";
 import { MeshModel } from "../three/MeshModel";
 import { frameOf } from "../three/frame";
 import { StressModel } from "../three/StressModel";
 import { Viewer } from "../three/Viewer";
 import { PART_NAMES, PartModel, partFrame } from "../three/PartModel";
-import type { BracketDesign, FinDesign, Job, PartId, DesignResult, EngEvent, FusionRecords, Project, StressSurface, SurfaceMesh } from "../types";
+import type { BracketDesign, Check, FinDesign, Job, PartId, DesignResult, EngEvent, FusionRecords, Project, StressSurface, SurfaceMesh } from "../types";
 
 type View = "model" | "stress" | "mesh";
 
-export function Results({ project, onEdit, onRunAgain }: { project: Project; onEdit: () => void; onRunAgain: () => void }) {
+export function Results({
+  project,
+  onEdit,
+  onRunAgain,
+  view: tab = "results",
+}: {
+  project: Project;
+  onEdit: () => void;
+  onRunAgain: () => void;
+  /** Which design tab is showing: the results, or the run log ("How NEMO got here"). */
+  view?: "results" | "log";
+  /** Opens the Run log tab. */
+  onShowLog?: () => void;
+}) {
   const results = project.results!;
   const run = project.latest_run!;
-  const [key, setKey] = useState(results.designs[0].key);
+  const [key, setKey] = useState<string>(results.designs[0].key);
   const [view, setView] = useState<View>("model");
   const [check, setCheck] = useState<string | null>(null);
   const [log, setLog] = useState<EngEvent[] | null>(null);
@@ -47,135 +61,270 @@ export function Results({ project, onEdit, onRunAgain }: { project: Project; onE
     }
   }
 
-  useEffect(() => {
+  const [logError, setLogError] = useState<string | null>(null);
+  // The engineering log carries the run log and the mesh for the 3D view; a failure gets a "Try again"
+  // that re-requests the same file (F4).
+  const loadLog = useCallback(() => {
     setLog(null);
-    if (results.files?.engineering_log) api.engineeringLog(project.id, run).then(setLog).catch(() => setLog([]));
+    setLogError(null);
+    if (!results.files?.engineering_log) {
+      setLog([]);
+      return;
+    }
+    api
+      .engineeringLog(project.id, run)
+      .then(setLog)
+      .catch((e) => {
+        setLog([]);
+        setLogError(e instanceof Error ? e.message : String(e));
+      });
   }, [project.id, run, results.files?.engineering_log]);
+  useEffect(loadLog, [loadLog]);
 
   const part = (results.part ?? "padeye") as PartId;
   const names = PART_NAMES[part];
   const mesh = log?.find((e) => e.kind === "mesh" && e.target === design.key && e.surface)?.surface as SurfaceMesh | undefined;
+  const allPass = results.designs.every((d) => d.check_report.passed);
+  // Masses of the designs shown side by side get one more decimal when two would read the same (0.305/0.308/0.313).
+  const massLabels = formatKgSet(results.designs.map((d) => d.check_report.mass_kg));
+  // Checks on the selected design that need attention: advisories (amber) and failures (red) surface above the checks.
+  const checks = design.check_report.checks;
+  const advice = checks.filter((c) => checkStatus(c) === "advice");
+  const fails = checks.filter((c) => checkStatus(c) === "fail");
+
+  /** Selects a check (opening its working), then moves keyboard focus to the expanded row, scrolled clear
+   *  of the sticky header (G4). Used by the advisory/failure notes. */
+  function showCheck(id: string) {
+    setCheck(id);
+    setView("model");
+    focusCheck(id);
+  }
+
+  if (tab === "log") {
+    return (
+      <Page>
+        <PageHeader
+          title="How NEMO got here"
+          description={`The record of this run for the ${design.label.split(" (")[0].toLowerCase()} design, step by step.`}
+          actions={
+            <Segmented
+              label="Which design's record to show"
+              value={key}
+              onChange={setKey}
+              options={results.designs.map((d) => ({ value: d.key as string, label: d.label.split(" (")[0] }))}
+            />
+          }
+        />
+        {log === null ? (
+          <div className="runlog-grid" aria-busy="true" aria-label="Loading the run log">
+            <div className="stack gap-2">
+              {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} height={40} radius={6} />
+              ))}
+            </div>
+            <div className="stack gap-3">
+              <Skeleton height={300} radius={12} />
+              <Skeleton height={220} radius={12} />
+            </div>
+          </div>
+        ) : logError ? (
+          <ErrorState size="compact" title="The run log didn't load" message={logError} onRetry={loadLog} />
+        ) : log.length === 0 ? (
+          <p className="muted">This run did not record an engineering log.</p>
+        ) : (
+          <>
+            <div className="runlog-grid">
+              <div className="runlog-side">
+                <StageList stages={stagesFrom(log, true, false)} selected={stage} onSelect={setStage} />
+              </div>
+              <div className="runlog-detail">
+                <StageView stage={stage} events={log} target={["search", "cad", "mesh", "solve", "verify"].includes(stage) ? design.key : undefined} />
+              </div>
+            </div>
+            <p className="caption runlog-caption">
+              The engineering log and a spreadsheet of all {results.search.evaluations.toLocaleString()} designs the search tried are in the
+              Download menu on the Results tab, so anyone can check the choice.
+            </p>
+          </>
+        )}
+      </Page>
+    );
+  }
 
   return (
-    <div className="page page-wide">
-      <div className="step-label">{project.name}</div>
-      <h1 className="title">Your {names.noun} designs</h1>
-      <p className="lead">
-        {results.designs.length} design{results.designs.length === 1 ? "" : "s"} {jobSummary(results.job)}.{" "}
-        {results.designs.every((d) => d.check_report.passed) ? "Each passes every required check." : "Read the failing checks below."} Pick one to see its working.
-      </p>
-
-      <div className="design-tabs mt-6">
-        {results.designs.map((d) => (
-          <button key={d.key} className="design-tab" aria-pressed={d.key === key} onClick={() => setKey(d.key)}>
-            <span className="caption">{d.label}</span>
-            <span className="mass">{formatKg(d.check_report.mass_kg)}</span>
-            <span className="caption">{tabCaption(part, d)}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="split">
-        <div className="stack gap-6">
-          <Summary design={design} part={part} />
-          <section className="stack gap-2">
-            <h2 className="section-title">Design checks</h2>
-            <p className="caption">
-              Select a check to see its calculation, step by step{part === "padeye" ? ", and where it acts on the padeye in the 3D view" : ""}.
-            </p>
-            <CheckList checks={design.check_report.checks} selected={check} onSelect={(id) => { setCheck(id); if (id) setView("model"); }} />
-          </section>
-          {design.fea && <FeaSummary design={design} part={part} />}
-          <section className="stack gap-2">
-            <h2 className="section-title">Calculation report and files</h2>
-            <div className="downloads">
-              <button className="btn btn-primary" onClick={() => setShowReport(true)}>
-                <FileText aria-hidden /> View calculation report
+    <Page>
+      <PageHeader
+        title={`Your ${names.noun} designs`}
+        description={`${results.designs.length} design${results.designs.length === 1 ? "" : "s"} ${jobSummary(results.job)}. ${
+          allPass
+            ? `Each passes every required check${advice.length ? `; ${advice.length} advisor${advice.length === 1 ? "y" : "ies"}` : ""}.`
+            : "Read the failing checks below."
+        }`}
+        actions={
+          <>
+            {part === "padeye" && (
+              <button className="btn" onClick={openFusion} disabled={fusionBusy}>
+                {fusionBusy ? <Loader2 className="spin" aria-hidden /> : <Box aria-hidden />}
+                {fusionBusy ? "Building in Fusion" : "Open in Fusion"}
               </button>
-              {part === "padeye" && (
-                <button className="btn" onClick={openFusion} disabled={fusionBusy}>
-                  {fusionBusy ? <Loader2 className="spin" aria-hidden /> : <Box aria-hidden />}
-                  {fusionBusy ? "Building in Fusion" : "Open in Fusion"}
+            )}
+            <MoreMenu
+              label="Download files"
+              align="right"
+              triggerClassName="btn"
+              trigger={
+                <>
+                  <Download aria-hidden /> Download <ChevronDown aria-hidden />
+                </>
+              }
+              items={[
+                { label: "Everything", hint: "ZIP", icon: <Package aria-hidden />, onSelect: () => download(bundleUrl(project.id, run, design.key)) },
+                { label: "Calculation report", hint: "PDF", icon: <FileText aria-hidden />, separated: true, onSelect: () => download(reportUrl(project.id, run, design.key, true)) },
+                { label: "3D model", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.step)) },
+                ...(design.files.stock_step
+                  ? [{ label: "Stock alone, for a Fusion check", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.stock_step!)) }]
+                  : []),
+                { label: "Cutting profile", hint: "DXF", icon: <Scissors aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.dxf)) },
+                ...(results.files
+                  ? [
+                      { label: "Engineering log", hint: "JSON", icon: <ListTree aria-hidden />, separated: true, onSelect: () => download(fileUrl(project.id, run, results.files!.engineering_log)) },
+                      { label: "Every design tried", hint: "CSV", icon: <FileSpreadsheet aria-hidden />, onSelect: () => download(fileUrl(project.id, run, results.files!.designs_evaluated)) },
+                    ]
+                  : []),
+              ]}
+            />
+            <MoreMenu
+              label="More actions"
+              triggerClassName="btn btn-icon"
+              items={[
+                { label: "Change the answers", icon: <Pencil aria-hidden />, onSelect: onEdit },
+                { label: "Run again", icon: <RotateCcw aria-hidden />, onSelect: onRunAgain },
+              ]}
+            />
+            <button className="btn btn-primary" onClick={() => setShowReport(true)}>
+              <FileText aria-hidden /> View report
+            </button>
+          </>
+        }
+      />
+      {/* Advisories and failures sit directly under the page header (H1), above the design choices. */}
+      {(fails.length > 0 || advice.length > 0) && (
+        <div className="results-attention">
+          {fails.length > 0 && (
+            <Note
+              kind="error"
+              action={
+                <button className="btn btn-sm" onClick={() => showCheck(fails[0].id)}>
+                  Show check
                 </button>
-              )}
-              <MoreMenu
-                label="Download files"
-                align="left"
-                triggerClassName="btn"
-                trigger={<><Download aria-hidden /> Download files <ChevronDown aria-hidden /></>}
-                items={[
-                  { label: "Everything", hint: "ZIP", icon: <Package aria-hidden />, onSelect: () => download(bundleUrl(project.id, run, design.key)) },
-                  { label: "Calculation report", hint: "PDF", icon: <FileText aria-hidden />, separated: true, onSelect: () => download(reportUrl(project.id, run, design.key, true)) },
-                  { label: "3D model", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.step)) },
-                  ...(design.files.stock_step
-                    ? [{ label: "Stock alone, for a Fusion check", hint: "STEP", icon: <Box aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.stock_step!)) }]
-                    : []),
-                  { label: "Cutting profile", hint: "DXF", icon: <Scissors aria-hidden />, onSelect: () => download(fileUrl(project.id, run, design.files.dxf)) },
-                  ...(results.files
-                    ? [
-                        { label: "Engineering log", hint: "JSON", icon: <ListTree aria-hidden />, separated: true, onSelect: () => download(fileUrl(project.id, run, results.files!.engineering_log)) },
-                        { label: "Every design tried", hint: "CSV", icon: <FileSpreadsheet aria-hidden />, onSelect: () => download(fileUrl(project.id, run, results.files!.designs_evaluated)) },
-                      ]
-                    : []),
-                ]}
-              />
-            </div>
-            <p className="caption">
-              The report has a fabrication drawing, every calculation and the stress results, with a Fusion cross-check sheet.
-              "Everything" puts the report, 3D model, cutting profile and the run's records in one ZIP file, ready to send.
-            </p>
-            {fusionMessage && <Banner kind={fusionMessage.kind}>{fusionMessage.text}</Banner>}
-          </section>
-          {part === "padeye" && <FusionSection records={records} />}
-        </div>
-
-        <div className="stack gap-2 sticky">
-          <ResultViewer projectId={project.id} run={run} design={design} view={view} check={check} mesh={mesh} part={part} slingAngle={results.job.part === "padeye" ? results.job.lift.sling_angle_deg : 60} />
-          <Segmented
-            label="What the 3D view shows"
-            value={view}
-            onChange={(v) => { setView(v); if (v !== "model") setCheck(null); }}
-            options={[
-              { value: "model", label: "Model" },
-              { value: "mesh", label: "Mesh" },
-              { value: "stress", label: "Stress" },
-            ]}
-          />
-          {check && view === "model" && part === "padeye" && (
-            <p className="caption">
-              Highlighted in blue: the part of the padeye the selected check is about.
-            </p>
+              }
+            >
+              {attentionLine("fail", fails)}
+            </Note>
+          )}
+          {advice.length > 0 && (
+            <Note
+              kind="warning"
+              action={
+                <button className="btn btn-sm" onClick={() => showCheck(advice[0].id)}>
+                  Show check
+                </button>
+              }
+            >
+              {attentionLine("advice", advice)}
+            </Note>
           )}
         </div>
-      </div>
-
-      {log && log.length > 0 && (
-        <section className="mt-8 stack gap-3">
-          <div>
-            <h2 className="section-title">How NEMO got here</h2>
-            <p className="caption">The record of this run for the {design.label.split(" (")[0].toLowerCase()} design, step by step.</p>
-          </div>
-          <div className="run-grid">
-            <StageList stages={stagesFrom(log, true, false)} selected={stage} onSelect={setStage} />
-            <section className="live-panel">
-              <StageView stage={stage} events={log} target={["search", "cad", "mesh", "solve", "verify"].includes(stage) ? design.key : undefined} />
-            </section>
-          </div>
-          <p className="caption">
-            The engineering log and a spreadsheet of all {results.search.evaluations.toLocaleString()} designs the search tried are in the
-            Download files menu above, so anyone can check the choice.
-          </p>
-        </section>
+      )}
+      {fusionMessage && (
+        <Note kind={fusionMessage.kind} className="results-flash">
+          {fusionMessage.text}
+        </Note>
       )}
 
-      <div className="actions">
-        <button className="btn" onClick={onEdit}>
-          <Pencil aria-hidden /> Change the answers
-        </button>
-        <button className="btn btn-ghost" onClick={onRunAgain}>
-          <RotateCcw aria-hidden /> Run again
-        </button>
+      <Choicebox
+        layout="row"
+        name="results-design"
+        legend="Choose a design"
+        value={key}
+        onChange={setKey}
+        options={results.designs.map((d, i) => ({
+          value: d.key as string,
+          title: d.label.split(" (")[0],
+          meta: massLabels[i],
+          description: choiceCaption(part, d),
+        }))}
+      />
+
+      <div className="workspace results-grid">
+        {/* The aside comes first in the DOM so the Model/Mesh/Stress toggle precedes the check rows in
+            keyboard order; c.css places it back in the right column on desktop. */}
+        <StickyAside label="3D view">
+          <ResultViewer
+            projectId={project.id}
+            run={run}
+            design={design}
+            view={view}
+            check={check}
+            mesh={mesh}
+            meshLoading={log === null && !logError}
+            meshError={logError}
+            onMeshRetry={loadLog}
+            part={part}
+            slingAngle={results.job.part === "padeye" ? results.job.lift.sling_angle_deg : 60}
+            toolbar={
+              <Segmented
+                size="small"
+                label="What the 3D view shows"
+                value={view}
+                onChange={(v) => {
+                  setView(v);
+                  if (v !== "model") setCheck(null);
+                }}
+                options={[
+                  { value: "model", label: "Model" },
+                  { value: "mesh", label: "Mesh" },
+                  { value: "stress", label: "Stress" },
+                ]}
+              />
+            }
+          />
+          {check && view === "model" && part === "padeye" && (
+            <p className="caption">Highlighted in blue: the part of the padeye the selected check is about.</p>
+          )}
+          <p className="caption">
+            The report has a fabrication drawing, every calculation and the stress results, with a Fusion cross-check sheet.
+            &quot;Everything&quot; in the Download menu puts the report, 3D model, cutting profile and the run&#39;s records in one ZIP file, ready to send.
+          </p>
+        </StickyAside>
+
+        <div className="workspace-main">
+          <Summary design={design} part={part} />
+          <Section
+            title={
+              <>
+                Design checks <span className="section-count">{design.check_report.checks.length}</span>
+              </>
+            }
+            description="Select a check to see its working. A bar at 100% is the limit."
+          >
+            <CheckList
+              checks={design.check_report.checks}
+              selected={check}
+              onSelect={(id) => {
+                setCheck(id);
+                if (id) setView("model");
+              }}
+            />
+          </Section>
+          {design.fea && <FeaSummary design={design} part={part} />}
+          {part === "padeye" && <FusionSection records={records} />}
+          <Note size="small" className="results-note">
+            A competent engineer must review this design{part === "padeye" ? ", the structure it is welded to and the lifting arrangement" : " and the structure it is fitted to"} before it is made or used.
+          </Note>
+        </div>
       </div>
+
       {showReport && (
         <ReportViewer
           title={`${project.name}: ${design.label.split(" (")[0]} design`}
@@ -185,12 +334,7 @@ export function Results({ project, onEdit, onRunAgain }: { project: Project; onE
           onClose={closeReport}
         />
       )}
-      <div className="mt-4">
-        <Banner kind="info">
-          A competent engineer must review this design{part === "padeye" ? ", the structure it is welded to and the lifting arrangement" : " and the structure it is fitted to"} before it is made or used.
-        </Banner>
-      </div>
-    </div>
+    </Page>
   );
 }
 
@@ -199,22 +343,22 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
   const pct = (d: number | null | undefined, digits = 1) => (d === null || d === undefined ? "-" : `${d >= 0 ? "+" : ""}${(d * 100).toFixed(digits)}%`);
   const num = (v: number | null | undefined, digits: number) => (v === null || v === undefined ? "-" : v.toFixed(digits));
   const last = records.checks[records.checks.length - 1];
+  const lastMasses = last ? formatKgSet([last.mass_kg, last.nemo_mass_kg]) : null;
   const xc = records.crosscheck;
   return (
-    <section className="stack gap-2">
-      <h2 className="section-title">Fusion</h2>
+    <Section title="Fusion">
       {records.model && (
-        <div className="fusion-card">
-          <h3>Model built in Fusion</h3>
+        <div className="fusion-block">
+          <h3 className="text-heading-14">Model built in Fusion</h3>
           <dl className="kv">
             <dt>Model type</dt>
-            <dd>{records.model.parametric ? "Parametric (dimensions are Fusion parameters)" : "Fixed geometry"}</dd>
+            <dd className="kv-words">{records.model.parametric ? "Parametric (dimensions are Fusion parameters)" : "Fixed geometry"}</dd>
             <dt>Volume, Fusion against NEMO</dt>
-            <dd>
+            <dd className="kv-words">
               {Math.round(records.model.volume_mm3).toLocaleString()} mm³ against {Math.round(records.model.nemo_volume_mm3).toLocaleString()} mm³ ({pct(records.model.volume_difference, 2)})
             </dd>
             <dt>Fusion material</dt>
-            <dd>
+            <dd className="kv-words">
               {records.model.fusion_material ?? "Not assigned"}
               {records.model.material_matches
                 ? `: yield ${Math.round(records.model.fusion_yield_mpa ?? 0)} MPa, matches NEMO`
@@ -226,11 +370,11 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
         </div>
       )}
       {last && (
-        <div className="fusion-card">
-          <h3>Last check from Fusion</h3>
+        <div className="fusion-block">
+          <h3 className="text-heading-14">Last check from Fusion</h3>
           <p>
             {last.passed ? <span className="text-pass">Passes every required check.</span> : <span className="text-fail">Does not pass every required check.</span>}{" "}
-            Highest use: {last.governing.title.toLowerCase()}, {Math.round(last.governing.use * 100)}%. Plate mass {formatKg(last.mass_kg)} (NEMO design {formatKg(last.nemo_mass_kg)}).
+            Highest use: {last.governing.title.toLowerCase()}, {Math.round(last.governing.use * 100)}%. Plate mass {lastMasses![0]} (NEMO design {lastMasses![1]}).
           </p>
           {Object.keys(last.changed).length > 0 && (
             <p className="caption">
@@ -244,19 +388,21 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
         </div>
       )}
       {xc && (
-        <div className="fusion-card">
-          <h3>Fusion stress cross-check</h3>
+        <div className="fusion-block">
+          <h3 className="text-heading-14">Fusion stress cross-check</h3>
           <p className={xc.agrees ? "text-pass" : "text-fail"}>{xc.agrees ? "Agrees with NEMO's stress check." : "Differs from NEMO's stress check. Review the Fusion study set-up."}</p>
-          <table className="data">
-            <thead>
-              <tr><th>Result</th><th className="r">Fusion</th><th className="r">NEMO</th><th className="r">Difference</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Reaction</td><td className="r">{xc.reaction_n !== null ? formatKn(xc.reaction_n) : "-"}</td><td className="r">{xc.nemo_reaction_n ? formatKn(xc.nemo_reaction_n) : "-"}</td><td className="r">{pct(xc.reaction_difference)}</td></tr>
-              <tr><td>Peak stress</td><td className="r">{num(xc.peak_stress_mpa, 1)} MPa</td><td className="r">{num(xc.nemo_peak_stress_mpa, 1)} MPa</td><td className="r">{pct(xc.stress_difference)}</td></tr>
-              <tr><td>Movement</td><td className="r">{num(xc.max_displacement_mm, 3)} mm</td><td className="r">{num(xc.nemo_max_displacement_mm, 3)} mm</td><td className="r">{pct(xc.displacement_difference)}</td></tr>
-            </tbody>
-          </table>
+          <div className="table-wrap">
+            <table className="data">
+              <thead>
+                <tr><th>Result</th><th className="r">Fusion</th><th className="r">NEMO</th><th className="r">Difference</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Reaction</td><td className="r">{xc.reaction_n !== null ? formatKn(xc.reaction_n) : "-"}</td><td className="r">{xc.nemo_reaction_n ? formatKn(xc.nemo_reaction_n) : "-"}</td><td className="r">{pct(xc.reaction_difference)}</td></tr>
+                <tr><td>Peak stress</td><td className="r">{num(xc.peak_stress_mpa, 1)} MPa</td><td className="r">{num(xc.nemo_peak_stress_mpa, 1)} MPa</td><td className="r">{pct(xc.stress_difference)}</td></tr>
+                <tr><td>Movement</td><td className="r">{num(xc.max_displacement_mm, 3)} mm</td><td className="r">{num(xc.nemo_max_displacement_mm, 3)} mm</td><td className="r">{pct(xc.displacement_difference)}</td></tr>
+              </tbody>
+            </table>
+          </div>
           <p className="caption">
             They agree when the reaction is within 2% and the peak stress within 15%. Movement is shown for information only, because it
             depends on how each program models the weld and the support.
@@ -264,7 +410,7 @@ function FusionSection({ records }: { records: FusionRecords | null }) {
           <p className="caption">Recorded {new Date(xc.recorded_at).toLocaleString()}{xc.checked_by ? ` by ${xc.checked_by}` : ""}. The calculation report includes it.</p>
         </div>
       )}
-    </section>
+    </Section>
   );
 }
 
@@ -299,80 +445,109 @@ function tabCaption(part: PartId, d: DesignResult): string {
   return `${r.design.main_thickness_mm} mm plate${r.design.cheek_thickness_mm > 0 ? " with cheek plates" : ""}, ${r.shackle.wll_t} t shackle`;
 }
 
+/** Choicebox description: the plate/shackle summary plus the spare-capacity note from the label, if any. */
+function choiceCaption(part: PartId, d: DesignResult): string {
+  const base = tabCaption(part, d);
+  const spare = d.label.match(/\(([^)]*)\)/)?.[1];
+  return spare ? `${base}. ${spare[0].toUpperCase()}${spare.slice(1)}.` : base;
+}
+
+/** One line for an advisory or failure Note, built from the check data: "1 advisory: Support spacing
+ *  within NEMO's recommended maximum — 3 m against NEMO's recommended 2.3 m." */
+function attentionLine(kind: "fail" | "advice", list: Check[]): string {
+  const head = kind === "fail" ? (list.length === 1 ? "1 check fails." : `${list.length} checks fail.`) : `${list.length} advisor${list.length === 1 ? "y" : "ies"}.`;
+  const detail = list
+    .map((c) => {
+      const demand = formatValue(c.demand, c.unit);
+      const capacity = formatValue(c.capacity, c.unit);
+      // Support spacing reads better in its own words than as a generic demand/capacity pair.
+      if (c.id === "span_limit") return `Supports are ${demand} apart; NEMO recommends at most ${capacity}`;
+      return kind === "fail" ? `${c.title}: ${demand} against a limit of ${capacity}` : `${c.title}: ${demand} against a recommended ${capacity}`;
+    })
+    .join(". ");
+  return `${head} ${detail}.`;
+}
+
+/** Summary and dimensions as compact key/value pairs: the design force full width, then the 4-5
+ *  dimensions that matter; secondary dimensions sit behind a "Show all dimensions" disclosure so the
+ *  checks reach the first viewport (H1). Values are Sans with tabular figures, one face for the whole
+ *  column (H2); "wide" rows span both columns. Masses shown together use formatKgSet (H5). */
 function Summary({ design, part }: { design: DesignResult; part: PartId }) {
   const r = design.check_report;
-  const governing = r.checks.find((c) => c.id === r.governing);
-  let rows: [string, string][];
+  type Row = [label: string, value: string, wide?: boolean];
+  let main: Row[];
+  let more: Row[];
   let force: [string, string];
   if (part === "pipe-bracket") {
     const b = r.design as unknown as BracketDesign;
-    force = [formatKn(r.loads.sling_force_n), "Downward design force"];
-    rows = [
-      ["Pipe", r.pipe?.label ?? ""],
-      ["Seat plate", `${b.seat_length_mm} × ${b.seat_width_mm} × ${b.seat_thickness_mm} mm`],
-      ["Knees (2)", `${b.knee_thickness_mm} mm, ${b.knee_depth_mm} mm deep at the bulkhead`],
-      ["Pipe centre from the bulkhead", `${Math.round(b.pipe_offset_mm)} mm`],
-      ["U-bolt", r.ubolt?.label ?? ""],
-      ["Welds", `${b.root_weld_mm} mm to the bulkhead, ${b.knee_weld_mm} mm knees to seat`],
+    force = ["Design force", formatKn(r.loads.sling_force_n)];
+    main = [
+      ["Pipe", r.pipe?.label ?? "", true],
+      ["Seat plate", `${b.seat_length_mm} × ${b.seat_width_mm} × ${b.seat_thickness_mm} mm`, true],
+      ["Knees (2)", `${b.knee_thickness_mm} mm, ${b.knee_depth_mm} mm deep at the bulkhead`, true],
+      ["U-bolt", r.ubolt?.label ?? "", true],
+    ];
+    more = [
+      ["Welds", `${b.root_weld_mm} mm to the bulkhead, ${b.knee_weld_mm} mm knees to seat`, true],
+      ["Pipe centre from the bulkhead", `${Math.round(b.pipe_offset_mm)} mm`, true],
     ];
     if (r.span) {
-      rows.push(["Pipe span frequency", `${r.span.natural_hz.toFixed(1)} Hz, ${Math.round(r.span.separation * 100)}% from ${r.span.nearest.name.toLowerCase()} (${r.span.nearest.hz.toFixed(1)} Hz)`]);
-      rows.push(["Longest support spacing", `${r.span.recommended_m.toFixed(1)} m (stress ${r.span.spans_m.stress.toFixed(1)}, sag ${r.span.spans_m.sag.toFixed(1)}, vibration ${r.span.spans_m.frequency.toFixed(1)} m)`]);
+      more.push(["Pipe span frequency", `${r.span.natural_hz.toFixed(1)} Hz, ${Math.round(r.span.separation * 100)}% from ${r.span.nearest.name.toLowerCase()} (${r.span.nearest.hz.toFixed(1)} Hz)`, true]);
+      more.push(["Longest support spacing", `${r.span.recommended_m.toFixed(1)} m (stress ${r.span.spans_m.stress.toFixed(1)}, sag ${r.span.spans_m.sag.toFixed(1)}, vibration ${r.span.spans_m.frequency.toFixed(1)} m)`, true]);
     }
   } else if (part === "stabilizer") {
     const f = r.design as unknown as FinDesign;
     const m = r.masses_kg ?? {};
-    force = [formatKn(r.loads.sling_force_n), "Design force on the fin"];
-    rows = [
-      ["Foil", `${f.span_mm} mm span × ${f.chord_mm} mm chord, NACA 00${Math.round(f.thickness_ratio * 100)}`],
+    const masses = formatKgSet([(m.total ?? 0) - (m.stock ?? 0), m.stock ?? 0]);
+    force = ["Design force on the fin", formatKn(r.loads.sling_force_n)];
+    main = [
+      ["Foil", `${f.span_mm} mm span × ${f.chord_mm} mm chord, NACA 00${Math.round(f.thickness_ratio * 100)}`, true],
       ["Skin", `${f.skin_mm} mm`],
-      ["Spars and ribs", `${f.web_mm} mm; spars at ${Math.round(f.front_spar * 100)}% and ${Math.round(f.rear_spar * 100)}% chord`],
       ["Ribs", `${r.ribs} at ${Math.round(r.rib_pitch_mm ?? 0)} mm`],
-      ["Stock", `Ø${f.stock_diameter_mm} mm ${r.stock_material?.name ?? ""}`],
-      ["Mass", `structure ${formatKg((m.total ?? 0) - (m.stock ?? 0))}, stock ${formatKg(m.stock ?? 0)}`],
+      ["Stock", `Ø${f.stock_diameter_mm} mm ${r.stock_material?.name ?? ""}`, true],
+      ["Mass", `structure ${masses[0]}, stock ${masses[1]}`, true],
     ];
+    more = [["Spars", `${f.web_mm} mm webs; spars at ${Math.round(f.front_spar * 100)}% and ${Math.round(f.rear_spar * 100)}% chord`, true]];
   } else {
     const d = r.design;
-    force = [formatKn(r.loads.sling_force_n), "Sling force per padeye"];
-    rows = [
+    force = ["Sling force per padeye", formatKn(r.loads.sling_force_n)];
+    main = [
       ["Main plate", `${d.main_thickness_mm} mm`],
       ["Head radius", `${d.head_radius_mm} mm`],
       ["Hole diameter", `${d.hole_diameter_mm} mm`],
       ["Hole height above base", `${d.hole_height_mm} mm`],
+      ["Shackle", r.shackle.label, true],
+    ];
+    more = [
       ["Base length", `${d.base_length_mm} mm`],
       ["Base weld", `${d.weld_leg_mm} mm fillet, both sides`],
     ];
     if (d.cheek_thickness_mm > 0) {
-      rows.push(["Cheek plates (2)", `${d.cheek_thickness_mm} mm, radius ${d.cheek_radius_mm} mm`]);
-      rows.push(["Cheek welds", `${d.cheek_weld_leg_mm} mm fillet all round`]);
+      more.push(["Cheek plates (2)", `${d.cheek_thickness_mm} mm, radius ${d.cheek_radius_mm} mm`]);
+      more.push(["Cheek welds", `${d.cheek_weld_leg_mm} mm fillet all round`]);
     }
-    rows.push(["Shackle", r.shackle.label]);
   }
+  const pair = ([k, v, wide]: Row) => (
+    <div key={k} className={`kv-pair${wide ? " wide" : ""}`}>
+      <dt>{k}</dt>
+      <dd>{v}</dd>
+    </div>
+  );
   return (
-    <section className="stack gap-3">
-      <div className="stat-grid">
-        <div className="stat">
-          <div className="value">{formatKg(r.mass_kg)}</div>
-          <div className="label">{part === "padeye" ? "Plate mass" : "Steel mass"}</div>
+    <Section title="Summary and dimensions">
+      <dl className="kv-pairs">
+        {/* The design force is the headline number: a full-width first row. */}
+        <div className="kv-pair wide">
+          <dt>{force[0]}</dt>
+          <dd>{force[1]}</dd>
         </div>
-        <div className="stat">
-          <div className="value">{force[0]}</div>
-          <div className="label">{force[1]}</div>
-        </div>
-        <div className="stat">
-          <div className="value">{governing ? `${Math.round(governing.utilization * 100)}%` : "–"}</div>
-          <div className="label">Highest use: {governing?.title.toLowerCase()}</div>
-        </div>
-      </div>
-      <dl className="kv">
-        {rows.map(([k, v]) => (
-          <div key={k} style={{ display: "contents" }}>
-            <dt>{k}</dt>
-            <dd>{v}</dd>
-          </div>
-        ))}
+        {main.map(pair)}
       </dl>
-    </section>
+      <details className="more dims-more">
+        <summary>Show all dimensions</summary>
+        <dl className="kv-pairs">{more.map(pair)}</dl>
+      </details>
+    </Section>
   );
 }
 
@@ -386,9 +561,8 @@ function FeaSummary({ design, part }: { design: DesignResult; part: PartId }) {
         ? "The built-in simulation pushed on the seat where the pipe sits, with the design forces, and held the bracket fixed at the bulkhead. The highest stress away from the bulkhead face is"
         : "The fin body is a thin box checked by hand calculation; the built-in simulation checks the stock, fixed at the outer bearing and loaded with the fin force and twist. Its highest stress is";
   return (
-    <section className="stack gap-2">
-      <h2 className="section-title">Stress check</h2>
-      <p className="muted">
+    <Section title="Stress check" className="stress-summary">
+      <p>
         {what} <b>{f.head_von_mises_mpa.toFixed(0)} MPa</b>, against a yield strength of {f.yield_strength_mpa.toFixed(0)} MPa, so the most
         stressed point has a safety factor of <b>{f.factor_of_safety_on_yield.toFixed(2)}</b> before it would start to bend permanently.
       </p>
@@ -398,7 +572,7 @@ function FeaSummary({ design, part }: { design: DesignResult; part: PartId }) {
         {f.hand_stress_mpa ? ` Hand calculation for the same place (${f.hand_label}): ${f.hand_stress_mpa.toFixed(0)} MPa.` : ""}{" "}
         {ok ? "Result: pass." : "Result: needs an engineer's review."}
       </p>
-    </section>
+    </Section>
   );
 }
 
@@ -409,8 +583,12 @@ function ResultViewer({
   view,
   check,
   mesh,
+  meshLoading,
+  meshError,
+  onMeshRetry,
   part,
   slingAngle,
+  toolbar,
 }: {
   projectId: string;
   run: string;
@@ -418,29 +596,96 @@ function ResultViewer({
   view: View;
   check: string | null;
   mesh?: SurfaceMesh;
+  /** True while the engineering log (which carries the mesh) is being fetched. */
+  meshLoading: boolean;
+  /** The log's error message, when it failed to load; the retry re-requests the same file (F4). */
+  meshError: string | null;
+  onMeshRetry: () => void;
   part: PartId;
   slingAngle: number;
+  toolbar?: ReactNode;
 }) {
-  const [surface, setSurface] = useState<StressSurface | null>(null);
   const path = design.files.stress_surface;
+  // Stress surface state machine (F4): loading shows a stable overlay in the viewer, an error shows the
+  // engine's message with a 32 px "Try again" that re-requests the same file. A surface that has loaded
+  // once is kept, so switching between Model, Mesh and Stress does not flash the loading state again.
+  const [stress, setStress] = useState<{ status: "loading" | "ready" | "error"; surface: StressSurface | null; message: string | null }>({
+    status: "loading",
+    surface: null,
+    message: null,
+  });
+  const stressCache = useRef<{ path: string | null; surface: StressSurface | null }>({ path: null, surface: null });
+  const [stressTry, setStressTry] = useState(0);
   useEffect(() => {
-    setSurface(null);
-    if (view === "stress" && path) api.stressSurface(projectId, run, path).then(setSurface).catch(() => setSurface(null));
-  }, [projectId, run, path, view]);
+    if (view !== "stress" || !path) return;
+    if (stressCache.current.path === path && stressCache.current.surface) {
+      setStress({ status: "ready", surface: stressCache.current.surface, message: null });
+      return;
+    }
+    let live = true;
+    setStress({ status: "loading", surface: null, message: null });
+    api
+      .stressSurface(projectId, run, path)
+      .then((s) => {
+        stressCache.current = { path, surface: s };
+        if (live) setStress({ status: "ready", surface: s, message: null });
+      })
+      .catch((e) => {
+        if (live) setStress({ status: "error", surface: null, message: e instanceof Error ? e.message : String(e) });
+      });
+    return () => {
+      live = false;
+    };
+  }, [projectId, run, path, view, stressTry]);
+  function retryStress() {
+    stressCache.current = { path: null, surface: null };
+    setStressTry((t) => t + 1);
+  }
+  const surface = stress.surface;
   const yieldMpa = design.fea?.yield_strength_mpa ?? 1;
   const checkTitle = check && part === "padeye" ? design.check_report.checks.find((c) => c.id === check)?.title : null;
   const frame = view === "stress" && surface ? frameOf(surface.positions) : view === "mesh" && mesh ? frameOf(mesh.positions) : partFrame(part, design.check_report.design);
+  // Status overlay inside the viewer (F4): a quiet chip while data loads, the error with a retry when a
+  // file fails. The panel frame never changes size, and no legend is shown over the plain model.
+  const status =
+    view === "stress" && path ? (
+      stress.status === "loading" ? (
+        <span className="viewer-loading" role="status">
+          <Loader2 className="spin" aria-hidden /> Loading stress results
+        </span>
+      ) : stress.status === "error" ? (
+        <div className="viewer-cover">
+          <ErrorState size="compact" title="The stress results didn't load" message={stress.message} onRetry={retryStress} />
+        </div>
+      ) : undefined
+    ) : view === "mesh" ? (
+      meshLoading ? (
+        <span className="viewer-loading" role="status">
+          <Loader2 className="spin" aria-hidden /> Loading the mesh
+        </span>
+      ) : meshError ? (
+        <div className="viewer-cover">
+          <ErrorState size="compact" title="The mesh didn't load" message={meshError} onRetry={onMeshRetry} />
+        </div>
+      ) : !mesh ? (
+        <span className="viewer-loading">This run did not record a mesh for this design.</span>
+      ) : undefined
+    ) : undefined;
   return (
     <Viewer
       size={frame.size}
       centreY={frame.centreY}
+      toolbar={toolbar}
+      status={status}
       top={
         view === "stress" ? (
-          <span className="legend">
-            0 <span className="ramp" /> {yieldMpa.toFixed(0)} MPa (yield){part === "stabilizer" ? ", stock" : ""}
-          </span>
+          surface ? (
+            <span className="legend">
+              0 <span className="ramp" /> {yieldMpa.toFixed(0)} MPa (yield){part === "stabilizer" ? ", stock" : ""}
+            </span>
+          ) : undefined
         ) : view === "mesh" ? (
-          <span className="legend">Coarsest of the 3 meshes solved{part === "stabilizer" ? " (stock)" : ""}</span>
+          mesh ? <span className="legend">Coarsest of the 3 meshes solved{part === "stabilizer" ? " (stock)" : ""}</span> : undefined
         ) : checkTitle ? (
           <span className="legend legend-accent">{checkTitle}</span>
         ) : undefined

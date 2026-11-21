@@ -5,9 +5,9 @@ import type { BracketDesign } from "../types";
 // Viewer axes: x out from the bulkhead (centred on the seat), y up, z along the pipe. 1 unit = 1 mm.
 const STEEL = new THREE.Color("#b9bec6");
 const KNEE = new THREE.Color("#9aa3ad");
-const PIPE = new THREE.Color("#5f8fd6");
-const BOLT = new THREE.Color("#d9483b");
-const BULKHEAD = new THREE.Color("#8a929c");
+const PIPE = new THREE.Color("#8d949c");
+const BOLT = new THREE.Color("#4a4f57");
+const BULKHEAD = new THREE.Color("#a3a9b0"); // context (the bulkhead the bracket is welded to): faint, so the bracket leads
 
 export function bracketSize(d: BracketDesign): number {
   return Math.max(d.seat_length_mm * 1.8, (d.seat_thickness_mm + d.knee_depth_mm + d.pipe_od_mm) * 1.4, d.pipe_od_mm * 2.4, 160);
@@ -50,27 +50,30 @@ export function BracketModel({ design: d, showPipe = true }: { design: BracketDe
   useEffect(() => () => bolt.dispose(), [bolt]);
 
   const zKnee = d.seat_width_mm / 2 - d.knee_thickness_mm / 2;
-  const pipeLength = Math.max(d.seat_width_mm * 4, d.pipe_od_mm * 3);
+  // The pipe is context: long enough to read as a pipe run, short and faint enough that the bracket leads (I2).
+  const pipeLength = Math.max(d.seat_width_mm * 2.4, d.pipe_od_mm * 2.2);
   return (
     <group>
-      <mesh position={[x0 - 4, lift / 2 + d.pipe_od_mm / 2, 0]}>
+      <mesh position={[x0 - 4, lift / 2 + d.pipe_od_mm / 2, 0]} userData={{ excludeFit: true }}>
         <boxGeometry args={[8, lift + d.pipe_od_mm + 60, pipeLength]} />
-        <meshStandardMaterial color={BULKHEAD} roughness={0.9} />
+        <meshStandardMaterial color={BULKHEAD} roughness={0.9} transparent opacity={0.22} depthWrite={false} />
       </mesh>
+      {/* Seat and knees: metalness and roughness capped so the flat seat never blows out to a white
+          patch under the lights, dark theme included (I3). */}
       <mesh position={[x0 + L / 2, lift - ts / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[L, ts, d.seat_width_mm]} />
-        <meshStandardMaterial color={STEEL} metalness={0.55} roughness={0.42} />
+        <meshStandardMaterial color={STEEL} metalness={0.35} roughness={0.52} />
       </mesh>
       {[-1, 1].map((side) => (
         <mesh key={side} geometry={knee} position={[x0, lift - ts, side * zKnee]} castShadow>
-          <meshStandardMaterial color={KNEE} metalness={0.55} roughness={0.45} />
+          <meshStandardMaterial color={KNEE} metalness={0.35} roughness={0.52} />
         </mesh>
       ))}
       {showPipe && (
         <group position={[x0 + d.pipe_offset_mm, lift + d.pipe_od_mm / 2, 0]}>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]} userData={{ excludeFit: true }}>
             <cylinderGeometry args={[d.pipe_od_mm / 2, d.pipe_od_mm / 2, pipeLength, 40, 1, true]} />
-            <meshStandardMaterial color={PIPE} metalness={0.3} roughness={0.5} transparent opacity={0.55} side={THREE.DoubleSide} />
+            <meshStandardMaterial color={PIPE} metalness={0.2} roughness={0.6} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} />
           </mesh>
           <mesh geometry={bolt}>
             <meshStandardMaterial color={BOLT} metalness={0.3} roughness={0.5} />

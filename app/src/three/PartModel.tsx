@@ -1,7 +1,7 @@
 import type { BracketDesign, CheckReport, FinDesign, PartId } from "../types";
 import { BracketModel, bracketCentreY, bracketSize } from "./BracketModel";
 import { FinModel, finCentreY, finSize } from "./FinModel";
-import { PadeyeModel, modelSize } from "./PadeyeModel";
+import { PadeyeModel, padeyeFrame } from "./PadeyeModel";
 
 /** Size and centre of the viewer for a part's design. */
 export function partFrame(part: PartId, design: CheckReport["design"]): { size: number; centreY: number } {
@@ -13,7 +13,7 @@ export function partFrame(part: PartId, design: CheckReport["design"]): { size: 
     const d = design as unknown as FinDesign;
     return { size: finSize(d), centreY: finCentreY(d) };
   }
-  return { size: modelSize(design), centreY: (design.hole_height_mm + design.head_radius_mm) / 2 };
+  return padeyeFrame(design);
 }
 
 /** The 3D model of any part. Check highlighting and the shackle are padeye-only. */

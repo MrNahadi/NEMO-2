@@ -31,8 +31,9 @@ For programmers working on NEMO. Users never need this page.
 | `engine/src/nemo/parts/padeye/fusion.py` | What Fusion needs to build a padeye, edited-dimension checks, cross-check records |
 | `fusion/NEMOConnector/` | The Fusion add-in. NEMO copies it into Fusion's add-ins folder |
 | `tools/make_connector_icons.py` | Draws the add-in's toolbar icons |
-| `app/` | React + TypeScript + three.js front end |
-| `design-system/graphite/` | Graphite tokens (source of truth for colours, radius, motion) |
+| `app/` | React + TypeScript + three.js front end (`app/src/styles/tokens.css` committed) |
+| `reports/project-report/` | JKUAT LaTeX project report, regeneration tools and compiled `main.pdf` |
+| `.agents/skills/` | Workspace skills (`nemo-report-updates` with `verify_report.py`, and vendored `teach`) |
 | `tools/install.ps1` | Windows installer used by `Install NEMO.bat` |
 
 ## Set up

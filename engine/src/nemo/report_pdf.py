@@ -847,16 +847,24 @@ def build_report_pdf(run_dir: Path, design_key: str, *, project_name: str, run_n
     story.append(Paragraph("Use these values to repeat the stress check independently in Autodesk Fusion (Simulation, "
                            "Static Stress). Open the STEP file from this run, in millimetres.", s["body"]))
     ap = fea["levels"][-1]["applied_force_n"] if fea else [loads["horizontal_n"], loads["side_n"], loads["vertical_n"]]
+    ap_total = math.sqrt(sum(v * v for v in ap))
+    hole_mesh_mm = round(max(0.5, min(design.hole_diameter_mm / 15.0, design.main_thickness_mm / 4.0)), 1)
+    finest_global = fea["levels"][-1]["global_size_mm"] if fea else design.main_thickness_mm
+    global_mesh_mm = round(max(1.5, min(design.main_thickness_mm / 3.0, finest_global)), 1)
+    singularity_text = (
+        "not the legend maximum, which sits at the corners of the fixed base"
+        + (" or the unmodeled 90\u00b0 cheek-plate step" if design.has_cheeks else "")
+    )
     story.append(Spacer(1, 2 * mm))
     story.append(_table([["Step", "Setting", "Value"],
                          ["1", "Study type", "Static Stress"],
                          ["2", "Material", f"{material['name']}: E {n(material['elastic_modulus_gpa'], 0)} GPa, Poisson's ratio 0.30, density {n(material['density_kg_m3'], 0)} kg/m³, yield {n(min(values['yield_main_mpa'], values.get('yield_head_mpa', values['yield_main_mpa'])), 0)} MPa, ultimate {n(material['tensile_strength_mpa'], 0)} MPa. Fusion's library has no {escape(material['name'].split(' ')[0])} and its generic Steel has a 207 MPa yield: the NEMO connector sets these values, or make a copy of Steel with them"],
                          ["3", "Fixed constraint", "Flat base face, all directions"],
-                         ["4", "Bearing load on hole", f"Total {kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}° from the base, in the plane of the plate"],
+                         ["4", "Bearing load on hole", f"Total {kn(ap_total)} ({kn(loads['sling_force_n'])} at {lift['sling_angle_deg']:g}° from the base plus the sideways allowance)"],
                          ["5", "Force components", f"X {kn(ap[0])}, Y {kn(ap[1])}, Z {kn(ap[2])} (STEP axes, Z up). In the model built by the NEMO connector Y is up: X {kn(ap[0])}, Y {kn(ap[2])}, Z {kn(ap[1])}"],
-                         ["6", "Expected reaction", f"X {kn(-ap[0])}, Y {kn(-ap[1])}, Z {kn(-ap[2])}"],
-                         ["7", "Mesh", "Local refinement on the hole, at least 3 elements through the thickness"],
-                         ["8", "Compare", f"Total of the Reaction Force result equals the applied load within 2%; von Mises stress probed around the hole (not the legend maximum, which sits at the corners of the fixed base) within 15% of {n(fea['head_von_mises_mpa'], 1) if fea else '-'} MPa"]],
+                         ["6", "Expected reaction", f"Total {kn(ap_total)}: X {kn(-ap[0])}, Y {kn(-ap[1])}, Z {kn(-ap[2])} (STEP, Z up); or X {kn(-ap[0])}, Y {kn(-ap[2])}, Z {kn(-ap[1])} (Connector, Y up)"],
+                         ["7", "Mesh", f"Global mesh about {global_mesh_mm:g} mm (at least 3 elements through the {design.main_thickness_mm:g} mm plate) and local control on the hole face about {hole_mesh_mm:g} mm"],
+                         ["8", "Compare", f"Total of the Reaction Force result equals {kn(ap_total)} within 2%; von Mises stress probed on the pin-hole edge ({singularity_text}) within 15% of {n(fea['head_von_mises_mpa'], 1) if fea else '-'} MPa"]],
                         [12 * mm, 40 * mm, CONTENT_W - 52 * mm]))
     story.append(Spacer(1, 6 * mm))
     folder = run_dir / "designs" / design_key

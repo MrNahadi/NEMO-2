@@ -56,6 +56,8 @@ class StaticResult:
     solver_method: str = "direct"
     residual_history: tuple[float, ...] = ()
     relative_residual: float = 0.0
+    applied_moment_nmm: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    reaction_moment_nmm: np.ndarray = field(default_factory=lambda: np.zeros(3))
 
     @property
     def max_displacement_mm(self) -> float:
@@ -76,6 +78,14 @@ class StaticResult:
         if applied == 0:
             return 0.0
         return float(np.linalg.norm(self.applied_force_n + self.reaction_force_n) / applied)
+
+    @property
+    def moment_balance_error(self) -> float:
+        """|applied_moment + reaction_moment| / |applied_moment|. Near zero when moments balance."""
+        applied = np.linalg.norm(self.applied_moment_nmm)
+        if applied == 0:
+            return 0.0
+        return float(np.linalg.norm(self.applied_moment_nmm + self.reaction_moment_nmm) / applied)
 
 
 def to_skfem(mesh: TetMesh) -> MeshTet:
@@ -179,6 +189,24 @@ def solve_static(
     fixed_mask[fixed] = True
     reaction = np.array([residual[idx[fixed_mask[idx]]].sum() for idx in split])
 
+    # Variational 6-DOF moment equilibrium about the origin (exact for P2 since linear fields are in the basis).
+    locs = basis.doflocs
+    px, py, pz = locs[0, split[0]], locs[1, split[0]], locs[2, split[0]]
+    fx, fy, fz = force[split[0]], force[split[1]], force[split[2]]
+    applied_moment = np.array([
+        (py * fz - pz * fy).sum(),
+        (pz * fx - px * fz).sum(),
+        (px * fy - py * fx).sum(),
+    ])
+    rx = residual[split[0]] * fixed_mask[split[0]]
+    ry = residual[split[1]] * fixed_mask[split[1]]
+    rz = residual[split[2]] * fixed_mask[split[2]]
+    reaction_moment = np.array([
+        (py * rz - pz * ry).sum(),
+        (pz * rx - px * rz).sum(),
+        (px * ry - py * rx).sum(),
+    ])
+
     displacement = np.vstack([u[idx][: m.p.shape[1]] for idx in _vertex_dofs(basis)])
     vm = _nodal_von_mises(m, element, u, lam, mu)
 
@@ -195,6 +223,8 @@ def solve_static(
         solver_method=method,
         residual_history=tuple(history),
         relative_residual=relative_residual,
+        applied_moment_nmm=applied_moment,
+        reaction_moment_nmm=reaction_moment,
     )
 
 
@@ -294,7 +324,7 @@ def _rigid_body_modes(basis: Basis) -> np.ndarray:
 
 
 def _nodal_von_mises(m: MeshTet, element, u: np.ndarray, lam: float, mu: float) -> np.ndarray:
-    """Von Mises stress at element corners, averaged at each vertex."""
+    """Von Mises stress from Cauchy stress tensor components averaged at each vertex."""
     corners = np.array([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
     weights = np.full(4, 1.0 / 24.0)
     basis = Basis(m, element, quadrature=(corners, weights))
@@ -304,14 +334,23 @@ def _nodal_von_mises(m: MeshTet, element, u: np.ndarray, lam: float, mu: float) 
     s = 2.0 * mu * eps
     for i in range(3):
         s[i, i] += lam * trace
-    vm = np.sqrt(
-        0.5 * ((s[0, 0] - s[1, 1]) ** 2 + (s[1, 1] - s[2, 2]) ** 2 + (s[2, 2] - s[0, 0]) ** 2)
-        + 3.0 * (s[0, 1] ** 2 + s[1, 2] ** 2 + s[2, 0] ** 2)
-    )  # (n_elements, 4)
 
-    # Corner order in the reference element matches m.t rows.
-    total = np.zeros(m.p.shape[1])
-    count = np.zeros(m.p.shape[1])
-    np.add.at(total, m.t.T.ravel(), vm.ravel())
-    np.add.at(count, m.t.T.ravel(), 1.0)
-    return total / np.maximum(count, 1.0)
+    # Corner order in the reference element matches m.t rows. Average the symmetric stress
+    # tensor components first, then compute von Mises (matching standard FEA post-processors).
+    n_verts = m.p.shape[1]
+    vert_idx = m.t.T.ravel()
+    count = np.zeros(n_verts)
+    np.add.at(count, vert_idx, 1.0)
+    denom = np.maximum(count, 1.0)
+
+    def _avg(comp: np.ndarray) -> np.ndarray:
+        total = np.zeros(n_verts)
+        np.add.at(total, vert_idx, comp.ravel())
+        return total / denom
+
+    s00, s11, s22 = _avg(s[0, 0]), _avg(s[1, 1]), _avg(s[2, 2])
+    s01, s12, s20 = _avg(s[0, 1]), _avg(s[1, 2]), _avg(s[2, 0])
+    return np.sqrt(
+        0.5 * ((s00 - s11) ** 2 + (s11 - s22) ** 2 + (s22 - s00) ** 2)
+        + 3.0 * (s01**2 + s12**2 + s20**2)
+    )

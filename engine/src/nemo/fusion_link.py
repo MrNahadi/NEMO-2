@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 CONNECTOR_NAME = "NEMOConnector"
-CONNECTOR_VERSION = "1.1.0"
+CONNECTOR_VERSION = "1.1.1"
 HEARTBEAT_TIMEOUT_S = 8.0
 JOB_PICKUP_TIMEOUT_S = 45.0
 JOB_RUN_TIMEOUT_S = 180.0

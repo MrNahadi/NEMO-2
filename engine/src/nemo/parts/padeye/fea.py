@@ -7,12 +7,16 @@ Model (matches the Fusion cross-check study NEMO prints):
   spread as a cosine (highest in line with the sling, zero at 90 degrees). It
   adds up exactly to the in-plane part of the sling force (the whole sling
   force when the padeye is lined up with its sling).
-* Side load: the sideways force, spread the same way over the same surface.
+* Side load: the sideways (axial) force, spread uniformly around the hole bore
+  so it exerts zero spurious twisting moment about the pinhole (matching
+  Autodesk Fusion's Bearing Load axial distribution).
 * Material: linear elastic. Stress is reported as von Mises.
 
-The base edge where the fixed face meets the free faces is a modelling
-singularity: stress there keeps rising as the mesh gets finer. The head (hole
-region) result is the one compared with the code checks and checked for mesh
+The base edge where the fixed face meets the free faces—and, when cheek plates
+are present, the unmodeled 90-degree re-entrant step where each cheek plate
+meets the main plate—are linear-elastic modelling singularities whose peaks
+diverge as the mesh gets finer. The head (hole region, clear of the cheek step)
+result is the one compared with the code checks and checked for mesh
 convergence.
 """
 
@@ -97,6 +101,23 @@ def default_mesh_sizes(design: PadeyeDesign) -> tuple[float, float]:
     return global_size, local_size
 
 
+def head_assessment_mask(points: np.ndarray, design: PadeyeDesign) -> np.ndarray:
+    """Vertices in the assessed head/pin-hole region, excluding the 90-degree cheek-plate step singularity."""
+    r_head = np.hypot(points[0], points[2] - design.hole_height_mm)
+    mask = r_head <= design.head_radius_mm + 1.0
+    if design.has_cheeks:
+        # Exclude the unmodeled 90-degree cheek-plate re-entrant corner (r = Rc, |y| = t_main/2),
+        # where fillet welds are omitted and linear-elastic stress diverges with mesh refinement.
+        t_main_half = design.main_thickness_mm / 2.0
+        radius = design.hole_diameter_mm / 2.0
+        step_keep_out = min(2.0, 0.25 * (design.cheek_radius_mm - radius))
+        on_cheek_step = (np.abs(r_head - design.cheek_radius_mm) <= step_keep_out) & (
+            np.abs(np.abs(points[1]) - t_main_half) <= step_keep_out
+        )
+        mask = mask & (~on_cheek_step)
+    return mask
+
+
 def analyse_padeye(
     design: PadeyeDesign,
     *,
@@ -128,10 +149,9 @@ def analyse_padeye(
         return np.stack([p * ux, 0.0 * p, p * uz])
 
     def side_shape(x: np.ndarray) -> np.ndarray:
-        rx, rz = x[0], x[2] - h
-        rr = np.maximum(np.hypot(rx, rz), 1e-12)
-        p = np.maximum((rx * direction[0] + rz * direction[2]) / rr, 0.0)
-        return np.stack([0.0 * p, p, 0.0 * p])
+        # Uniform axial traction around the 360-degree hole bore: zero spurious moment about the pinhole
+        # and consistent with Autodesk Fusion's Bearing Load axial component distribution.
+        return np.stack([0.0 * x[0], np.ones_like(x[0]), 0.0 * x[0]])
 
     def is_hole_surface(kind: str, bbox) -> bool:
         return kind == "Cylinder" and (bbox[3] - bbox[0]) <= design.hole_diameter_mm * 1.05
@@ -173,7 +193,7 @@ def analyse_padeye(
                 SurfaceLoad("side load", hole_facets, side_shape, side_force),
             ],
         )
-        head_nodes = np.hypot(mesh.p[0], mesh.p[2] - h) <= head_reach
+        head_nodes = head_assessment_mask(mesh.p, design)
         results.append(
             PadeyeFEAResult(
                 level=i,

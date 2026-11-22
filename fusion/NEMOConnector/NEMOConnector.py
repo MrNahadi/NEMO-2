@@ -24,7 +24,7 @@ import uuid
 import adsk.core
 import adsk.fusion
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 HERE = os.path.dirname(os.path.abspath(__file__))
 EVENT_ID = "nemo_connector_job"
 PANEL_ID = "NEMOConnectorPanel"
@@ -316,24 +316,36 @@ def _find_property(properties, words, avoid):
     return None
 
 
+def _convert_positive(units_manager, value, from_units, to_units):
+    """Wrap UnitsManager.convert, treating Autodesk's -1 ExpressionError sentinel as a failure."""
+    converted = units_manager.convert(value, from_units, to_units)
+    if value > 0 and converted < 0:
+        raise ValueError("UnitsManager.convert returned %r for %s -> %s" % (converted, from_units, to_units))
+    return converted
+
+
 def _to_fusion(units_manager, value, nemo_units, prop_units, si_scale, si_units):
     """A NEMO value in the Fusion property's own units. Tries the plain unit name, then SI base units."""
-    if not prop_units or not nemo_units:
+    if not nemo_units:
         return value
+    if not prop_units:
+        raise ValueError("Fusion property reported no units for %s value" % nemo_units)
     try:
-        return units_manager.convert(value, nemo_units, prop_units)
+        return _convert_positive(units_manager, value, nemo_units, prop_units)
     except Exception:
-        return units_manager.convert(value * si_scale, si_units, prop_units)
+        return _convert_positive(units_manager, value * si_scale, si_units, prop_units)
 
 
 def _from_fusion(units_manager, value, nemo_units, prop_units, si_scale, si_units):
     """A Fusion property value back in NEMO's units, for the read-back check."""
-    if not prop_units or not nemo_units:
+    if not nemo_units:
         return value
+    if not prop_units:
+        raise ValueError("Fusion property reported no units for %s read-back" % nemo_units)
     try:
-        return units_manager.convert(value, prop_units, nemo_units)
+        return _convert_positive(units_manager, value, prop_units, nemo_units)
     except Exception:
-        return units_manager.convert(value, prop_units, si_units) / si_scale
+        return _convert_positive(units_manager, value, prop_units, si_units) / si_scale
 
 
 def _assign_material(design, body, material, warnings):

@@ -6,7 +6,7 @@
   "description": {
     "": "Connects Fusion to NEMO: opens NEMO designs as parametric models, checks edited dimensions in NEMO, and shows the stress cross-check sheet."
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "runOnStartup": true,
   "supportedOS": "windows|mac",
   "editEnabled": true

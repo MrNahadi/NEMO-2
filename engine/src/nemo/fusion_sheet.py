@@ -37,11 +37,14 @@ def render_sheet(run_dir: Path, design_key: str, *, project_id: str, project_nam
     model = json.loads(model_path.read_text(encoding="utf-8")) if model_path.exists() else None
     wanted = fusion_material(results, entry)
     design = report["design"]
+    has_cheeks = float(design.get("cheek_thickness_mm") or 0.0) > 0.0
     hole_mesh_mm = round(max(0.5, min(design["hole_diameter_mm"] / 15.0, design["main_thickness_mm"] / 4.0)), 1)
+    global_mesh_mm = round(max(1.5, min(design["main_thickness_mm"] / 3.0, float(level.get("global_size_mm") or design["main_thickness_mm"]))), 1)
     nemo_peak = fea.get("head_von_mises_mpa") or 0.0
+    yield_mpa = wanted["yield_strength_mpa"]
 
     values_text = (f"E {wanted['elastic_modulus_gpa']:g} GPa, Poisson {wanted['poisson_ratio']:.2f}, "
-                   f"density {wanted['density_kg_m3']:g} kg/m³, yield {wanted['yield_strength_mpa']:g} MPa, "
+                   f"density {wanted['density_kg_m3']:g} kg/m³, yield {yield_mpa:g} MPa, "
                    f"ultimate {wanted['tensile_strength_mpa']:g} MPa")
     if model and model.get("material_matches"):
         material_step = ("Material", f"Set by the connector: {model.get('fusion_material')} ({values_text})",
@@ -55,6 +58,18 @@ def render_sheet(run_dir: Path, design_key: str, *, project_id: str, project_nam
                          "to Favorites. Enter these values on the Physical tab, click Apply, rename the copy, then "
                          "choose it in Study Materials.")
 
+    singularity_note = (
+        "Do not use the Max on the legend. Sharp 90° corners where the fixed base meets the plate"
+        + (" and the unmodeled 90° cheek-plate step (no fillet weld modelled)" if has_cheeks else "")
+        + " are linear-elastic singularities whose stress rises without bound as the mesh is refined. "
+        "Probe on the inner pin-hole surface away from those steps."
+    )
+    if nemo_peak >= yield_mpa:
+        singularity_note += (
+            f" Note: NEMO's own elastic peak ({nemo_peak:.1f} MPa) exceeds yield ({yield_mpa:g} MPa) "
+            "even though the nominal ASME BTH-1 code checks pass; Fusion will also show Safety Factor < 1.0."
+        )
+
     steps = [
         ("Study", "New Simulation Study, Static Stress", None),
         material_step,
@@ -65,16 +80,17 @@ def render_sheet(run_dir: Path, design_key: str, *, project_id: str, project_nam
         ("Components", f"X {_kn(applied[0])}, Y {_kn(applied[2])} (up), Z {_kn(applied[1])} (through the plate)",
          "Enter all three. Fusion's Y axis points up in this model. Z is the sideways pull; leaving it at 0 "
          "under-loads the model."),
-        ("Mesh", f"Local mesh control on the hole face, about {hole_mesh_mm:g} mm; at least 3 elements through "
-                 "the thickness",
-         "The default mesh is too coarse to give a reliable stress at the edge of the hole."),
+        ("Mesh", f"Global mesh size about {global_mesh_mm:g} mm (at least 3 elements through the "
+                 f"{design['main_thickness_mm']:g} mm main plate) and local mesh control on the hole face, "
+                 f"about {hole_mesh_mm:g} mm",
+         "Fusion's default 10% model-based mesh leaves thin plates with only 1 element through thickness. "
+         "Do not refine specifically on the cheek-plate step or fixed base corners."),
         ("Reaction", f"Show the Reaction Force result and read its total. It should be {_kn(total)}, within 2%.",
          "A fixed support always carries the whole load. A much smaller number means one direction or one face "
          "was read."),
-        ("Peak stress", f"Probe the von Mises stress around the hole and the head. NEMO found {nemo_peak:.1f} MPa; "
+        ("Peak stress", f"Probe the von Mises stress on the pin-hole edge. NEMO found {nemo_peak:.1f} MPa; "
                         "within 15% agrees.",
-         "Do not use the Max on the legend. It usually sits at a corner of the fixed base, where the stress has no "
-         "true value and keeps rising as the mesh is refined. NEMO leaves those corners out for the same reason."),
+         singularity_note),
     ]
     rows = "".join(
         f"<li><span class='k'>{escape(k)}</span><span class='v'>{escape(v)}</span>"

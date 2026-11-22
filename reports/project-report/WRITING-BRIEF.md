@@ -31,15 +31,15 @@ This file is shared by everyone writing chapters of the report, so the chapters 
 | `06-budget.tex` | Project budget | `chap:budget` |
 | `07-conclusion.tex` | Conclusions and recommendations | `chap:conclusion` |
 
-## Aim and objectives (use exactly these, in this order)
+## Objectives (use exactly these, in this order)
 
-Aim: to develop and verify a rule-based marine structural design tool (\NEMO{}) that sizes lifting
+General objective: to develop and verify a rule-based marine structural design tool (\NEMO{}) that sizes lifting
 padeyes, machinery-space pipe support brackets and roll-stabilizer fin internal structures from
 available shipyard plate stock, confirms each design through automated three-dimensional finite
 element analysis, and issues a traceable engineering calculation package and fabrication files for
 review.
 
-Objectives:
+Specific objectives:
 
 1. Formulate and implement code-based structural check and stock-aware sizing models for three
    shipboard details (lifting padeyes to ASME BTH-1, pipe support brackets to AISC 360-16 with

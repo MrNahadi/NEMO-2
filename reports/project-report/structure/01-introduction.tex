@@ -56,12 +56,18 @@ A dependable marine design workflow must preserve the engineering basis from ini
 
 This project investigates how code-based structural rules, shipyard plate-stock sizing, automated three-dimensional finite element verification and traceable calculation-package generation can be unified into one desktop tool for lifting padeyes, machinery-space pipe brackets and roll-stabilizer fins. The engineering contribution lies in integrating and verifying established naval architecture and structural mechanics methods for these shipboard details, and in testing what actually governs their dimensions across realistic vessel operating envelopes.
 
-\section{Aim and objectives}
+\section{Objectives}
 \label{sec:aim-objectives}
 
-The aim of this project is to develop and verify a rule-based marine structural design tool (\NEMO{}) that sizes lifting padeyes, machinery-space pipe support brackets and roll-stabilizer fin internal structures from available shipyard plate stock, confirms each design through automated three-dimensional finite element analysis, and issues a traceable engineering calculation package and fabrication files for review.
+\subsection{General objective}
+\label{sec:general-objective}
 
-The objectives are:
+The general objective of this project is to develop and verify a rule-based marine structural design tool (\NEMO{}) that sizes lifting padeyes, machinery-space pipe support brackets and roll-stabilizer fin internal structures from available shipyard plate stock, confirms each design through automated three-dimensional finite element analysis, and issues a traceable engineering calculation package and fabrication files for review.
+
+\subsection{Specific objectives}
+\label{sec:specific-objectives}
+
+The specific objectives of this project are to:
 \begin{enumerate}
 \item Formulate and implement code-based structural check and stock-aware sizing models for three shipboard details, namely lifting padeyes to ASME BTH-1, pipe support brackets to AISC 360-16 with machinery-space pipe-span vibration screening, and roll-stabilizer fin internal structures to IACS UR S10 with independent foil-load and cavitation models, searching available shipyard plate thicknesses to deliver buildable designs with full hand-calculation working, STEP and DXF outputs, and a reviewable PDF calculation package through a local desktop interface.
 \item Establish an automated open-source geometry and quadratic tetrahedral finite element pipeline (build123d on OpenCASCADE, Gmsh, scikit-fem and PyAMG) with three-level mesh refinement and automatic force and moment equilibrium checks, and verify the structural, geometric and hydrodynamic solvers against hand calculations, closed-form theory, published reference solutions and automated regression tests.

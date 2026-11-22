@@ -1,85 +1,84 @@
 \chapter{Methodology}
 \label{chap:methodology}
 
-This chapter describes how \NEMO{}~2 was designed and built, and how each
-part of it works. It starts with the research design and the requirements
-taken from the first phase. It then follows a design through the tool in the
-order the engine handles it. The loads and checks come first, then the sizing
-search, the geometry, the finite element analysis and the outputs. The last
-sections describe the verification method, the application, the Fusion
-connector and the case studies used in Chapter~\ref{chap:results}.
+This chapter describes how \NEMO{} was designed, implemented and verified. It
+starts with the engineering research design and the functional requirements
+derived from marine structural codes, shipyard fabrication practice and early
+exploratory testing. It then follows a design through the tool in the order the
+engine handles it. The loads and checks come first, then stock-aware sizing,
+solid geometry, finite element analysis and traceable outputs. The closing
+sections describe the verification suite, the desktop interface, the optional
+Autodesk Fusion connector and the shipboard case studies analysed in
+Chapter~\ref{chap:results}.
 
 \section{Research design}
 \label{sec:research-design}
 
-The project followed a design-science approach. The output is a working
-engineering tool, and the research questions in
-Section~\ref{sec:research-questions} are answered by building the tool and
-testing it against reference results and realistic design cases. The work ran
-in four stages.
+The project followed a design-science approach. The output is a verified marine
+design tool, and the three research questions in
+Section~\ref{sec:research-questions} are answered by building the engineering
+engine, testing its solvers against closed-form and published reference
+solutions, and applying it to representative vessel design cases. The work
+proceeded in four stages.
 
 \begin{enumerate}
-    \item \textbf{Review of the first phase.} The \NEMO{}~1 code, report and
-    Fusion studies were reviewed to find what failed and why. The findings
-    became the requirements in Table~\ref{tab:requirements}.
-    \item \textbf{Engine first, one part at a time.} The padeye was built
-    end to end before the other parts were started. It fixed the shared pieces, namely the check record, the rule-set interface, the sizing pattern, the
-    geometry and finite element pipeline, the run log and the report
-    generator. The bracket and the fin then reused them.
-    \item \textbf{Verification alongside development.} Each calculation got
-    an automated test when it was written. Hand calculations, closed-form
-    solutions and published coefficients were turned into benchmarks that the
-    user can rerun from the application.
-    \item \textbf{Application and case studies.} The browser application,
-    the PDF calculation package and the Fusion connector were built on top of
-    the engine. One realistic case per part was then run, together with
-    parameter sweeps, to see what governs each design.
+    \item \textbf{Marine code basis and early trials.} Design requirements were
+    drawn from ASME BTH-1, AISC 360-16, IACS UR S10, ASME V\&V~10 and findings
+    from early exploratory CAD and manual Fusion trials
+    (Section~\ref{sec:early-testing}). These became the requirements in
+    Table~\ref{tab:requirements}.
+    \item \textbf{Shared engine, built part by part.} The lifting padeye was
+    built end to end first so that it fixed the shared architecture, namely the
+    check record, rule-set interface, stock-aware sizing pattern, CAD and
+    finite element pipeline, engineering log and PDF report generator. The pipe
+    support bracket and stabilizer fin then reused those shared modules.
+    \item \textbf{Verification alongside development.} Each engineering
+    calculation received automated tests as it was written. Hand calculations,
+    closed-form beam and elasticity solutions, and published stress
+    concentration and foil coefficients were assembled into a benchmark suite
+    that can be rerun directly from the application.
+    \item \textbf{Desktop interface and shipboard case studies.} A local
+    browser interface, PDF calculation package and optional Fusion connector
+    were built over the engine. Realistic vessel cases and operating-envelope
+    sweeps were then executed to establish which limits govern each marine
+    detail.
 \end{enumerate}
 
-\subsection{Requirements from the first phase}
+\subsection{Engineering design requirements}
 \label{sec:requirements}
 
-Table~\ref{tab:requirements} lists the problems found in \NEMO{}~1 and the
-requirement each one placed on the new tool. These requirements decided most
-of the architecture described in the rest of this chapter.
+Table~\ref{tab:requirements} sets out the nine engineering requirements that
+guided the architecture of \NEMO{}, grounded in marine structural practice,
+numerical verification principles \cite{asmeVV10} and the failure modes
+observed during early exploratory testing.
 
 \begin{table}[H]
 \centering
-\caption{Problems in \NEMO{}~1 and the requirements they set for \NEMO{}~2}
+\caption{Engineering and verification requirements for \NEMO{}}
 \label{tab:requirements}
 \small
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.42\textwidth}>{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Problem found in \NEMO{}~1} & \textbf{Requirement for \NEMO{}~2}\\
+\textbf{Marine engineering or verification driver} & \textbf{Requirement for \NEMO{}}\\
 \midrule
-Fusion's Python API cannot set up or solve Simulation studies, so the stress
-check had to be done by hand and the loop never closed. &
-R1. Stress analysis runs inside the tool, with no manual step, for every
-design it proposes.\\
-One Fusion study of the bracket used 1.472~N instead of 1472~N; another had no
-traceable load definition. Both had to be rejected. &
-R2. Loads are applied from the same numbers the checks use, and the solver
-reports the applied total and the support reactions so that a wrong load is
-visible.\\
-Several screening equations used tuning factors with no source. &
-R3. Every check names its source. Checks that come from project practice
-rather than a code are marked as such.\\
-The stabilizer load was assumed, not derived. &
-R4. Fin loads are derived from speed, size and angle, by two independent
-methods.\\
-No design-code checks were made. &
-R5. Each part is checked against a named design code through a rule set that
-can be replaced.\\
-Continuous optimum dimensions could not be built from the plate a yard holds. &
-R6. The search works over the plate thicknesses in stock and rounds every
-dimension to a buildable size.\\
-Setup needed Python, a virtual environment and Fusion. &
-R7. The tool installs and runs without programming, and Fusion is optional.\\
-The file bridge to Fusion rebuilt a stale request on connect. &
-R8. Jobs sent to Fusion expire, and each is picked up at most once.\\
-Results could not be checked without reading the code. &
-R9. Each result carries its hand-calculation working, and the run keeps a
-complete record of what was tried.\\
+Closing the design loop requires automated stress confirmation; early Fusion API trials showed that commercial simulation studies could not be set up and solved programmatically. &
+R1. Three-dimensional stress analysis runs automatically inside the tool, with no manual transfer step, for every proposed design.\\
+Manual transfer of loads into FEA invites unit and transcription errors (observed in an early trial where 1.472~N was entered instead of 1,472~N). &
+R2. FEA loads are derived directly from the job force model, and the solver checks both force and moment equilibrium against the support reactions.\\
+Design sign-off by a marine engineer or surveyor requires traceable equations rather than unsourced screening factors. &
+R3. Every check states its governing equation, substituted numbers and named source, clearly separating code provisions from yard practice.\\
+Stabilizer fin sizing depends on vessel speed, foil geometry and angle of attack, not an assumed static load. &
+R4. Fin hydrodynamic loads are derived from operating speed, foil dimensions and angle by two independent methods, accompanied by a cavitation screen.\\
+Secondary marine steelwork must comply with applicable structural lifting, piping and hull-appendage codes. &
+R5. Each component is checked against a named design code (ASME BTH-1, AISC 360-16 or IACS UR S10) through a modular rule-set interface.\\
+Continuous numerical optima rarely match standard plate thicknesses held in a shipyard. &
+R6. Sizing enumerates available shipyard plate thicknesses and rounds continuous dimensions to practical, buildable sizes.\\
+Routine design review in a yard or office should not require managing Python environments or commercial CAD scripts. &
+R7. The tool installs and runs locally without programming, and external CAD links remain optional.\\
+Stale CAD requests during interactive editing can decouple the solid model from the active calculation. &
+R8. Requests sent to the optional Fusion connector expire automatically and are executed at most once.\\
+Independent review requires full calculation evidence rather than pass or fail indicators alone. &
+R9. Every run retains substituted hand-calculation working, mesh-convergence records, evaluated candidates and file checksums.\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -87,7 +86,7 @@ complete record of what was tried.\\
 \section{System architecture}
 \label{sec:architecture}
 
-\NEMO{}~2 has four layers, shown in Figure~\ref{fig:architecture}. The
+\NEMO{} has four layers, shown in Figure~\ref{fig:architecture}. The
 engine is a Python package that contains all of the engineering. A local
 FastAPI server exposes the engine to a browser application written in React
 with three.js for the 3D views. An optional add-in connects the server to
@@ -113,7 +112,7 @@ Projects and runs \quad Previews \quad Run events \quad Files \quad Fusion jobs}
 \draw[arrow, <->] (server.south) -- (engine.north -| server.south);
 \draw[arrow, <->] (fusion.west) -- (server.east |- fusion.west);
 \end{tikzpicture}
-\caption{Architecture of \NEMO{}~2}
+\caption{Architecture of \NEMO{}}
 \label{fig:architecture}
 \end{figure}
 
@@ -145,13 +144,13 @@ registering them.
 \end{tabularx}
 \end{table}
 
-The engine has 52 Python files and 9,522 lines of code. The application has
-32 TypeScript files and 5,004 lines. The Fusion add-in has 520 lines. The main
+The engine has 52 Python files and 9,605 lines of code. The application has
+34 TypeScript files and 7,182 lines. The Fusion add-in has 532 lines. The main
 libraries and their versions are listed in Table~\ref{tab:software}.
 
 \begin{table}[H]
 \centering
-\caption{Main software used by \NEMO{}~2}
+\caption{Main software used by \NEMO{}}
 \label{tab:software}
 \small
 \begin{tabularx}{\textwidth}{llX}
@@ -282,7 +281,7 @@ Table~\ref{tab:rule-sets} summarises the three rule sets.
 
 \begin{table}[H]
 \centering
-\caption{Rule sets in \NEMO{}~2}
+\caption{Rule sets in \NEMO{}}
 \label{tab:rule-sets}
 \small
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.2\textwidth}>{\raggedright\arraybackslash}p{0.2\textwidth}X}
@@ -934,14 +933,17 @@ Loads are applied as surface tractions defined by a \emph{shape} and a target
 resultant. The solver integrates the shape over the loaded faces, then scales
 it so that its resultant equals the target. The applied total then matches
 the design force used by the checks, whatever the mesh. In the padeye case
-study it differed by less than 1~N in each direction. This removes the error
-that broke the \NEMO{}~1 bracket study (requirement R2).
+study it differed by less than 1~N in each direction. This removes the load
+transcription error seen during early exploratory testing (requirement R2).
 
 \begin{itemize}
-    \item \textbf{Padeye.} The base face is fixed. The pin load is a cosine
-    pressure $p \propto \max(\cos\alpha, 0)$ on the hole surface, with $\alpha$
-    measured from the sling direction, scaled to $F$. The sideways force $Q$
-    is spread the same way.
+    \item \textbf{Padeye.} The base face is fixed. The in-plane pin load is a
+    cosine pressure $p \propto \max(\cos\alpha, 0)$ on the loaded half of the
+    hole surface, with $\alpha$ measured from the sling direction, scaled to
+    the in-plane sling force. The sideways force $Q$ is applied as a uniform
+    axial traction around the full hole bore so that it introduces no spurious
+    twisting moment about the pinhole and matches Autodesk Fusion's Bearing
+    Load axial distribution.
     \item \textbf{Bracket.} The faces against the bulkhead are fixed. $F_z$,
     $F_x$ and $F_y$ are uniform tractions on a strip of the seat top under the
     pipe, of width the larger of $D/4$, $2.5t_s$ and 1.5 element sizes.
@@ -967,22 +969,31 @@ method. The residual history is written to the engineering log.
 
 \subsection{Results and acceptance}
 
-The von Mises stress is computed at element corners and averaged at each
-vertex. After each solve, \NEMO{} records the following.
+The six symmetric Cauchy stress tensor components are evaluated at element
+corners, averaged at each vertex, and then combined into the nodal von Mises
+stress. Averaging the tensor components before computing von Mises matches
+standard finite element post-processors and avoids upward scalar-averaging bias
+at geometric transitions. After each solve, \NEMO{} records the following.
 
 \begin{itemize}
-    \item \textbf{Force balance}, $|\mathbf{F}_\text{applied} +
-    \mathbf{R}|/|\mathbf{F}_\text{applied}|$, where $\mathbf{R}$ is the sum of
-    the support reactions. It should be close to zero.
+    \item \textbf{Force and moment balance}, $|\mathbf{F}_\text{applied} +
+    \mathbf{R}|/|\mathbf{F}_\text{applied}|$ and the variational moment
+    balance $|\mathbf{M}_\text{applied} +
+    \mathbf{M}_R|/|\mathbf{M}_\text{applied}|$, where $\mathbf{R}$ and
+    $\mathbf{M}_R$ are the support reaction force and moment. Both must close
+    to near zero.
     \item \textbf{Mesh convergence}, the change in the assessed peak stress
     between the two finest meshes. The target is 5\% or less.
     \item \textbf{Assessed peak}, the highest von Mises stress in a stated
-    region. Fixed edges, where a fixed face meets a free face, carry a stress
-    singularity that grows without limit as the mesh is refined. Each part
-    therefore reads its peak away from those edges. The region is within $R + 1$~mm of the
-    hole axis for the padeye, at $x \geq 1.5$ times the thicker plate for the
-    bracket, and from half a diameter outboard of the bearing to the loaded
-    length for the stock.
+    region. Sharp 90$^\circ$ transitions where a fixed face meets a free face,
+    and where an unmodeled fillet weld leaves a 90$^\circ$ re-entrant step at
+    the outer edge of a padeye cheek plate, carry linear-elastic stress
+    singularities that diverge as the mesh is refined. Each part therefore
+    reads its peak clear of those singular edges. The assessed region is within
+    $R + 1$~mm of the hole axis for the padeye (excluding the 90$^\circ$
+    cheek-plate step at $r = R_c$, $|y| = t/2$), at $x \geq 1.5$ times the
+    thicker plate for the bracket, and from half a diameter outboard of the
+    bearing to the loaded length for the stock.
 \end{itemize}
 
 A design passes the finite element check when the assessed peak is below
@@ -1050,7 +1061,7 @@ Support reactions & In every finite element benchmark, the reaction equals the a
 \end{tabularx}
 \end{table}
 
-\textbf{Automated tests.} The engine has 174 tests in 14 files, run with
+\textbf{Automated tests.} The engine has 181 tests in 15 files, run with
 pytest after every change. They cover the hand calculation, the behaviour of
 the checks when one input changes, CAD volumes for 50 random designs, STEP
 export and re-import, the finite element benchmarks, sizing, the working
@@ -1167,8 +1178,8 @@ selected}
 \label{sec:fusion-connector}
 
 The Fusion connector is an optional add-in for Autodesk Fusion that works with
-padeyes. It replaces the file bridge of \NEMO{}~1 with polling over HTTP on
-the local machine. The add-in asks the \NEMO{} server for work every 1.5~s. A
+padeyes. Rather than writing persistent request files that can rebuild stale
+geometry on startup, it polls the local \NEMO{} server over HTTP every 1.5~s. A
 job that is not picked up within 45~s, or not finished within 180~s, expires,
 and each job is handed out only once, which answers requirement R8.
 
@@ -1180,14 +1191,14 @@ can be edited in Fusion's parameter table. The add-in assigns the material,
 names the hole and base faces, and reports Fusion's volume back to \NEMO{} for
 comparison with its own. Fusion's material library holds American AISI and
 ASTM grades but none of the EN or IACS grades \NEMO{} uses, and its generic
-\emph{Steel} has a yield strength of 207~MPa. From version 1.1.0 the add-in
+\emph{Steel} has a yield strength of 207~MPa. The add-in (version 1.1.1)
 therefore copies \emph{Steel} into the design, names the copy after the
-\NEMO{} grade, sets its modulus, Poisson's ratio, density, yield and ultimate
-strength to \NEMO{}'s values, and reads them back. \NEMO{} records whether they
-match, and the cross-check sheet gives the steps to make the material by hand
-if they do not. A \emph{Check in NEMO} command sends the edited
-parameters back, and \NEMO{} re-runs every check on the edited design and
-shows the results inside Fusion.
+\NEMO{} grade, converts and assigns its modulus, Poisson's ratio, density,
+yield and ultimate strength (guarding against Fusion's negative unit-conversion
+error sentinel and empty property units), and reads every value back. \NEMO{}
+records whether they match, and the cross-check sheet gives manual steps if
+they do not. A \emph{Check in NEMO} command sends edited parameters back, and
+\NEMO{} re-runs every check and displays the results inside Fusion.
 
 Fusion's API cannot create or solve a Simulation study \cite{autodeskAddins},
 so a Fusion stress cross-check is set up by hand using a sheet that \NEMO{}
@@ -1197,12 +1208,14 @@ when the reaction is within 2\% of the applied load and the peak stress near
 the hole is within 15\% of \NEMO{}'s. A reaction less than half or more than
 1.5 times the applied load is refused and not recorded: a fixed support always
 carries the whole load, so such a value can only have been read from the wrong
-result. The sheet also gives the three load components, a mesh size for the
-hole, and says to probe the stress around the hole, not to take the legend
-maximum, which sits at the corners of the fixed base. The record is added to
-section~7 of the PDF. The server side of the connector, including the job
-queue, job expiry and the material record, is covered by the automated tests.
-Section~\ref{sec:fusion-session} reports the first session in Fusion.
+result. The sheet lists the three-dimensional resultant and all three load
+components, specifies both a global mesh size and a local hole mesh size, and
+warns the engineer to probe on the inner pin-hole surface rather than reading
+the legend maximum at the fixed base corners or at an unmodeled 90$^\circ$
+cheek-plate step. The record is added to section~7 of the PDF. The server side
+of the connector, including the job queue, job expiry, unit-conversion guards
+and the material record, is covered by the automated tests.
+Section~\ref{sec:fusion-session} reports the initial Fusion cross-check trial.
 
 The connector builds padeyes only. For brackets and fins, section~8 of their
 calculation packages lists the same values for a cross-check by hand from the

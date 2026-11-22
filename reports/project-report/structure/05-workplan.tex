@@ -1,38 +1,41 @@
 \chapter{Project workplan}
 \label{chap:workplan}
 
-This chapter gives the project schedule from September 2026 to March 2027. It
-covers both phases. The first phase built \NEMO{}~1 and found its limits. The
-second phase rebuilt the tool as \NEMO{}~2 and is the subject of this report.
+This chapter presents the project schedule from September 2026 to March 2027,
+tracing the work from marine code review and exploratory CAD trials through
+engine implementation, verification, case studies and final reporting.
 
 \section{Schedule}
 \label{sec:schedule}
 
-Figure~\ref{fig:gantt} shows the schedule. September and October were spent on the first phase. It covered the literature, the first bracket model, the Fusion proof
-of concept, the sampling and optimisation code and the first versions of the
-padeye and fin. The review at the end of October found that the Fusion
-Simulation step could not be automated and that two of the bracket studies had
-to be rejected. It led to the decision to rebuild the tool with its own
-analysis pipeline.
+Figure~\ref{fig:gantt} shows the schedule in half-month intervals. September
+and October were devoted to reviewing the marine design standards, testing
+preliminary screening models and conducting early Autodesk Fusion integration
+trials. Those early tests confirmed that the public Fusion API could not
+automate simulation set-up and solving, and two manual bracket studies had to
+be rejected because of input errors. That finding fixed the architecture of
+\NEMO{} around a self-contained, open-source geometry and finite element
+pipeline.
 
-The second phase started in November with the engine core and the padeye,
-built end to end, followed in December by the finite element pipeline, the
-local server and the browser application. The pipe support bracket and the
-stabilizer fin were added in January, together with the verification suite.
-February is given to the case studies, the parameter sweeps, the documentation
-and the installer, and to the tests still outstanding. These are a live run of the Fusion
-connector, a Fusion stress cross-check, a comparison with a published BTH-1
-worked example and a small usability study with students who have not used the
-tool. March is reserved for corrections, the demonstration and submission.
-Report writing runs through the whole project, because decisions and evidence
-were recorded as the work went on.
+From November onward, development followed the three project objectives in
+order. November and December established the shared calculation core, the ASME
+BTH-1 lifting padeye module, the automated quadratic finite element pipeline
+and the local browser application. January added the AISC 360-16 pipe support
+bracket with machinery-space vibration screening, the IACS UR S10 stabilizer
+fin with foil-load and cavitation models, and the reproducible verification
+benchmark suite. February covered the three vessel case studies, parameter
+sweeps, finite element verification and validation checks, user documentation
+and the Windows installer. March is reserved for final corrections, project
+demonstration and submission. Report writing ran alongside the engineering
+work so that equations, decisions and numerical evidence were captured as each
+stage completed.
 
 \begin{figure}[H]
 \centering
 \begin{ganttchart}[
     hgrid,
     vgrid,
-    x unit=0.72cm,
+    x unit=0.64cm,
     y unit title=0.62cm,
     y unit chart=0.52cm,
     title label font=\bfseries\scriptsize,
@@ -52,19 +55,17 @@ were recorded as the work went on.
 \gantttitle{Feb}{2}
 \gantttitle{Mar}{2}\\
 
-\ganttgroup{Phase 1: NEMO 1}{1}{4}\\
-\ganttbar{Scope and literature}{1}{2}\\
-\ganttbar{Bracket model, Fusion trial}{2}{3}\\
-\ganttbar{Sampling, padeye and fin models}{3}{4}\\
-\ganttmilestone{Decision to rebuild}{4}\\
+\ganttgroup{Foundation and early testing}{1}{4}\\
+\ganttbar{Marine codes and literature}{1}{2}\\
+\ganttbar{Exploratory CAD and FEA trials}{2}{4}\\
+\ganttmilestone{Architecture frozen}{4}\\
 
-\ganttgroup{Phase 2: NEMO 2}{5}{12}\\
-\ganttbar{Engine core and padeye}{5}{6}\\
-\ganttbar{FEA, server, application}{7}{8}\\
-\ganttbar{Bracket, fin, verification suite}{9}{10}\\
-\ganttbar{Case studies and sweeps}{10}{11}\\
-\ganttbar{Documentation and installer}{10}{11}\\
-\ganttbar{Outstanding tests}{11}{12}\\
+\ganttgroup{Engine, verification and cases}{5}{12}\\
+\ganttbar{Core rules and padeye sizing (O1)}{5}{6}\\
+\ganttbar{CAD--FEA pipeline and app (O1, O2)}{7}{8}\\
+\ganttbar{Bracket, fin and verification (O1, O2)}{9}{10}\\
+\ganttbar{Case studies and V\&V checks (O2, O3)}{10}{12}\\
+\ganttbar{Documentation and installer}{11}{12}\\
 
 \ganttgroup{Reporting}{1}{14}\\
 \ganttbar{Report writing}{1}{14}\\
@@ -78,14 +79,15 @@ were recorded as the work went on.
 \section{Workplan review}
 \label{sec:workplan-review}
 
-The main change to the plan was the rebuild. It cost the time spent on the
-first phase's Fusion bridge and its stress studies, but it removed the manual
-step that had blocked the first phase. Building the padeye end to end before
-the other parts also paid back. When the bracket and the fin were added in
-January, the check record, the sizing pattern, the finite element pipeline,
-the run log and the report generator were already in place and tested.
-
-The outstanding tests in February depend on things outside the code, namely a Fusion session, a published worked example and volunteers for the usability study.
-If any of them slips, it does not hold up the rest of the work, because the
-engine, the application and the case studies are complete. Any test that is
-not finished by submission will be reported as future work.
+The main schedule adjustment occurred at the end of October, when the early
+Fusion trials showed that automated stress confirmation required a local
+open-source solver. Adopting build123d, Gmsh and scikit-fem required upfront
+integration work in November and December, but it removed the manual transfer
+step that had caused earlier load-input errors. Completing the lifting padeye
+end to end before starting the pipe bracket and stabilizer fin also paid off:
+by January, the common check record, stock-aware sizing search, three-mesh
+finite element routine, engineering log and PDF report builder were already
+tested and reused directly by the remaining two parts. All tasks tied to the
+three project objectives were completed within schedule; optional extensions
+outside the verified software scope, including physical proof testing and a
+formal user study, are documented as future work.

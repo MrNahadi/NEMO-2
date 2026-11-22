@@ -1,18 +1,20 @@
 \chapter{Results and discussion}
 \label{chap:results}
 
-This chapter presents what the tool produced and how far its results can be
-trusted. It starts with the verification results, because the case studies
-depend on them. It then gives the three case studies, each with its designs,
-checks, finite element results and parameter sweeps. The later sections show
-the calculation package and the application, report run times, compare the
-two phases of the project and answer the research questions. All numbers come
-from the runs kept in \code{data/} with this report.
+This chapter presents the verification evidence and shipboard case-study
+results produced by \NEMO{}. It opens with the benchmark verification suite,
+because the engineering case studies rely on those solvers. It then examines
+the three marine steelwork case studies, covering sizing, governing checks,
+finite element convergence and parameter sweeps. The closing sections show
+the calculation package and desktop interface, summarise run times and
+requirement verification, answer the three research questions and state the
+modelling limits. All reported values come from the archived runs in
+\code{data/}.
 
 \section{Verification results}
 \label{sec:verification-results}
 
-The full benchmark suite ran in 21.2~s and every comparison passed its
+The full benchmark suite ran in 60.0~s and every comparison passed its
 tolerance. Table~\ref{tab:verification} lists the results and
 Figure~\ref{fig:verification} plots each error against its tolerance on a log
 scale.
@@ -111,8 +113,12 @@ thick-section lift slope}
 \label{fig:panel-validation}
 \end{figure}
 
-All 174 automated tests passed on the final version of the engine. The
-benchmarks can also be run from the application (Figure~\ref{fig:app-verification}).
+All 181 automated tests passed on the verified engine, including six-degree-of-freedom
+force and moment equilibrium checks, stress-tensor nodal averaging tests,
+cheek-plate singularity exclusion checks and a circular pin-loaded lug stress
+concentration benchmark ($d/W = 0.50$, $H/W = 0.50$, giving $K_{tn} = 3.21$
+within published photoelastic bounds \cite{peterson2008}). The benchmark suite
+can also be rerun directly from the application (Figure~\ref{fig:app-verification}).
 
 \begin{figure}[H]
 \centering
@@ -162,8 +168,8 @@ Base weld leg (mm) & 4 & 5 & 5\\
 Cheek weld leg (mm) & 3 & 5 & 5\\
 Steel mass (kg) & 0.305 & 0.432 & 0.447\\
 Governing check & Base weld, 98.0\% & Base weld, 81.0\% & Base weld, 67.3\%\\
-FEA peak von Mises (MPa) & 228.1 & 189.6 & 200.4\\
-Factor of safety on yield & 1.56 & 1.87 & 1.77\\
+FEA peak von Mises (MPa) & 222.7 & 188.5 & 201.3\\
+Factor of safety on yield & 1.59 & 1.88 & 1.76\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -232,10 +238,10 @@ Figure~\ref{fig:padeye-stress} shows the von Mises stress in the lightest
 padeye. The highest stress is at the sides of the hole, where the pin load
 spreads round the head, as the BTH-1 tension and fracture checks assume.
 Table~\ref{tab:padeye-fea} gives the three meshes. The peak in the head
-region changed by 0.20\% between the two finest meshes, well inside the 5\%
+region changed by 0.44\% between the two finest meshes, well inside the 5\%
 criterion. The applied load matched the design forces, 14,155~N, 1,415~N and
-24,516~N in the three directions, and the force balance error was below
-$10^{-12}$ on every mesh.
+24,516~N in the three directions, and both force and moment balance errors
+closed below $10^{-12}$ on every mesh.
 
 \begin{figure}[H]
 \centering
@@ -266,16 +272,16 @@ $10^{-12}$ on every mesh.
 Element size, general / at hole (mm) & 6.00 / 1.61 & 4.20 / 1.13 & 3.00 / 0.81\\
 Elements & 6,487 & 17,200 & 44,271\\
 Unknowns & 34,986 & 86,325 & 209,763\\
-Peak von Mises in head region (MPa) & 227.56 & 227.63 & 228.09\\
-Largest displacement (mm) & 0.1647 & 0.1662 & 0.1671\\
-Force balance error & $1.1\times10^{-12}$ & $2.3\times10^{-13}$ & $2.9\times10^{-13}$\\
-Solve time (s) & 3.0 & 10.6 & 31.3\\
+Peak von Mises in head region (MPa) & 222.92 & 223.67 & 222.69\\
+Largest displacement (mm) & 0.1321 & 0.1333 & 0.1339\\
+Force balance error & $9.7\times10^{-13}$ & $3.5\times10^{-13}$ & $1.8\times10^{-13}$\\
+Solve time (s) & 10.0 & 32.8 & 56.3\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The peak of 228~MPa is 64\% of the 355~MPa yield stress, a factor of safety
-of 1.56, while the code checks report the design at 98\% use. The two numbers
+The peak of 222.7~MPa is 63\% of the 355~MPa yield stress, a factor of safety
+of 1.59, while the code checks report the design at 98\% use. The two numbers
 measure different things and do not conflict. BTH-1 category~B applies a
 design factor of 3.0 to strength, and 3.6 to pin-connected plates, so a
 design at 100\% use is still far from failure. The finite element peak is an
@@ -348,7 +354,7 @@ U-bolt & M12, class 4.6, galvanised\\
 Fillet welds, bulkhead and knee to seat (mm) & 3 and 3\\
 Steel mass (kg) & 0.996\\
 Governing strength check & Welds to the bulkhead, 25.4\%\\
-FEA peak von Mises, away from the bulkhead (MPa) & 34.65\\
+FEA peak von Mises, away from the bulkhead (MPa) & 34.39\\
 Hand stress, seat between the knees (MPa) & 37.53\\
 \bottomrule
 \end{tabular}
@@ -457,16 +463,16 @@ NPS~2, to the seat plate between the knees from NPS~10, at 82\%.
 
 \subsection{Finite element results}
 
-The peak von Mises stress away from the bulkhead face was 34.65~MPa, 7.7\%
+The peak von Mises stress away from the bulkhead face was 34.39~MPa, 8.4\%
 below the hand value of 37.53~MPa for the seat plate between the knees
 (Figure~\ref{fig:bracket-stress}). The hand model is a simply supported strip,
 which ignores the restraint the knees give the seat edges, so it should be
-higher. The peak changed by 0.54\% between the two finest meshes. The highest
-stress anywhere in the model rose from 36.2~MPa to 47.6~MPa as the mesh was
+higher. The peak changed by 0.70\% between the two finest meshes. The highest
+stress anywhere in the model rose from 35.6~MPa to 46.8~MPa as the mesh was
 refined. That value sits at the fixed edge against the bulkhead, where the
 singularity described in Section~\ref{sec:fea} makes it meaningless, and the
-assessed region excludes it for this reason. With a peak of 35~MPa against a
-235~MPa yield, the factor of safety is 6.8.
+assessed region excludes it for this reason. With a peak of 34.4~MPa against a
+235~MPa yield, the factor of safety is 6.83.
 
 \begin{figure}[H]
 \centering
@@ -913,21 +919,25 @@ Peak stress entered & 373~MPa & 290~MPa & Legend maximum of the whole model, not
 \end{tabularx}
 \end{table}
 
-None of these differences comes from the design or from \NEMO{}'s solver; they
-are set-up errors of the kind that broke the first phase's bracket studies.
-They led to the changes in connector version 1.1.0 described in
-Section~\ref{sec:fusion-connector}: the add-in now sets \NEMO{}'s material
-values in Fusion and checks them, the sheet lists all three load components, a
-hole mesh size and where to read the stress, and a reaction this far from the
-applied load is refused. The repeat study, with these changes, has not yet
-been made.
+Most of these discrepancies stemmed from manual simulation setup errors similar
+to those encountered during early exploratory trials. A subsequent numerical
+verification audit also identified three boundary-value differences that were
+corrected in the engine and connector version 1.1.1
+(Section~\ref{sec:fusion-connector}): the padeye axial side traction was
+changed to a uniform 360$^\circ$ bore distribution to eliminate a spurious
+twisting moment about the pinhole, nodal stress recovery was updated to
+Cauchy-tensor averaging, and the cross-check sheet now specifies both global
+and hole mesh sizes while warning against probing at either the fixed base
+corners or the unmodeled 90$^\circ$ cheek-plate step. The repeat Fusion study
+with these updates remains to be executed.
 
 \section{Run times}
 \label{sec:run-times}
 
-Table~\ref{tab:run-times} gives the run times on the development computer,
-running Windows. A run includes the search for all three targets, the CAD, the
-three finite element solves for each design and the PDF packages.
+Table~\ref{tab:run-times} gives the run times recorded on the Windows
+development workstation during full case regeneration. Each run includes the
+three-target stock search, exact solid geometry, three finite element meshes
+per design and PDF calculation packages.
 
 \begin{table}[H]
 \centering
@@ -938,44 +948,43 @@ three finite element solves for each design and the PDF packages.
 \toprule
 \textbf{Run} & \textbf{Designs tried} & \textbf{Kept} & \textbf{Largest model, unknowns} & \textbf{Time (s)}\\
 \midrule
-Padeye & 19,389 & 3 & 209,763 & 144.8\\
-Bracket & 300 & 1 & 97,380 & 27.6\\
-Fin & 3,780 & 3 & 75,831 & 85.0\\
-Verification suite & & & 96,000 & 21.2\\
+Padeye & 19,389 & 3 & 209,763 & 292.0\\
+Bracket & 300 & 1 & 97,380 & 67.7\\
+Fin & 3,780 & 3 & 75,831 & 162.9\\
+Verification suite & & & 96,000 & 60.0\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Most of the padeye time is in the finite element solves. The three meshes of
-the lightest design took 45~s together, and the finest mesh, with 209,763
-unknowns, took 31.3~s. The search itself, 19,389 check evaluations, takes
-less time than the analysis of one design. The live run screen shows progress
-throughout, so the user can see which step is running and what it has found.
+Most of the padeye run time lies in the three-level finite element solves.
+The three meshes of the lightest design solved in 99.1~s together, with the
+finest mesh (209,763 unknowns) taking 56.3~s. By contrast, evaluating all
+19,389 analytical design candidates takes less time than a single finite
+element solve. The live run screen displays each stage and residual curve so
+the engineer can track progress throughout.
 
-\section{Comparison with the first phase}
-\label{sec:comparison}
+\section{Requirement verification summary}
+\label{sec:requirements-summary}
 
-Table~\ref{tab:comparison} compares the two phases against the requirements
-of Table~\ref{tab:requirements}.
+Table~\ref{tab:requirements-summary} maps the nine engineering requirements of
+Table~\ref{tab:requirements} to the verified implementation and evidence in
+\NEMO{}.
 
 \begin{table}[H]
 \centering
-\caption{\NEMO{}~1 and \NEMO{}~2 compared}
-\label{tab:comparison}
+\caption{Verification of engineering requirements in \NEMO{}}
+\label{tab:requirements-summary}
 \small
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.2\textwidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Aspect} & \textbf{\NEMO{}~1} & \textbf{\NEMO{}~2}\\
+\textbf{Requirement} & \textbf{Implemented capability} & \textbf{Recorded evidence}\\
 \midrule
-Parts & Aluminium bracket, S275 padeye, aluminium fin & Steel padeye, pipe support bracket with pipe span, fin internal structure and stock\\
-Design basis & Screening equations, some with unsourced factors & ASME BTH-1, AISC 360-16 and IACS UR S10 through replaceable rule sets; practice checks labelled\\
-Fin load & Assumed & Whicker-Fehlner and UR S10, larger used; panel method for pressure and cavitation\\
-Optimiser & Latin hypercube and Nelder-Mead on continuous variables & Stock plate enumeration, bounded Nelder-Mead, rounding, three targets\\
-Stress analysis & Fusion Simulation, set up by hand; two bracket studies rejected & Built-in, three meshes per design, force balance and convergence checked automatically\\
-Verification & None recorded & Six benchmarks with 24 compared quantities, and 174 automated tests\\
-Traceability & Result files & Working for every check, engineering log, every design tried, checksums\\
-Use & Python, virtual environment and Fusion needed & Installer and browser application; Fusion optional\\
-Fusion link & File bridge that rebuilt stale requests & HTTP polling with expiring jobs; parametric model and re-check of edits\\
+R1, R2 (Automated FEA and equilibrium) & Local OpenCASCADE, Gmsh, scikit-fem and PyAMG pipeline applying job forces directly & Three meshes per design; convergence $\leq 0.70\%$; 6-DOF force and moment balance $< 10^{-11}$\\
+R3, R5 (Named marine codes) & Modular rule sets for ASME BTH-1, AISC 360-16 and IACS UR S10; practice checks labelled & 15 padeye, 14 bracket and 11 fin checks citing code clause or yard practice\\
+R4 (Derived foil loads) & Whicker-Fehlner low-aspect-ratio model, IACS UR S10 rudder check and Hess-Smith panel solver & Circle $C_p$ within 0.05\%; NACA lift slope within 1.7\%; cavitation onset flagged\\
+R6 (Shipyard plate stock) & Discrete yard plate enumeration, bounded Nelder-Mead sizing and practical rounding & Three buildable reserve targets (100\%, 85\%, 70\% use) matching stock thicknesses\\
+R7, R8 (Local tool and safe CAD link) & Single-file Windows installer, local React interface and HTTP-polling Fusion connector (v1.1.1) & Expiring one-shot CAD jobs and material read-back guards verified by automated tests\\
+R9 (Audit traceability) & Substituted hand-calculation working, run log, CSV candidate table and SHA-256 checksums & 6 verification benchmarks and 181 passing automated tests; self-contained PDF packages\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -983,53 +992,49 @@ Fusion link & File bridge that rebuilt stale requests & HTTP polling with expiri
 \section{Answers to the research questions}
 \label{sec:research-answers}
 
-\textbf{RQ1. Can one tool cover three structurally different marine details
-while keeping every check traceable to a named rule or a stated practice?}
-Yes, for the three parts built. The common check record, the rule-set
-interface and the shared sizing and analysis pipeline served a pin-loaded
-plate, a cantilever bracket with a vibration problem and a hydrodynamic foil
-on a stock. Every check in Tables~\ref{tab:padeye-checks},
-\ref{tab:bracket-checks-result} and~\ref{tab:fin-checks-result} names its
-source, and the practice checks are labelled. The parts differ enough that
-each needed its own load model and its own finite element set-up, so a new
-part is still a substantial piece of work.
+\textbf{RQ1. How can rule-based structural checks, shipyard plate-stock
+constraints and traceable hand-calculation working be unified across
+structurally distinct marine details without obscuring code provisions or
+engineering assumptions?} The shared check record, replaceable rule-set
+interface, stock-enumeration sizing loop and unified calculation-package
+builder accommodated a pin-loaded lifting plate, a vibrating machinery-space
+pipe bracket and a hydrodynamic stabilizer fin while keeping each part's
+physical load model distinct. Every check in Tables~\ref{tab:padeye-checks},
+\ref{tab:bracket-checks-result} and~\ref{tab:fin-checks-result} cites its
+named code clause or explicitly labels yard practice, and automated
+transparency tests confirm that the printed working matches the evaluated
+demand and capacity.
 
-\textbf{RQ2. How closely do the built-in stress solver, geometry kernel and
-foil solver agree with closed-form and published reference results?} The
-geometry agrees exactly. The stress solver agrees within 0.8\% for
-deflection, 2.6\% for beam stress, 0.9\% for a stress concentration and
-0.13\% for the stock. The foil solver agrees within 0.05\% for the circle and
-1.1\% to 1.7\% for the lift slope estimate. Force balance closed to
-$10^{-11}$ or better on every model. These results show that the solvers are
-implemented correctly. They do not validate the idealisations of the models,
-such as the fixed supports or the cosine pin pressure.
+\textbf{RQ2. How closely do the automated solid-geometry, quadratic finite
+element and potential-flow foil solvers agree with hand calculations,
+closed-form elasticity and beam theory, and published reference data?} Solid
+CAD volumes match exact analytic formulas to 0.000\%, and the padeye hand
+calculation agrees within 0.002\%. The finite element solver matches
+Timoshenko cantilever deflection within 0.80\% and bending stress within
+2.63\%, Heywood's plate-with-hole stress concentration within 0.91\%, the
+Frocht-Hill circular pin-loaded lug benchmark ($K_{tn} = 3.21$), and
+combined bending-torsion beam theory on the stabilizer stock within 0.13\%.
+The Hess-Smith panel solver reproduces exact circle pressure within 0.05\%
+and thick-foil lift slopes within 1.1\% to 1.7\%. Force and moment
+equilibrium closed below $10^{-11}$ across all models, and all 181 automated
+tests pass.
 
-\textbf{RQ3. What governs each part in practice, and what does that imply for
-how such details are designed?} For the padeye, the base weld and the shackle
-rating govern at moderate loads, and splitting above the hole at large loads.
-Catalogue steps in the shackle drive the mass more than the plate dimensions.
-For the bracket, minimum sizes govern the steel and pipe vibration governs the
-spacing. Its strength checks reach only 25\%, while the span frequency limits
-spacing to 2.3~m and the pass or fail result is not monotonic in spacing.
-For the fin, the stock governs through the rule limit on combined stress, the
-plating sits at rule minimums, the foil load exceeds the rule load by 21\%, and
-cavitation limits the largest angle above about 18~knots. The common
-implication is that a design method for these details must include the minimum
-sizes, the catalogue and stock steps, the span and the hydrodynamics. The
-advanced settings add three more cases where something other than plate
-strength decides the design: an oblique sling that costs a shackle size, a
-flexible bracket that moves a large pipe's frequency by a quarter, and bearing
-spacing that can size the fin stock. A method
-that only minimises mass under strength checks would miss what decides the
-design in each case.
-
-\textbf{RQ4. Can a non-programmer run the full workflow, from job description
-to calculation package, unaided?} The tool removes the technical barriers. It
-installs from one file, the forms ask for the job in plain words, and the run,
-results and package need no code. Whether a non-programmer can complete the
-workflow unaided has not been tested with users. A formal usability study is
-needed to answer this question, and it is listed in
-Section~\ref{sec:future-work}.
+\textbf{RQ3. Across realistic shipboard operating envelopes, which structural,
+catalogue, vibration and hydrodynamic limits govern lifting padeyes,
+machinery-space pipe brackets and stabilizer fins in practice?} For the
+lifting padeye, base fillet welds and shackle WLL govern at moderate loads,
+while head fracture governs above 20 to 30~t; discrete shackle catalogue
+steps drive steel mass more strongly than continuous plate sizing. For the
+pipe support bracket, minimum fabrication thicknesses hold plate utilisation
+to 25\%, whereas main-engine firing resonance limits support spacing to
+2.3~m in a non-monotonic manner. For the stabilizer fin, the hydrodynamic
+foil force exceeds the IACS UR S10 rudder formula by 21\%, combined bending
+and torsion in the forged stock governs at 94.5\% use, skin plating remains
+at rule minimums, and leading-edge cavitation begins between 18 and 20~knots.
+The advanced operating cases reinforce the same marine engineering lesson: an
+oblique sling reduces shackle capacity, bracket flexibility shifts pipe
+natural frequency by up to a quarter, and hull bearing spacing can govern
+stock diameter beyond strength formulas alone.
 
 \section{Limitations}
 \label{sec:limitations}
@@ -1062,8 +1067,8 @@ know.
     confirm the hand checks in the regions they cover.
     \item \textbf{Fusion cross-check incomplete.} The connector has built a
     padeye in Fusion with the right volume, but the one cross-check recorded
-    was set up wrongly (Section~\ref{sec:fusion-session}), and the material
-    code of version 1.1.0 has not yet been run in Fusion. No agreeing Fusion
+    was set up wrongly (Section~\ref{sec:fusion-session}), and the updated
+    material and cross-check workflow of version 1.1.1 has not yet been re-run in Fusion. No agreeing Fusion
     stress cross-check exists yet.
     \item \textbf{Advanced settings checked by hand only.} The oblique sling,
     bracket flexibility, astern condition and bearing checks are verified

@@ -1,39 +1,39 @@
-Small marine steelwork details such as lifting padeyes, pipe support brackets
-and stabilizer fins
-are usually designed one job at a time, from rules spread across several codes. The first phase of this project, \NEMO{}~1,
-optimised three such parts with screening equations and Autodesk Fusion, but
-its analysis loop never closed, some equations had no source and it could not
-be used without programming. This report describes \NEMO{}~2, a rebuilt
-desktop tool that sizes a lifting padeye to ASME BTH-1, a pipe support bracket
-to AISC 360-16 with a check of the pipe span against propeller and engine
-vibration, and the internal structure of a stabilizer fin to IACS UR S10 with
-an independent foil load model and a panel method for pressure and
-cavitation.
+Shipboard secondary steelwork such as lifting padeyes, machinery-space pipe
+support brackets and roll-stabilizer fins must satisfy distinct structural,
+vibration and hydrodynamic rules while remaining practical to cut and weld
+from shipyard plate stock. This report presents \NEMO{}, a local desktop
+design tool that sizes lifting padeyes to ASME BTH-1, pipe support brackets to
+AISC 360-16 with machinery-space pipe-span vibration screening, and
+roll-stabilizer fin internal structures to IACS UR S10 with independent
+foil-load and cavitation models.
 
-The tool searches the plate thicknesses a workshop holds, sizes the remaining
-dimensions with a bounded Nelder-Mead search, rounds to buildable sizes and
-returns three designs at 100\%, 85\% and 70\% maximum use. Each design is built
-as an exact solid in build123d, meshed in Gmsh at three refinements and solved
-with quadratic tetrahedra in scikit-fem. A local browser application records
-every engineering step and issues a PDF calculation package with STEP and DXF
-files.
+From a plain engineering description of the shipboard job, \NEMO{} searches
+available yard plate thicknesses, sizes continuous dimensions with a bounded
+Nelder-Mead search, rounds to buildable sizes and returns three designs at
+100\%, 85\% and 70\% maximum utilisation. Each design is built as an exact
+solid in build123d, meshed in Gmsh at three refinements and solved with
+quadratic tetrahedra in scikit-fem with automatic six-degree-of-freedom force
+and moment equilibrium checks. A local browser interface records every
+engineering step and issues a traceable PDF calculation package alongside STEP
+and DXF fabrication files.
 
-The engine reproduces a padeye hand calculation within 0.002\%, CAD volumes
-exactly, a cantilever within 2.6\%, a plate-hole stress concentration within
-0.9\% and NACA~0020 lift slope within 1.7\%; 174 automated tests pass. For a
-5~t two-point lift the lightest padeye weighs 0.305~kg and is governed by its
-base weld at 98\% use, with a finite element peak of 228~MPa against a 355~MPa
-yield. For an NPS~4 seawater line the bracket uses only 25\% of its strength,
-but the pipe span limits support spacing to 2.3~m. For a 1.4~m by 1.2~m fin at
-18~knots the foil model gives 80.5~kN against 66.7~kN from UR S10, and combined
-bending and twist in the stock governs the 457.5~kg design. The results show that minimum sizes,
-vibration and foil loads often govern before plate strength does. Optional
-advanced settings add an oblique sling with the shackle's side-load reduction,
-the bracket's own flexibility in the vibration check, and the fin's astern
-condition and stock bearings. A formal
-usability study, live Fusion testing and physical tests remain to be done.
+Verification reproduces a padeye hand calculation within 0.002\%, exact solid
+volumes to 0.000\%, Timoshenko cantilever deflection and bending stress within
+0.8\% and 2.6\%, a plate-hole stress concentration within 0.9\%, a circular
+pin-loaded lug benchmark within published photoelastic bounds, fin-stock beam
+theory within 0.13\%, and NACA~0020 lift slope within 1.7\%, supported by 181
+passing automated tests. For a 5~t engine-room lift, the lightest padeye
+weighs 0.305~kg and is governed by its base weld at 98\% use, with a converged
+pin-hole finite element peak of 222.7~MPa against a 355~MPa yield. For an
+NPS~4 seawater line, the bracket uses only 25\% of its plate strength, while
+engine-firing resonance limits pipe support spacing to 2.3~m. For a 1.4~m by
+1.2~m patrol-boat stabilizer fin at 18~knots, the low-aspect-ratio foil model
+yields 80.5~kN against 66.7~kN from IACS UR S10, and combined stock bending
+and torsion governs the 457.5~kg design. Across all three marine details,
+catalogue hardware steps, minimum fabrication sizes, machinery vibration and
+foil hydrodynamics govern before nominal plate strength alone.
 
 \vspace{0.5cm}
 \noindent\textbf{Keywords:} marine steelwork, lifting padeye, pipe support,
-stabilizer fin, ASME BTH-1, IACS UR S10, finite element analysis, Nelder-Mead,
-design automation
+stabilizer fin, ASME BTH-1, AISC 360-16, IACS UR S10, finite element
+verification, shipyard plate stock

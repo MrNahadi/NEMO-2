@@ -1,7 +1,7 @@
 {
   "nemo_results_version": 2,
   "part": "stabilizer",
-  "created_at": "2026-11-17T14:31:20+00:00",
+  "created_at": "2026-11-22T06:01:40+00:00",
   "job": {
     "speed_kn": 18.0,
     "span_m": 1.4,
@@ -904,10 +904,10 @@
       },
       "cad_volume_mm3": 56240369.62840378,
       "fea": {
-        "head_von_mises_mpa": 165.2627186874092,
-        "factor_of_safety_on_yield": 3.328034322370751,
+        "head_von_mises_mpa": 165.26262078584597,
+        "factor_of_safety_on_yield": 3.3280362938980157,
         "yield_strength_mpa": 550.0,
-        "convergence_change": 0.001167551386604735,
+        "convergence_change": 0.001166476326596623,
         "converged": true,
         "region": "stock from 80 mm outboard of the bearing to the loaded length",
         "levels": [
@@ -917,8 +917,8 @@
             "local_size_mm": 35.55555555555556,
             "elements": 2232,
             "dofs": 12354,
-            "head_von_mises_mpa": 168.7214975754735,
-            "max_von_mises_mpa": 189.05940780192998,
+            "head_von_mises_mpa": 168.7203000078561,
+            "max_von_mises_mpa": 188.44691817747207,
             "max_displacement_mm": 3.902701044756821,
             "applied_force_n": [
               976.1848071274593,
@@ -931,7 +931,7 @@
               2.429842425044626e-07
             ],
             "reaction_balance_error": 7.681960478525146e-12,
-            "solve_seconds": 1.2903511000040453
+            "solve_seconds": 2.5239004000000023
           },
           {
             "level": 2,
@@ -939,8 +939,8 @@
             "local_size_mm": 24.88888888888889,
             "elements": 6160,
             "dofs": 31584,
-            "head_von_mises_mpa": 165.45567140376676,
-            "max_von_mises_mpa": 185.26830429563464,
+            "head_von_mises_mpa": 165.45539572066397,
+            "max_von_mises_mpa": 184.6475088767516,
             "max_displacement_mm": 3.8170320848009065,
             "applied_force_n": [
               198.2872648411319,
@@ -953,7 +953,7 @@
               1.807347871363163e-08
             ],
             "reaction_balance_error": 2.434766438898042e-12,
-            "solve_seconds": 3.9101905999996234
+            "solve_seconds": 7.803573700000015
           },
           {
             "level": 3,
@@ -961,8 +961,8 @@
             "local_size_mm": 17.77777777777778,
             "elements": 15758,
             "dofs": 75831,
-            "head_von_mises_mpa": 165.2627186874092,
-            "max_von_mises_mpa": 190.15167318706955,
+            "head_von_mises_mpa": 165.26262078584597,
+            "max_von_mises_mpa": 190.03704473920558,
             "max_displacement_mm": 3.7735740330626215,
             "applied_force_n": [
               -24.77152144347964,
@@ -975,7 +975,7 @@
               -2.650267560966313e-08
             ],
             "reaction_balance_error": 9.89048964198333e-12,
-            "solve_seconds": 11.468569199998456
+            "solve_seconds": 24.312752300000056
           }
         ],
         "hand_stress_mpa": 165.66998500379137,
@@ -1668,10 +1668,10 @@
       },
       "cad_volume_mm3": 58521165.89491041,
       "fea": {
-        "head_von_mises_mpa": 136.85956226787914,
-        "factor_of_safety_on_yield": 3.653380090616801,
+        "head_von_mises_mpa": 136.8595443875623,
+        "factor_of_safety_on_yield": 3.6533805679206957,
         "yield_strength_mpa": 500.0,
-        "convergence_change": 0.0038695234578383433,
+        "convergence_change": 0.0038688721660991125,
         "converged": true,
         "region": "stock from 85 mm outboard of the bearing to the loaded length",
         "levels": [
@@ -1681,8 +1681,8 @@
             "local_size_mm": 37.77777777777778,
             "elements": 2131,
             "dofs": 11715,
-            "head_von_mises_mpa": 140.44803549834253,
-            "max_von_mises_mpa": 153.75367055514732,
+            "head_von_mises_mpa": 140.44606093323964,
+            "max_von_mises_mpa": 153.41277665782562,
             "max_displacement_mm": 3.057168619499709,
             "applied_force_n": [
               -61.250363383737934,
@@ -1695,7 +1695,7 @@
               6.889513315400109e-08
             ],
             "reaction_balance_error": 2.5753768703687366e-12,
-            "solve_seconds": 1.3004008999996586
+            "solve_seconds": 2.3391211999999086
           },
           {
             "level": 2,
@@ -1703,8 +1703,8 @@
             "local_size_mm": 26.444444444444443,
             "elements": 5644,
             "dofs": 28935,
-            "head_von_mises_mpa": 137.3891435545042,
-            "max_von_mises_mpa": 153.05019809156937,
+            "head_von_mises_mpa": 137.38903646950834,
+            "max_von_mises_mpa": 152.57006142673515,
             "max_displacement_mm": 3.0038040498008862,
             "applied_force_n": [
               -63.41603069380116,
@@ -1717,7 +1717,7 @@
               -7.03730620443821e-08
             ],
             "reaction_balance_error": 5.234483411916635e-12,
-            "solve_seconds": 3.5780529999974533
+            "solve_seconds": 6.8115060000000085
           },
           {
             "level": 3,
@@ -1725,8 +1725,8 @@
             "local_size_mm": 18.88888888888889,
             "elements": 15030,
             "dofs": 72174,
-            "head_von_mises_mpa": 136.85956226787914,
-            "max_von_mises_mpa": 159.07285819614307,
+            "head_von_mises_mpa": 136.8595443875623,
+            "max_von_mises_mpa": 158.97027024368128,
             "max_displacement_mm": 2.9708615219472616,
             "applied_force_n": [
               150.7068895482436,
@@ -1739,7 +1739,7 @@
               -5.1983079174533486e-08
             ],
             "reaction_balance_error": 3.45511710268997e-12,
-            "solve_seconds": 11.517978899995796
+            "solve_seconds": 21.696576899999855
           }
         ],
         "hand_stress_mpa": 137.2912997920541,
@@ -2432,10 +2432,10 @@
       },
       "cad_volume_mm3": 60940192.23817439,
       "fea": {
-        "head_von_mises_mpa": 114.23185249578087,
-        "factor_of_safety_on_yield": 4.377062868856718,
+        "head_von_mises_mpa": 114.23182886567585,
+        "factor_of_safety_on_yield": 4.377063774300115,
         "yield_strength_mpa": 500.0,
-        "convergence_change": 0.0069835395612705305,
+        "convergence_change": 0.00698316505206829,
         "converged": true,
         "region": "stock from 90 mm outboard of the bearing to the loaded length",
         "levels": [
@@ -2445,8 +2445,8 @@
             "local_size_mm": 40.0,
             "elements": 1991,
             "dofs": 10989,
-            "head_von_mises_mpa": 116.00607013185837,
-            "max_von_mises_mpa": 132.62419426536115,
+            "head_von_mises_mpa": 115.98898775283253,
+            "max_von_mises_mpa": 132.24285123716578,
             "max_displacement_mm": 2.436292866975789,
             "applied_force_n": [
               125.92473040570971,
@@ -2459,7 +2459,7 @@
               3.999593900516629e-08
             ],
             "reaction_balance_error": 5.037684497889455e-12,
-            "solve_seconds": 1.1739115999953356
+            "solve_seconds": 2.2535903000000417
           },
           {
             "level": 2,
@@ -2467,8 +2467,8 @@
             "local_size_mm": 28.0,
             "elements": 5391,
             "dofs": 27612,
-            "head_von_mises_mpa": 115.02959515684238,
-            "max_von_mises_mpa": 129.0263870855261,
+            "head_von_mises_mpa": 115.02952858084448,
+            "max_von_mises_mpa": 128.46930799985913,
             "max_displacement_mm": 2.3973566031681406,
             "applied_force_n": [
               226.7356449108783,
@@ -2481,7 +2481,7 @@
               7.275957614183426e-09
             ],
             "reaction_balance_error": 2.583853494270265e-12,
-            "solve_seconds": 3.5069189999994705
+            "solve_seconds": 6.551681299999927
           },
           {
             "level": 3,
@@ -2489,8 +2489,8 @@
             "local_size_mm": 20.0,
             "elements": 14153,
             "dofs": 68112,
-            "head_von_mises_mpa": 114.23185249578087,
-            "max_von_mises_mpa": 134.94229386575225,
+            "head_von_mises_mpa": 114.23182886567585,
+            "max_von_mises_mpa": 134.80977298552577,
             "max_displacement_mm": 2.369128581318476,
             "applied_force_n": [
               -398.99726397706877,
@@ -2503,7 +2503,7 @@
               -1.0733856470324099e-07
             ],
             "reaction_balance_error": 4.475729474568303e-12,
-            "solve_seconds": 10.498829899996053
+            "solve_seconds": 21.209896299999855
           }
         ],
         "hand_stress_mpa": 114.95892539043238,
@@ -2526,5 +2526,5 @@
     "engineering_log": "engineering-log.json",
     "designs_evaluated": "designs-evaluated.csv"
   },
-  "seconds": 85.03991089999909
+  "seconds": 162.91520650000007
 }

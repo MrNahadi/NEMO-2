@@ -1,17 +1,17 @@
 {
   "padeye": {
     "name": "Engine room lift",
-    "seconds": 144.80846089999977,
+    "seconds": 291.989452,
     "run_dir": "runs\\padeye\\20270115-090000-000000"
   },
   "pipe-bracket": {
     "name": "Engine room seawater line",
-    "seconds": 27.61683429999539,
+    "seconds": 67.7154986999999,
     "run_dir": "runs\\pipe-bracket\\20270115-090000-000000"
   },
   "stabilizer": {
     "name": "Patrol boat stabilizer",
-    "seconds": 85.04982550000568,
+    "seconds": 162.93616900000006,
     "run_dir": "runs\\stabilizer\\20270115-090000-000000"
   }
 }

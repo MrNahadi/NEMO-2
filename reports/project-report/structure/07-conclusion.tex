@@ -1,136 +1,130 @@
 \chapter{Conclusions and recommendations}
 \label{chap:conclusion}
 
-This chapter states what the project achieved against each objective, what
-the results mean for the design of these details, and what should be done
-next.
+This chapter evaluates the project against its three objectives, summarises
+the marine engineering findings from the shipboard case studies, and states
+recommendations and future work.
 
 \section{Conclusions}
 \label{sec:conclusions}
 
-The project set out to build and verify a desktop tool that sizes three
-marine structural details from a plain description of the job, checks them
-against published rules, confirms them with a built-in finite element
-analysis and issues a calculation package that a non-programmer can produce
-and review. \NEMO{}~2 does this for lifting padeyes, pipe support brackets and
-stabilizer fins. The objectives were met as follows.
+This project developed and verified \NEMO{}, a rule-based marine structural
+design tool that sizes lifting padeyes, machinery-space pipe support brackets
+and roll-stabilizer fin internal structures from available shipyard plate
+stock, confirms each design through automated three-dimensional finite element
+analysis, and compiles a traceable calculation package and fabrication files.
+All three project objectives were achieved.
 
 \begin{enumerate}
-    \item \textbf{Rule-based check models.} The padeye is checked to ASME
-    BTH-1, the bracket to AISC 360-16 in allowable strength design with a
-    check of the pipe span against five machinery excitations, and the fin to
-    IACS UR S10 with a Whicker-Fehlner foil load and a Hess-Smith panel method.
-    Every check returns its working and names its source, and the 15 padeye,
-    14 bracket and 11 fin checks separate code rules from practice. Objective
-    1 was met.
-    \item \textbf{Stock-aware sizing.} The search enumerates the plate stock,
-    shackles, U-bolts and weld sizes, sizes the continuous dimensions with a
-    bounded Nelder-Mead search, rounds to buildable sizes and returns designs
-    at 100\%, 85\% and 70\% maximum use. Lower-bound pruning skipped 60 of 63
-    combinations in the bracket case. Objective 2 was met.
-    \item \textbf{Open-source geometry and analysis.} Every design is built as
-    an exact solid, meshed three times and solved with quadratic tetrahedra.
-    Force balance closed to $10^{-11}$ or better and the assessed peak changed
-    by 0.54\% or less between the two finest meshes in all three case studies.
-    The manual stress step that blocked the first phase is gone. Objective 3
-    was met.
-    \item \textbf{Verification.} The engine matches a padeye hand calculation
-    within 0.002\%, CAD volumes exactly, beam theory within 2.6\%, a published
-    stress concentration factor within 0.9\% and foil theory within 1.7\%. All
-    174 automated tests pass. Objective 4 was met for code verification. A
-    comparison with a published BTH-1 worked example is still to be done.
-    \item \textbf{Interface and outputs.} The tool installs from one file and
-    runs in the browser. It shows the engineering steps live, gives the
-    working of every check, and writes a PDF package, STEP, STL and DXF files.
-    The Fusion connector builds a parametric padeye and re-checks edited
-    dimensions. Objective 5 was met in build. In its first Fusion session the
-    connector built a padeye with the same volume as \NEMO{}'s, but no agreeing
-    stress cross-check has been made yet, and ease of use has not been measured with
-    users.
-    \item \textbf{Case studies.} One case per part was run, with sweeps of
-    load, sling angle, pipe size, support spacing and ship speed, and the
-    limits of the results were stated in Section~\ref{sec:limitations}.
-    Objective 6 was met.
+    \item \textbf{Rule-based synthesis and shipyard-buildable sizing
+    (Objective~1).} Code-based check models with substituted hand-calculation
+    working were implemented for ASME BTH-1 lifting padeyes (15 checks), AISC
+    360-16 pipe support brackets with machinery-space pipe-span vibration
+    screening (14 checks), and IACS UR S10 stabilizer fins with Whicker-Fehlner
+    foil loads and Hess-Smith cavitation advice (11 checks). Every check
+    distinguishes named code provisions from yard practice. Stock-aware sizing
+    enumerates yard plate thicknesses, shackles, U-bolts and standard weld
+    legs, optimises continuous dimensions by bounded Nelder-Mead search with
+    lower-bound pruning (skipping 60 of 63 bracket combinations), rounds to
+    buildable dimensions and delivers three reserve-margin designs alongside
+    PDF calculation packages, STEP solids and DXF profiles through a local
+    desktop application and an optional parametric Fusion connector.
+    \item \textbf{Automated CAD--FEA verification and numerical traceability
+    (Objective~2).} An automated open-source geometry and quadratic tetrahedral
+    finite element pipeline (build123d/OpenCASCADE, Gmsh, scikit-fem and
+    PyAMG) runs three mesh refinements on every proposed design, enforces
+    six-degree-of-freedom force and moment balance to better than $10^{-11}$,
+    averages nodal Cauchy stress tensors, excludes singular fixed edges and
+    unmodeled 90$^\circ$ cheek-plate steps, and converged within 0.70\% across
+    all three case studies. Independent verification matched the padeye hand
+    calculation within 0.002\%, exact solid volumes to 0.000\%, Timoshenko beam
+    theory within 2.6\%, Heywood's stress concentration factor within 0.9\%,
+    the Frocht-Hill pin-loaded lug benchmark, stock combined-stress theory
+    within 0.13\% and potential-flow foil theory within 1.7\%, with all 181
+    automated tests passing.
+    \item \textbf{Marine case studies and governing design-limit evaluation
+    (Objective~3).} Applying \NEMO{} to three representative vessel details and
+    operating-envelope sweeps established which engineering limits control each
+    detail in practice and documented the exact modelling boundaries in
+    Section~\ref{sec:limitations}.
 \end{enumerate}
 
-The case studies also gave findings about the parts themselves.
+The vessel case studies and parameter sweeps yielded four practical marine
+engineering conclusions.
 
 \begin{itemize}
-    \item A 5~t two-point padeye weighs 0.305~kg and is governed by its base
-    weld at 98\%. Asking for 15\% spare capacity raises the mass by 42\%,
-    because the shackle has to move up a size. Catalogue steps, more than plate
-    dimensions, set the mass of small lifting details.
-    \item An NPS~4 seawater line bracket uses 25\% of its strength and is
-    sized by minimum plate, weld and U-bolt sizes. Its pipe span limits support
-    spacing to 2.3~m because of engine firing at 37.5~Hz. Shortening the 3~m
-    span to 2.5~m would move it into resonance, so pass or fail does not
-    improve steadily as spacing falls.
-    \item An oblique sling at 45$^\circ$ to the plate of the 5~t padeye cuts the
-    shackle's rating to 75\% and raises the mass by 41\%. For large pipes the
-    bracket's own flexibility lowers the span frequency by up to a quarter.
-    Close stock bearings can make the fin stock larger than the stress rules
-    alone would.
-    \item For a 1.4~m by 1.2~m fin at 18~knots, the foil model gives a force
-    21\% above the UR S10 rudder formula. The stock governs at 94.5\%, the
-    plating sits at rule minimums, and leading-edge cavitation begins between
-    18 and 20~knots at the largest angle.
+    \item For a 5~t engine-room lifting padeye, the lightest design weighs
+    0.305~kg and is governed by its base fillet weld at 98\% use. Requesting
+    15\% extra reserve raises steel mass by 42\% because the shackle steps up
+    one catalogue size from 3.25~t to 4.75~t, enlarging the pin, hole and
+    required jaw fill. Catalogue hardware steps govern the mass of small
+    lifting fittings more strongly than continuous plate dimensions.
+    \item For an NPS~4 machinery-space seawater line, minimum plate, weld and
+    U-bolt sizes limit bracket structural utilisation to 25\%, while main
+    engine firing excitation at 37.5~Hz restricts pipe support spacing to
+    2.3~m. Reducing spacing from 3.0~m to 2.5~m moves the span into resonance,
+    confirming that vibration acceptance is not monotonic with shorter span.
+    \item Operating details outside basic strength checks frequently decide
+    shipboard sizing: an oblique sling at 45$^\circ$ to the padeye plane cuts
+    shackle rating to 75\% and adds 41\% steel mass; bracket flexibility lowers
+    large-pipe natural frequency by up to a quarter; and tight hull bearing
+    spacing can increase stabilizer stock diameter beyond strength rules alone.
+    \item For a 1.4~m by 1.2~m patrol-boat stabilizer fin at 18~knots, the
+    low-aspect-ratio foil model predicts a normal force 21\% above the IACS
+    UR S10 rudder formula. Combined bending and torsion in the forged stock
+    governs at 94.5\% use, skin plating sits at rule minimums, and
+    leading-edge cavitation onset begins between 18 and 20~knots at maximum
+    fin angle.
 \end{itemize}
 
-The common lesson is that a design method for these details cannot stop at
-strength. Minimum sizes, catalogue steps, pipe vibration and foil
-hydrodynamics decided the design in every case study.
+Across all three details, marine steelwork sizing cannot rely on plate
+strength checks alone. Standard yard stock, rigging and clamp catalogues,
+machinery-induced pipe vibration and appendage hydrodynamics routinely govern
+first.
 
 \section{Recommendations}
 \label{sec:recommendations}
 
-For engineers using \NEMO{}~2:
+For marine engineers using \NEMO{}:
 
 \begin{itemize}
-    \item Use the calculation package as a checked starting point, and have a
-    competent engineer review it before fabrication. The package is written so
-    that the review can be done without the software.
-    \item Enter ship-motion accelerations from the classification society
-    rules for the vessel, not the defaults, when designing brackets.
-    \item Treat the recommended support spacing as the limit for pipe runs
-    near machinery, even where the actual spacing passes the separation check.
-    \item For fins, use the larger of the two load methods, as the tool does,
-    and treat a cavitation warning as a limit on the largest fin angle at that
-    speed.
-    \item Run the Verification page after installing the tool on a new
-    computer, and keep its result with the project file.
+    \item Treat the calculation package as a verifiable starting basis and have
+    a competent engineer review the load assumptions, surrounding hull
+    structure and weld details before fabrication.
+    \item Supply vessel-specific ship-motion accelerations from the applicable
+    classification society rules rather than relying on default values when
+    sizing pipe support brackets.
+    \item Adopt the recommended maximum support spacing near main engines and
+    shaft lines even when a trial span clears the separation margin.
+    \item For stabilizer fins, retain the larger of the hydrodynamic foil force
+    and the IACS UR S10 rudder force, and treat cavitation onset warnings as an
+    operational limit on fin angle at high speed.
+    \item Rerun the built-in Verification page after installation on any new
+    workstation and archive its output alongside project records.
 \end{itemize}
 
 For the department:
 
 \begin{itemize}
-    \item The tool could be used in teaching structural design of ship
-    details, because every check shows its working and the effect of an input
-    can be seen in a few minutes.
-    \item Future projects could add parts to the same engine, such as
-    foundations for small machinery or deck fittings, using the existing check
-    record, rule sets, sizing method and analysis pipeline.
+    \item The tool can support undergraduate marine structural design teaching,
+    as students can trace every code formula, substituted number, vibration
+    spectrum and stress distribution directly back to the physical component.
+    \item Future student projects can extend the shared rule-set, sizing and
+    finite element framework to additional shipboard steelwork such as
+    machinery foundations, bollard backing plates or deck fairlead stools.
 \end{itemize}
 
 \section{Future work}
 \label{sec:future-work}
 
 \begin{enumerate}
-    \item Compare the padeye checks with a published ASME BTH-1 worked
-    example.
-    \item Repeat the Fusion Static Stress cross-check of a padeye with
-    connector version 1.1.0, which sets the material in Fusion, and record an
-    agreeing result. Extend the connector to brackets and fins.
-    \item Carry out a usability study in which marine engineering students who
-    have not used the tool complete a design from job description to
-    calculation package, and record their time, errors and comments.
-    \item Proof load test a padeye designed by the tool, with strain gauges
-    near the hole, to validate the finite element model.
-    \item Compute bracket accelerations from a classification society method,
-    such as the DNV rules for ship motions, from the vessel's main dimensions.
-    \item Extend the pipe span model to continuous runs with bends, valves and
-    flexible supports.
-    \item Add dynamic and fatigue checks for the fin, and a model of the whole
-    fin, not only the stock, in the finite element analysis.
-    \item Add rule sets from classification societies, such as DNV, Lloyd's
-    Register and Bureau Veritas, through the existing rule-set interface.
+    \item Cross-check the ASME BTH-1 padeye calculations against a published
+    worked industry example.
+    \item Record a completed Autodesk Fusion Static Stress cross-check using
+    connector version 1.1.1 and the updated global and hole mesh settings.
+    \item Conduct a structured usability evaluation with marine engineering
+    students and practising yard engineers on freshly installed machines.
+    \item Extend the analysis scope to include welded fillet geometry,
+    nonlinear pin-to-hole contact, fatigue assessment under cyclic shipboard
+    loads, and physical proof-load or vibration validation tests.
 \end{enumerate}

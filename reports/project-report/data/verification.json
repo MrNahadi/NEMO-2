@@ -1,6 +1,6 @@
 {
   "nemo_version": "0.1.0",
-  "ran_at": "2026-11-17T17:26:37",
+  "ran_at": "2026-11-22T08:52:42",
   "passed": true,
   "benchmarks": [
     {
@@ -144,7 +144,7 @@
       "mesh": null,
       "passed": true,
       "error": null,
-      "seconds": 0.0013942000005044974
+      "seconds": 0.0006703000001380133
     },
     {
       "id": "cad-volume",
@@ -205,7 +205,7 @@
       "mesh": null,
       "passed": true,
       "error": null,
-      "seconds": 0.1429481000013766
+      "seconds": 0.16601550000018506
     },
     {
       "id": "cantilever",
@@ -277,9 +277,9 @@
         {
           "quantity": "Bending stress at mid-span",
           "reference": 75.0,
-          "nemo": 76.97189264612284,
+          "nemo": 76.96997756758354,
           "unit": "MPa",
-          "error_percent": 2.629190194830452,
+          "error_percent": 2.626636756778055,
           "tolerance_percent": 4.0,
           "passed": true
         },
@@ -299,7 +299,7 @@
       },
       "passed": true,
       "error": null,
-      "seconds": 2.175033400002576
+      "seconds": 2.0879273000000467
     },
     {
       "id": "plate-hole",
@@ -342,9 +342,9 @@
         {
           "quantity": "Stress concentration factor",
           "reference": 3.0322222222222224,
-          "nemo": 3.059706309043362,
+          "nemo": 3.0596966142807505,
           "unit": "",
-          "error_percent": 0.9064008112504766,
+          "error_percent": 0.9060810865765949,
           "tolerance_percent": 5.0,
           "passed": true
         },
@@ -364,7 +364,7 @@
       },
       "passed": true,
       "error": null,
-      "seconds": 15.267752400002792
+      "seconds": 46.731266199999936
     },
     {
       "id": "panel-method",
@@ -425,7 +425,7 @@
       "mesh": null,
       "passed": true,
       "error": null,
-      "seconds": 0.09272530000453116
+      "seconds": 0.20427479999989373
     },
     {
       "id": "stock-beam",
@@ -458,9 +458,9 @@
         {
           "quantity": "Equivalent stress near the bearing",
           "reference": 165.66998500379137,
-          "nemo": 165.45567140376676,
+          "nemo": 165.45539572066397,
           "unit": "MPa",
-          "error_percent": -0.1293617549489762,
+          "error_percent": -0.12952815992739092,
           "tolerance_percent": 4.0,
           "passed": true
         },
@@ -480,8 +480,8 @@
       },
       "passed": true,
       "error": null,
-      "seconds": 3.533621000002313
+      "seconds": 10.82653879999998
     }
   ],
-  "seconds_total": 21.213509399996838
+  "seconds_total": 60.016754900000024
 }

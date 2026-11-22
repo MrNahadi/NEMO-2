@@ -17,88 +17,108 @@ IMG = Path(__file__).resolve().parent.parent / "images"
 
 
 def shot(page, name: str, full: bool = False) -> None:
-    page.wait_for_timeout(600)
+    page.wait_for_timeout(800)
     page.screenshot(path=str(IMG / f"app-{name}.png"), full_page=full)
     print("wrote", name, flush=True)
 
 
 def home(page) -> None:
     page.goto(URL)
-    page.wait_for_selector(".project-row")
-    page.locator(".brand").click()
+    page.wait_for_selector("tr.row-link", timeout=20000)
 
 
 def open_project(page, name: str) -> None:
     home(page)
-    page.locator(".project-row", has_text=name).click()
-    page.wait_for_selector("h1")
+    page.locator("button.design-name", has_text=name).click()
+    page.wait_for_selector("h1", timeout=20000)
     page.wait_for_timeout(2500)
 
 
 def main() -> None:
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="msedge", headless=True, args=["--use-angle=swiftshader", "--enable-unsafe-swiftshader"])
+        browser = p.chromium.launch(
+            channel="msedge",
+            headless=True,
+            args=["--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+        )
         page = browser.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1.5)
 
+        # 1. Home screen
         home(page)
         shot(page, "home")
 
-        page.get_by_role("button", name="New design").click()
-        page.locator(".choice-card", has_text="Pipe support").click()
-        page.get_by_label("Design name").fill("Engine room seawater line")
+        # 2. New design dialog
+        page.get_by_role("button", name="New design").first.click()
+        dialog = page.get_by_role("dialog")
+        dialog.wait_for(timeout=10000)
+        dialog.get_by_text("Pipe support bracket", exact=True).click()
+        dialog.get_by_label("Design name").fill("Engine room seawater line")
         shot(page, "new-design")
 
+        # 3. Padeye describe screen
         open_project(page, "Engine room lift")
-        page.get_by_role("button", name="Change the answers").click()
+        page.locator("#tab-describe").click()
         page.wait_for_selector(".viewer-chip", timeout=20000)
         page.wait_for_timeout(2500)
         shot(page, "padeye-describe")
 
+        # 4. Bracket ship motion & vibration assumptions screen
         open_project(page, "Engine room seawater line")
-        page.get_by_role("button", name="Change the answers").click()
-        page.wait_for_selector(".viewer-chip", timeout=20000)
-        page.get_by_role("button", name="Next: ship motion and vibration").click()
+        page.locator("#tab-assumptions").click()
         page.wait_for_selector(".viewer-chip", timeout=20000)
         page.wait_for_timeout(2500)
         shot(page, "bracket-motion")
 
+        # 5 & 6. Padeye results + expanded check working
         open_project(page, "Engine room lift")
         shot(page, "padeye-results")
         page.locator(".check-row", has_text="Shearing out above the hole").click()
         page.wait_for_timeout(1500)
-        page.locator(".check.open").scroll_into_view_if_needed()
+        page.locator(".check.open, .check-row[aria-expanded='true']").first.scroll_into_view_if_needed()
         page.evaluate("window.scrollBy(0, -120)")
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(1200)
         shot(page, "padeye-check-working")
 
+        # 7. Fin results stress view
         open_project(page, "Patrol boat stabilizer")
         page.locator(".segmented button", has_text="Stress").click()
         page.wait_for_timeout(3500)
         shot(page, "fin-results-stress")
 
+        # 8. Bracket engineering run log ("How NEMO got here" tab)
         open_project(page, "Engine room seawater line")
-        page.locator("section h2", has_text="How NEMO got here").scroll_into_view_if_needed()
-        page.locator(".stage", has_text="Pipe span and vibration").click()
-        page.wait_for_timeout(1200)
-        page.locator("section h2", has_text="How NEMO got here").scroll_into_view_if_needed()
+        page.locator("#tab-runlog").click()
+        page.wait_for_selector(".stage-row", timeout=20000)
+        page.locator(".stage-row", has_text="Pipe span").first.click()
+        page.wait_for_timeout(1500)
         shot(page, "bracket-record")
 
+        # 9. Verification screen (run verification so passed benchmark results are shown)
         page.locator(".brand").click()
         page.get_by_role("button", name="Verification").click()
-        page.wait_for_timeout(2000)
+        page.wait_for_selector("h1", timeout=15000)
+        run_btn = page.get_by_role("button", name="Run verification")
+        if run_btn.is_visible():
+            run_btn.click()
+            t0 = time.time()
+            while time.time() - t0 < 150:
+                page.wait_for_timeout(1500)
+                if page.get_by_role("button", name="Run verification").is_visible() and page.get_by_role("button", name="Run verification").is_enabled():
+                    break
+        page.wait_for_timeout(1500)
         shot(page, "verification")
 
+        # 10. Live running screen
         open_project(page, "Patrol boat stabilizer")
-        page.get_by_role("button", name="Change the answers").click()
-        page.wait_for_selector(".viewer-chip", timeout=20000)
-        page.get_by_role("button", name="Next: check the assumptions").click()
+        page.locator("#tab-assumptions").click()
         page.wait_for_timeout(1500)
         page.get_by_role("button", name="Find designs").click()
+        page.wait_for_selector(".stage-row", timeout=20000)
         t0 = time.time()
         while time.time() - t0 < 120:
             page.wait_for_timeout(1000)
-            stage = page.locator(".stage-active .stage-title").all_inner_texts()
-            if any("Stress solve" in s or "Mesh" in s for s in stage):
+            active = page.locator(".stage-row:has(.stage-icon.active) .stage-title").all_inner_texts()
+            if any("Stress solve" in s or "Mesh" in s for s in active):
                 break
         page.wait_for_timeout(1500)
         shot(page, "running")

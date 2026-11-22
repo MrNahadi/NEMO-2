@@ -3,8 +3,8 @@
 
 This chapter gives the direct cash budget and the resources the project used
 without paying for them. The project was planned around computers the
-authors already had, open-source software, Autodesk educational access and
-digital submission, so its cash budget is zero.
+authors already had, open-source engineering software, Autodesk educational
+access and digital submission, so its direct cash budget is zero.
 
 \section{Direct cash budget}
 \label{sec:budget}
@@ -25,14 +25,14 @@ Table~\ref{tab:cash-budget} sets out the reasons.
 \toprule
 \textbf{Category} & \textbf{Why no cash is needed} & \textbf{Budget (KES)}\\
 \midrule
-Computers & Existing personal and university computers. The finite element models were kept small enough to solve on them, the largest at 209,763 unknowns in 27~s. & 0\\[0.35em]
-CAD and analysis software & build123d, OpenCASCADE, Gmsh, scikit-fem and PyAMG are open source. They replace the Fusion Simulation step of the first phase. & 0\\[0.35em]
-Fusion & Autodesk educational access, used only for the optional connector. & 0\\[0.35em]
+Computers & Existing personal and university computers. The finite element models were kept small enough to solve on them, the largest at 209,763 unknowns in under a minute. & 0\\[0.35em]
+CAD and analysis software & build123d, OpenCASCADE, Gmsh, scikit-fem and PyAMG are open source and provide the automated geometry and stress-analysis pipeline locally. & 0\\[0.35em]
+Autodesk Fusion & Educational access, used for early exploratory trials and for the optional CAD connector. & 0\\[0.35em]
 Other software & Python, NumPy, SciPy, FastAPI, ReportLab, React, three.js, Git and LaTeX are free to use. & 0\\[0.35em]
-Cloud services & Everything runs on the user's computer. No paid hosting or computation is used. & 0\\[0.35em]
+Cloud services & Everything runs on the user's computer. No paid hosting or remote computation is used. & 0\\[0.35em]
 Internet and electricity & Existing personal and university services. & 0\\[0.35em]
 Printing and travel & The report is submitted digitally. & 0\\[0.35em]
-Fabrication and testing & Physical tests are outside the scope of this project. & 0\\[0.35em]
+Fabrication and testing & Physical fabrication and load testing are outside the scope of this project. & 0\\[0.35em]
 Contingency & Schedule margin and scope control instead of a cash reserve. & 0\\
 \midrule
 \textbf{Total} & & \textbf{0}\\
@@ -59,12 +59,12 @@ there is no sound basis for pricing them.
 \toprule
 \textbf{Resource} & \textbf{How it was provided} & \textbf{What it was used for}\\
 \midrule
-Computers & Personal and university & Development, tests, case studies, report\\
-Open-source software & Public licences & Geometry, meshing, analysis, server, application, report\\
-Autodesk Fusion & Educational access & First phase CAD and studies; the connector in this phase\\
-Design codes and catalogues & University library and public sources & Rule sets and reference data\\
-Internet and electricity & Personal and university & Research, software downloads, running the tool\\
-Student time and supervision & Academic project & All of the engineering, programming and writing\\
+Computers & Personal and university & Development, automated tests, case studies, report\\
+Open-source software & Public licences & Geometry, meshing, finite element analysis, server, application, report\\
+Autodesk Fusion & Educational access & Early CAD and simulation trials; optional parametric padeye connector\\
+Design codes and catalogues & University library and public sources & Rule sets, material grades, shackle and pipe reference data\\
+Internet and electricity & Personal and university & Research, package downloads, running the tool\\
+Student time and supervision & Academic project & Marine engineering analysis, programming, verification and writing\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -72,10 +72,11 @@ Student time and supervision & Academic project & All of the engineering, progra
 \section{Costs beyond this project}
 \label{sec:budget-beyond}
 
-Taking a design from the tool into service would need money that this
-project does not include. A proof load test of a padeye, vibration
-measurements on a pipe run, tank or sea tests of a fin, certified material,
-fabrication and inspection would each need their own budget. A user who adopts
-the tool commercially would also need to buy the design codes it applies.
-ASME BTH-1, AISC 360 and AWS D1.1 are sold by their publishers, while IACS
-unified requirements are free to download.
+Taking a design from \NEMO{} into shipboard service requires expenditure outside
+this academic project. A proof load test of a lifting padeye, vibration
+measurements on an engine-room pipe run, model basin or sea trials of a
+stabilizer fin, certified marine steel plate, fabrication and non-destructive
+weld inspection each carry their own yard and survey costs. A commercial
+organisation adopting the tool would also need licensed copies of the
+referenced design codes: ASME BTH-1, AISC 360 and AWS D1.1 are sold by their
+publishers, whereas IACS Unified Requirements are freely published.

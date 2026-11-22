@@ -1,7 +1,7 @@
 {
   "nemo_results_version": 2,
   "part": "padeye",
-  "created_at": "2026-11-17T14:29:21+00:00",
+  "created_at": "2026-11-22T05:57:34+00:00",
   "job": {
     "part": "padeye",
     "lift": {
@@ -1009,10 +1009,10 @@
       },
       "cad_volume_mm3": 38854.4235205443,
       "fea": {
-        "head_von_mises_mpa": 228.09235446018496,
-        "factor_of_safety_on_yield": 1.5563871083717873,
+        "head_von_mises_mpa": 222.69345774437102,
+        "factor_of_safety_on_yield": 1.5941195740357275,
         "yield_strength_mpa": 355.0,
-        "convergence_change": 0.0020134708362279925,
+        "convergence_change": 0.004407192050041557,
         "converged": true,
         "levels": [
           {
@@ -1021,21 +1021,21 @@
             "local_size_mm": 1.6100662349647687,
             "elements": 6487,
             "dofs": 34986,
-            "head_von_mises_mpa": 227.55870785434755,
-            "max_von_mises_mpa": 227.55870785434755,
-            "max_displacement_mm": 0.16470794487840495,
+            "head_von_mises_mpa": 222.9235604273291,
+            "max_von_mises_mpa": 222.9235604273291,
+            "max_displacement_mm": 0.13209284923972578,
             "applied_force_n": [
               14155.419413856574,
               1415.4680043371109,
               24516.19809451965
             ],
             "reaction_force_n": [
-              -14155.419413862704,
-              -1415.4680043353176,
-              -24516.198094549163
+              -14155.41941386081,
+              -1415.4680043323006,
+              -24516.198094546464
             ],
-            "reaction_balance_error": 1.0653858606559644e-12,
-            "solve_seconds": 2.9523167999941506
+            "reaction_balance_error": 9.727028543087758e-13,
+            "solve_seconds": 10.035012199999983
           },
           {
             "level": 2,
@@ -1043,21 +1043,21 @@
             "local_size_mm": 1.1270463644753381,
             "elements": 17200,
             "dofs": 86325,
-            "head_von_mises_mpa": 227.6330971565128,
-            "max_von_mises_mpa": 227.6330971565128,
-            "max_displacement_mm": 0.1662084327696281,
+            "head_von_mises_mpa": 223.67491058093827,
+            "max_von_mises_mpa": 223.67491058093827,
+            "max_displacement_mm": 0.13327094454221813,
             "applied_force_n": [
               14155.486822489875,
               1415.4680043371109,
               24516.159170458555
             ],
             "reaction_force_n": [
-              -14155.486822484778,
-              -1415.4680043412636,
-              -24516.159170457588
+              -14155.486822481838,
+              -1415.468004336215,
+              -24516.159170452724
             ],
-            "reaction_balance_error": 2.344437417257898e-13,
-            "solve_seconds": 10.587061999998696
+            "reaction_balance_error": 3.517271063912662e-13,
+            "solve_seconds": 32.81801949999999
           },
           {
             "level": 3,
@@ -1065,21 +1065,21 @@
             "local_size_mm": 0.8050331174823844,
             "elements": 44271,
             "dofs": 209763,
-            "head_von_mises_mpa": 228.09235446018496,
-            "max_von_mises_mpa": 228.09235446018496,
-            "max_displacement_mm": 0.1670603009206325,
+            "head_von_mises_mpa": 222.69345774437102,
+            "max_von_mises_mpa": 222.69345774437102,
+            "max_displacement_mm": 0.13389928127100992,
             "applied_force_n": [
               14154.737507206482,
               1415.4680043371109,
               24516.591823059596
             ],
             "reaction_force_n": [
-              -14154.73750720606,
-              -1415.4680043446763,
-              -24516.591823062412
+              -14154.737507205402,
+              -1415.4680043338108,
+              -24516.591823055925
             ],
-            "reaction_balance_error": 2.851835164101495e-13,
-            "solve_seconds": 31.326398800003517
+            "reaction_balance_error": 1.7826771376137018e-13,
+            "solve_seconds": 56.32535760000019
           }
         ]
       },
@@ -1980,10 +1980,10 @@
       },
       "cad_volume_mm3": 55028.512138003556,
       "fea": {
-        "head_von_mises_mpa": 189.54527243401634,
-        "factor_of_safety_on_yield": 1.872903478104847,
+        "head_von_mises_mpa": 188.51394662774598,
+        "factor_of_safety_on_yield": 1.8831497952828395,
         "yield_strength_mpa": 355.0,
-        "convergence_change": 0.000894068698053326,
+        "convergence_change": 0.003827443297801341,
         "converged": true,
         "levels": [
           {
@@ -1992,21 +1992,21 @@
             "local_size_mm": 1.8456856839840037,
             "elements": 5530,
             "dofs": 30201,
-            "head_von_mises_mpa": 188.70962264546733,
-            "max_von_mises_mpa": 188.70962264546733,
-            "max_displacement_mm": 0.10865418824015766,
+            "head_von_mises_mpa": 188.40451496794506,
+            "max_von_mises_mpa": 188.40451496794506,
+            "max_displacement_mm": 0.08665881799203225,
             "applied_force_n": [
               14155.081655955317,
               1415.4680043371109,
               24516.393120094355
             ],
             "reaction_force_n": [
-              -14155.081655956546,
-              -1415.4680043370731,
-              -24516.393120106994
+              -14155.081655958045,
+              -1415.4680043345256,
+              -24516.393120108078
             ],
-            "reaction_balance_error": 4.479871288092298e-13,
-            "solve_seconds": 3.84833819999767
+            "reaction_balance_error": 5.01960290239656e-13,
+            "solve_seconds": 7.583672699999852
           },
           {
             "level": 2,
@@ -2014,21 +2014,21 @@
             "local_size_mm": 1.2919799787888024,
             "elements": 13982,
             "dofs": 71370,
-            "head_von_mises_mpa": 189.71473892896358,
-            "max_von_mises_mpa": 189.71473892896358,
-            "max_displacement_mm": 0.10913372538655214,
+            "head_von_mises_mpa": 189.23547306930843,
+            "max_von_mises_mpa": 189.23547306930843,
+            "max_displacement_mm": 0.08703073292351314,
             "applied_force_n": [
               14154.561376121575,
               1415.4680043371109,
               24516.693511802627
             ],
             "reaction_force_n": [
-              -14154.561376113083,
-              -1415.4680043424949,
-              -24516.693511796566
+              -14154.561376110938,
+              -1415.4680043418198,
+              -24516.69351179108
             ],
-            "reaction_balance_error": 4.1422026776556013e-13,
-            "solve_seconds": 11.443658099997265
+            "reaction_balance_error": 5.782693174724256e-13,
+            "solve_seconds": 23.82213230000002
           },
           {
             "level": 3,
@@ -2036,21 +2036,21 @@
             "local_size_mm": 0.9228428419920018,
             "elements": 35940,
             "dofs": 172938,
-            "head_von_mises_mpa": 189.54527243401634,
-            "max_von_mises_mpa": 189.54527243401634,
-            "max_displacement_mm": 0.10967819193481215,
+            "head_von_mises_mpa": 188.51394662774598,
+            "max_von_mises_mpa": 188.51394662774598,
+            "max_displacement_mm": 0.08743036196101305,
             "applied_force_n": [
               14154.661461851912,
               1415.468004337111,
               24516.63572802633
             ],
             "reaction_force_n": [
-              -14154.661461843145,
-              -1415.468004332307,
-              -24516.635728021196
+              -14154.661461844596,
+              -1415.4680043336261,
+              -24516.63572802346
             ],
-            "reaction_balance_error": 3.9648636046594125e-13,
-            "solve_seconds": 23.1554757000049
+            "reaction_balance_error": 3.032995442770273e-13,
+            "solve_seconds": 39.08262139999988
           }
         ]
       },
@@ -2951,10 +2951,10 @@
       },
       "cad_volume_mm3": 56976.55955720808,
       "fea": {
-        "head_von_mises_mpa": 200.43481789901364,
-        "factor_of_safety_on_yield": 1.7711493627761916,
+        "head_von_mises_mpa": 201.28758115310586,
+        "factor_of_safety_on_yield": 1.7636458144428468,
         "yield_strength_mpa": 355.0,
-        "convergence_change": 0.00020070571889243036,
+        "convergence_change": 0.006644170301354264,
         "converged": true,
         "levels": [
           {
@@ -2963,21 +2963,21 @@
             "local_size_mm": 1.8456856839840037,
             "elements": 5011,
             "dofs": 27867,
-            "head_von_mises_mpa": 198.10600798497308,
-            "max_von_mises_mpa": 198.10600798497308,
-            "max_displacement_mm": 0.10450311243857234,
+            "head_von_mises_mpa": 198.325008265487,
+            "max_von_mises_mpa": 198.325008265487,
+            "max_displacement_mm": 0.08407644811246795,
             "applied_force_n": [
               14154.717628885826,
-              1415.4680043371106,
+              1415.4680043371109,
               24516.60329991614
             ],
             "reaction_force_n": [
-              -14154.717628879693,
-              -1415.4680043390813,
-              -24516.60329990687
+              -14154.717628891689,
+              -1415.4680043343203,
+              -24516.603299934843
             ],
-            "reaction_balance_error": 3.9825689187563295e-13,
-            "solve_seconds": 3.54769259999739
+            "reaction_balance_error": 6.984659557218613e-13,
+            "solve_seconds": 6.69712770000001
           },
           {
             "level": 2,
@@ -2985,21 +2985,21 @@
             "local_size_mm": 1.2919799787888024,
             "elements": 12648,
             "dofs": 65556,
-            "head_von_mises_mpa": 200.39458948479614,
-            "max_von_mises_mpa": 200.39458948479614,
-            "max_displacement_mm": 0.10560921049410074,
+            "head_von_mises_mpa": 199.95019218437696,
+            "max_von_mises_mpa": 199.95019218437696,
+            "max_displacement_mm": 0.08496790736183539,
             "applied_force_n": [
               14154.35848177145,
-              1415.4680043371109,
+              1415.4680043371106,
               24516.810648052713
             ],
             "reaction_force_n": [
-              -14154.35848177473,
-              -1415.468004344091,
-              -24516.810648069582
+              -14154.35848177657,
+              -1415.4680043431363,
+              -24516.810648070634
             ],
-            "reaction_balance_error": 6.543947260142005e-13,
-            "solve_seconds": 11.197346899993136
+            "reaction_balance_error": 6.910361452695274e-13,
+            "solve_seconds": 21.537560400000075
           },
           {
             "level": 3,
@@ -3007,21 +3007,21 @@
             "local_size_mm": 0.9228428419920018,
             "elements": 32096,
             "dofs": 155709,
-            "head_von_mises_mpa": 200.43481789901364,
-            "max_von_mises_mpa": 200.43481789901364,
-            "max_displacement_mm": 0.10603171830109945,
+            "head_von_mises_mpa": 201.28758115310586,
+            "max_von_mises_mpa": 201.28758115310586,
+            "max_displacement_mm": 0.0852617808946921,
             "applied_force_n": [
               14154.777056755185,
               1415.4680043371109,
               24516.56898878474
             ],
             "reaction_force_n": [
-              -14154.777056760242,
-              -1415.4680043355227,
-              -24516.568988778647
+              -14154.777056758016,
+              -1415.468004332265,
+              -24516.568988781004
             ],
-            "reaction_balance_error": 2.849292340315219e-13,
-            "solve_seconds": 16.974710000002233
+            "reaction_balance_error": 2.378499437467677e-13,
+            "solve_seconds": 38.562379800000144
           }
         ]
       },
@@ -3037,5 +3037,5 @@
     "engineering_log": "engineering-log.json",
     "designs_evaluated": "designs-evaluated.csv"
   },
-  "seconds": 144.7683818000005
+  "seconds": 291.9596815
 }

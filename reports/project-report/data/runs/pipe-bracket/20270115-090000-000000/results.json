@@ -1,7 +1,7 @@
 {
   "nemo_results_version": 2,
   "part": "pipe-bracket",
-  "created_at": "2026-11-17T14:29:54+00:00",
+  "created_at": "2026-11-22T05:58:54+00:00",
   "job": {
     "pipe_nps": "4",
     "schedule": "STD",
@@ -1191,10 +1191,10 @@
       },
       "cad_volume_mm3": 126852.74351968922,
       "fea": {
-        "head_von_mises_mpa": 34.648097766746325,
-        "factor_of_safety_on_yield": 6.782479130082066,
+        "head_von_mises_mpa": 34.39479697821678,
+        "factor_of_safety_on_yield": 6.8324287580133785,
         "yield_strength_mpa": 235.0,
-        "convergence_change": 0.005416473839665407,
+        "convergence_change": 0.007042799309546171,
         "converged": true,
         "region": "away from the bulkhead face (x \u2265 9 mm)",
         "levels": [
@@ -1204,8 +1204,8 @@
             "local_size_mm": 4.319999999999999,
             "elements": 4033,
             "dofs": 25266,
-            "head_von_mises_mpa": 34.914593743149155,
-            "max_von_mises_mpa": 36.18615329927195,
+            "head_von_mises_mpa": 34.71138387760574,
+            "max_von_mises_mpa": 35.59462226825658,
             "max_displacement_mm": 0.05366406104599715,
             "applied_force_n": [
               720.6066571165819,
@@ -1218,7 +1218,7 @@
               1801.5166427922136
             ],
             "reaction_balance_error": 5.34184433347865e-13,
-            "solve_seconds": 2.0117394999979297
+            "solve_seconds": 5.712031899999829
           },
           {
             "level": 2,
@@ -1226,8 +1226,8 @@
             "local_size_mm": 3.0239999999999996,
             "elements": 7698,
             "dofs": 47280,
-            "head_von_mises_mpa": 34.835768281894076,
-            "max_von_mises_mpa": 41.5394265088953,
+            "head_von_mises_mpa": 34.63703263062695,
+            "max_von_mises_mpa": 40.85817727693119,
             "max_displacement_mm": 0.053103486783787436,
             "applied_force_n": [
               720.6066571165817,
@@ -1240,7 +1240,7 @@
               1801.5166427924464
             ],
             "reaction_balance_error": 5.672629380710076e-13,
-            "solve_seconds": 5.297113799999352
+            "solve_seconds": 13.825604800000065
           },
           {
             "level": 3,
@@ -1248,8 +1248,8 @@
             "local_size_mm": 2.1599999999999997,
             "elements": 16536,
             "dofs": 97380,
-            "head_von_mises_mpa": 34.648097766746325,
-            "max_von_mises_mpa": 47.5855153615273,
+            "head_von_mises_mpa": 34.39479697821678,
+            "max_von_mises_mpa": 46.8276375863004,
             "max_displacement_mm": 0.053378844504036765,
             "applied_force_n": [
               720.6066571165817,
@@ -1262,7 +1262,7 @@
               1801.5166427920342
             ],
             "reaction_balance_error": 2.932761930961353e-13,
-            "solve_seconds": 16.474852499995905
+            "solve_seconds": 39.07646829999999
           }
         ],
         "hand_stress_mpa": 37.531596724821966,
@@ -1281,5 +1281,5 @@
     "engineering_log": "engineering-log.json",
     "designs_evaluated": "designs-evaluated.csv"
   },
-  "seconds": 27.60808829999587
+  "seconds": 67.69998680000003
 }

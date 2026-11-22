@@ -1,4 +1,4 @@
-# Writing brief for the NEMO 2 project report
+# Writing brief for the NEMO project report
 
 This file is shared by everyone writing chapters of the report, so the chapters agree.
 
@@ -9,9 +9,15 @@ This file is shared by everyone writing chapters of the report, so the chapters 
   `references.bib` (`\bibliographystyle{IEEEtran}`).
 - Authors: Amina Ahmed Bwana (ENM241-0087/2022) and Mboje Abdullah (ENM241-0088/2022).
   Submission March 2027. Write as "this project" or "we".
-- Title: *NEMO 2: A Rule-Based, Verified Design Tool for Marine Steelwork: Lifting Padeyes,
+- Audience: final-year BSc Marine Engineering defence panel (marine engineering lecturers). Let core
+  marine engineering principles (shipboard load paths, marine codes, ship-motion accelerations,
+  machinery-space vibration, foil hydrodynamics and cavitation, and shipyard plate stock) anchor the
+  discussion naturally without overstatement.
+- Title: *NEMO: A Rule-Based, Verified Design Tool for Marine Steelwork: Lifting Padeyes,
   Pipe Support Brackets and Stabilizer Fins*.
-- The macro `\NEMO{}` prints the name. Use `\code{...}` for file and function names.
+- The macro `\NEMO{}` prints the name. Treat the project as an independent engineering work (do not
+  refer to it as "NEMO 2" or "the second phase"); earlier prototype trials may be cited briefly only
+  as preliminary testing context. Use `\code{...}` for file and function names.
 
 ## Chapter plan and labels (use these exact labels for cross-references)
 
@@ -27,38 +33,41 @@ This file is shared by everyone writing chapters of the report, so the chapters 
 
 ## Aim and objectives (use exactly these, in this order)
 
-Aim: to develop and verify a desktop design tool that sizes three marine structural details from a
-plain description of the job, checks each design against published design rules, confirms it with a
-built-in finite element analysis, and issues a traceable calculation package that an engineer without
-programming knowledge can produce and review.
+Aim: to develop and verify a rule-based marine structural design tool (\NEMO{}) that sizes lifting
+padeyes, machinery-space pipe support brackets and roll-stabilizer fin internal structures from
+available shipyard plate stock, confirms each design through automated three-dimensional finite
+element analysis, and issues a traceable engineering calculation package and fabrication files for
+review.
 
 Objectives:
 
-1. Implement rule-based check models, each with its hand-calculation working: ASME BTH-1 for the
-   lifting padeye, AISC 360-16 with a pipe-span vibration check for the pipe support bracket, and
-   IACS UR S10 with an independent foil load model for the stabilizer fin.
-2. Develop a stock-aware sizing method that searches the plate thicknesses a workshop holds, sizes
-   the continuous dimensions with a bounded Nelder-Mead search, rounds to buildable sizes and offers
-   three designs at different reserve margins.
-3. Build an open-source geometry and stress-analysis pipeline (build123d on OpenCASCADE, Gmsh,
-   scikit-fem) that meshes every design at three refinements and checks force balance and mesh
-   convergence automatically.
-4. Verify the engine against hand calculations, closed-form theory and published solutions through a
-   reproducible benchmark suite and automated tests.
-5. Deliver an interface and outputs that need no programming: a local browser application with a live
-   3D preview and a live record of the engineering steps, a PDF calculation package, STEP and DXF
-   files, and an optional link to Autodesk Fusion.
-6. Apply the tool to one case study for each part, examine how the designs respond to the main inputs,
-   and state the limits of the results.
+1. Formulate and implement code-based structural check and stock-aware sizing models for three
+   shipboard details (lifting padeyes to ASME BTH-1, pipe support brackets to AISC 360-16 with
+   machinery-space pipe-span vibration screening, and roll-stabilizer fin internal structures to
+   IACS UR S10 with independent foil-load and cavitation models) that search available shipyard plate
+   thicknesses and deliver buildable designs with full hand-calculation working, STEP and DXF outputs,
+   and a reviewable PDF calculation package through a local desktop interface.
+2. Establish an automated open-source geometry and quadratic tetrahedral finite element pipeline
+   (build123d on OpenCASCADE, Gmsh, scikit-fem and PyAMG) with three-level mesh refinement and
+   automatic force and moment equilibrium checks, and verify the structural, geometric and
+   hydrodynamic solvers against hand calculations, closed-form theory, published reference solutions
+   and automated regression tests.
+3. Evaluate the verified tool across representative vessel case studies and operating-envelope
+   parameter sweeps (load, sling inclination and obliquity, pipe nominal size and support spacing,
+   ship speed and stock bearing arrangement) to determine the structural, catalogue, vibration and
+   hydrodynamic limits that govern each marine detail in practice.
 
 Research questions:
 
-1. Can one tool cover three structurally different marine details while keeping every check traceable
-   to a named rule or a stated practice?
-2. How closely do the built-in stress solver, geometry kernel and foil solver agree with closed-form and
-   published reference results?
-3. What governs each part in practice, and what does that imply for how such details are designed?
-4. Can a non-programmer run the full workflow, from job description to calculation package, unaided?
+1. How can rule-based structural checks, shipyard plate-stock constraints and traceable
+   hand-calculation working be unified across structurally distinct marine details without obscuring
+   code provisions or engineering assumptions?
+2. How closely do the automated solid-geometry, quadratic finite element and potential-flow foil
+   solvers agree with hand calculations, closed-form elasticity and beam theory, and published
+   reference data?
+3. Across realistic shipboard operating envelopes, which structural, catalogue, vibration and
+   hydrodynamic limits govern lifting padeyes, machinery-space pipe brackets and stabilizer fins in
+   practice?
 
 ## What the project is (short version; full detail in the sources below)
 

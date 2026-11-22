@@ -1,0 +1,40 @@
+{
+  "skill_name": "nemo-report-updates",
+  "evals": [
+    {
+      "id": 1,
+      "category": "positive",
+      "prompt": "We just changed the padeye FEA solver and added 4 new pytest tests. Please update the NEMO project report in reports/project-report/ with the new numbers, regenerate affected figures, and recompile main.pdf.",
+      "expected_skill": "nemo-report-updates",
+      "expected_behavior": "Runs make_report_data.py, dump_facts.py, and make_figures.py; updates affected .tex chapters using data/facts.md; compiles main.pdf via MiKTeX; runs scripts/verify_report.py to exit 0; visually inspects modified PDF pages."
+    },
+    {
+      "id": 2,
+      "category": "positive",
+      "prompt": "Two screenshots in Chapter 4 of the project report look too small side-by-side and Figure 4.2 has an overlapping legend. Fix them and rebuild the PDF.",
+      "expected_skill": "nemo-report-updates",
+      "expected_behavior": "Fixes legend placement in tools/make_figures.py and regenerates the plot; converts all app-*.png figures to standalone width=\\textwidth figures; recompiles main.pdf; passes scripts/verify_report.py and visually checks the rendered pages."
+    },
+    {
+      "id": 3,
+      "category": "positive",
+      "prompt": "Add a new citation to Chapter 2 of the NEMO report and tighten the General objective wording in Chapter 1 without breaking any cross-references or JKUAT formatting.",
+      "expected_skill": "nemo-report-updates",
+      "expected_behavior": "Verifies the citation source before editing references.bib; respects WRITING-BRIEF.md prose rules (no em-dashes, no banned words, standalone \\NEMO{} framing, 1 General + 3 Specific objectives); runs pdflatex + bibtex + pdflatex x2; passes scripts/verify_report.py."
+    },
+    {
+      "id": 4,
+      "category": "cross_skill_teach",
+      "prompt": "/teach I want to deeply learn how the Hess-Smith panel method and cavitation numbers work over a few study sessions.",
+      "expected_skill": "teach",
+      "expected_behavior": "Activates teach (not nemo-report-updates) and sets up a stateful learning workspace inside learning/<topic>/ without touching reports/project-report/."
+    },
+    {
+      "id": 5,
+      "category": "negative",
+      "prompt": "Fix a floating-point rounding bug in engine/src/nemo/parts/bracket/sizing.py and run pytest.",
+      "expected_skill": "none",
+      "expected_behavior": "Does not activate nemo-report-updates or teach because the user only asked for an engine code fix and test run, not a report update or guided teaching session."
+    }
+  ]
+}

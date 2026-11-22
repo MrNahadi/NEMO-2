@@ -33,3 +33,6 @@ Thumbs.db
 
 # Local design-system reference assets
 design-system/
+
+# Local /teach learning workspaces
+learning/

@@ -265,7 +265,7 @@ def padeye_sweep() -> None:
 
 
 def panel_validation() -> None:
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(7.0, 2.5))
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(7.0, 2.8))
     xs, ys = circle_contour(160)
     r = panel_solve(xs, ys, 0.0)
     theta = np.arctan2(0.5 * (ys[:-1] + ys[1:]), 0.5 * (xs[:-1] + xs[1:]) - 0.5)
@@ -275,7 +275,7 @@ def panel_validation() -> None:
     a1.plot(np.degrees(tt), 1 - 4 * np.sin(tt) ** 2, "--", color=ACCENT, linewidth=0.9, label="Exact, $1 - 4\\sin^2\\theta$")
     a1.set_xlabel("Angle round the circle (°)", fontsize=7)
     a1.set_ylabel("$C_p$", fontsize=7)
-    a1.legend(fontsize=6.5, frameon=False)
+    a1.legend(fontsize=6.5, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=2, handlelength=1.6, columnspacing=1.0)
     _clean(a1)
     t = np.linspace(0.08, 0.25, 9)
     a2.plot(t * 100, [section_lift_slope(float(v)) for v in t], "-o", color=INK, markersize=3, label="Panel method")
@@ -284,7 +284,7 @@ def panel_validation() -> None:
     a2.text(8, 2 * math.pi, " thin aerofoil, 2π", fontsize=6, color=MUTED, va="bottom")
     a2.set_xlabel("Section thickness t/c (%)", fontsize=7)
     a2.set_ylabel("Lift slope (per rad)", fontsize=7)
-    a2.legend(fontsize=6.5, frameon=False)
+    a2.legend(fontsize=6.5, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=2, handlelength=1.6, columnspacing=1.0)
     _clean(a2)
     fig.tight_layout()
     save(fig, "panel-validation.png")

@@ -1,0 +1,179 @@
+/* Bitfield — generated from tokens.json */
+:root, [data-theme="ink"] {
+  --ground: #1b211f; /* Page, slide and screen background. Ink is a green-tinted black, Paper is warm cream. Never pure black or white. */
+  --desk: #303331; /* The surface panels sit on: slide letterbox, the area around a document page, a canvas behind collaged cards. In Paper it doubles as the tan card colour. Only `ink` text reads on it. */
+  --panel: #232927; /* Raised surfaces on ground: cards, code blocks, inputs, glyph tiles. */
+  --panel-2: #2a312f; /* Hover and pressed states of panel, open glyph tiles, a second layer inside a panel. */
+  --chip: #3f4543; /* Unlit pixels: empty meter cells, matrix background, arcs. Decorative only; never text. */
+  --line: #3a403e; /* Hairline dividers between rows and sections. Decorative: does not meet 3:1, so never the only edge of a control. */
+  --line-strong: #777c7a; /* Control borders, tab outlines, table header rules, drawn diagram strokes. At least 3:1 on ground, panel and panel-2 in both themes. */
+  --ink: #f0ebe6; /* Primary text and glyphs on ground, desk, panel and panel-2 (11:1 or better in both themes). */
+  --ink-muted: #949997; /* Secondary text, captions, mono labels, the second line of a headline. On ground, panel and panel-2 only; not on desk. */
+  --ink-faint: #6e7371; /* Decorative pixels and dots in fields (dither terrain, scattered dots). Never text or meaningful marks. */
+  --blue: #2359f6; /* Signal fill: section slabs, the left half of a split slide, shard polygons, the signal button. Text on it is `on-blue`. */
+  --green: #36ff64; /* Signal fill and the system's lead colour: primary button, section slabs, filled glyph tiles, live pixels. Text on it is `on-signal`. */
+  --orange: #eb6505; /* Signal fill: scatter fields, risk states, a filled glyph tile. Text on it is `on-signal`. */
+  --yellow: #f0f006; /* Signal fill, used sparingly: one glyph tile, a highlight cell, watch states. Text on it is `on-signal`. */
+  --lilac: #d88bf9; /* Collage-only fill: the halftone card. Never a state, never a button. */
+  --on-signal: #1b211f; /* Text and glyphs on green, orange, yellow and lilac fills (4.9:1 or better). */
+  --on-blue: #f0ebe6; /* Text and glyphs on a blue fill (4.6:1). */
+  --blue-wash: #2359f640; /* Translucent blue region in diagrams (the lower band of a mesh), selected table rows. */
+  --green-wash: #36ff6424; /* Translucent green highlight: a marked code line, a hovered row in Ink. */
+  --blue-text: #6f93ff; /* Blue as text or a meaningful mark (pip, meter cell, open glyph) on ground, panel and panel-2. */
+  --green-text: var(--green); /* Green as text or a meaningful mark on ground, panel and panel-2. In Ink it is the signal green itself. */
+  --orange-text: #ff7a1f; /* Orange as text or a meaningful mark on ground, panel and panel-2: error messages, risk pips. */
+  --yellow-text: var(--yellow); /* Yellow as text or a meaningful mark on ground, panel and panel-2. */
+  --lilac-text: var(--lilac); /* Lilac as a mark on ground, panel and panel-2, for the rare chart that needs a fifth series. */
+  --focus: var(--green); /* Keyboard focus colour; the ring itself is the `focus-ring` shadow. */
+  --link: var(--green-text); /* Inline links in running text, always underlined. */
+  --ok: var(--green); /* Status fill for done, passing, fixed. Always paired with a word (a Tag), never colour alone. */
+  --watch: var(--yellow); /* Status fill for pending, needs a look. Always paired with a word. */
+  --risk: var(--orange); /* Status fill for failing, at risk, error. Always paired with a word. */
+  --info: var(--blue); /* Status fill for neutral information and in-progress. Always paired with a word. */
+  --focus-ring: 0 0 0 2px #1b211f, 0 0 0 4px #36ff64; /* Keyboard focus on every interactive element: a 2px ground gap, then 2px of solid focus colour. */
+}
+[data-theme="paper"] {
+  --ground: #f0ebe6;
+  --desk: #d8cfc6;
+  --panel: #e6e0d9;
+  --panel-2: #dcd5cd;
+  --chip: #c9c0b6;
+  --line: #cfc6bc;
+  --line-strong: #6e6a66;
+  --ink: #1b211f;
+  --ink-muted: #555957;
+  --ink-faint: #a39b92;
+  --blue-text: #1a44cc;
+  --green-text: #08602a;
+  --orange-text: #9a3d00;
+  --yellow-text: #6b5d00;
+  --lilac-text: #7b2fa0;
+  --focus: var(--blue-text);
+  --link: var(--blue-text);
+  --ok: var(--green);
+  --watch: var(--yellow);
+  --risk: var(--orange);
+  --info: var(--blue);
+  --focus-ring: 0 0 0 2px #f0ebe6, 0 0 0 4px #1a44cc;
+}
+:root {
+  --space-1: 4px; /* Pip-to-label gap, tag inner padding. */
+  --space-2: 8px; /* Inside controls, between a label and its field. */
+  --space-3: 12px; /* Between related rows, tab padding. */
+  --space-4: 16px; /* Panel padding (compact), button horizontal padding. */
+  --space-6: 24px; /* Panel padding, grid gutters. */
+  --space-8: 32px; /* Between groups inside a section. */
+  --space-12: 48px; /* Between sections on a screen. */
+  --space-16: 64px; /* Web page section rhythm. */
+  --space-24: 96px; /* Slide margin at 1920 wide; hero padding. */
+  --radius-0: 0; /* Panels, cards, slides, glyph tiles, images. The default. */
+  --radius-ctl: 2px; /* Buttons, inputs, tags. */
+  --radius-pixel: 2px; /* One pixel unit inside a glyph or matrix (2px on an 8px cell). */
+  --radius-dot: 50%; /* Dots in halftone and scatter fields, the only round things. */
+  --pixel-sm: 4px; /* Dither and noise cells. */
+  --pixel: 8px; /* Glyph cells, matrix cells, dot pitch in UI. */
+  --pixel-lg: 16px; /* Meter cells at display size, field pitch on slides. */
+  --dur-step: 90ms; /* One frame of a stepped pixel animation. */
+  --dur-fast: 160ms; /* Hover and press feedback. */
+  --dur-base: 320ms; /* Panels sliding in, mask reveals. */
+  --dur-push: 560ms; /* Scene-to-scene push between slides or views. */
+  --ease-push: cubic-bezier(0.7, 0, 0.2, 1); /* Push transitions: leaves fast, lands hard. */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); /* Things arriving: panels, masks, toasts. */
+  --ease-step: steps(4, end); /* Pixel fields lighting up cell by cell. */
+  --font-sans: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --text-display-xl: 400 96px/88px var(--font-sans); /* One per view: a web hero or a slide cover headline. */
+  --text-display: 400 64px/60px var(--font-sans); /* Section titles, statement slides, document cover titles. */
+  --text-headline: 400 40px/42px var(--font-sans); /* Page and slide titles. */
+  --text-title: 400 28px/32px var(--font-sans); /* Card titles, document H2, app screen titles. */
+  --text-subtitle: 400 20px/28px var(--font-sans); /* Lead paragraphs and the muted second line under a headline. */
+  --text-body: 400 16px/24px var(--font-sans); /* Running text in apps and on the web. */
+  --text-body-sm: 400 14px/20px var(--font-sans); /* Dense UI, helper text, table cells. */
+  --text-label-lg: 400 14px/18px var(--font-mono); /* Glyph tile captions, navigation, button text. */
+  --text-label: 400 12px/16px var(--font-mono); /* Kickers, tabs, tags, table headers, metadata. */
+  --text-code: 400 13px/20px var(--font-mono); /* Code blocks, readings, IDs. */
+}
+.display-xl {
+  font-family: var(--font-sans);
+  font-size: 96px;
+  line-height: 88px;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+.display {
+  font-family: var(--font-sans);
+  font-size: 64px;
+  line-height: 60px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+.headline {
+  font-family: var(--font-sans);
+  font-size: 40px;
+  line-height: 42px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.title {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+.subtitle {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+.body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.body-sm {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.label-lg {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+.code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

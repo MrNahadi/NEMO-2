@@ -33,6 +33,10 @@ Thumbs.db
 
 # Local design-system reference assets
 design-system/
+/Bitfield/
+
+# Ephemeral presentation audit artifacts
+reports/panel-presentation/audit/
 
 # Local /teach learning workspaces
 learning/
